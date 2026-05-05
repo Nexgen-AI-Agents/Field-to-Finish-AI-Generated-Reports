@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexGen FTF — 2026 YTD Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--blue:#1B3A9B;--navy:#0F2468;--gold:#C9A84C;--gold-lt:#F5E6C0;--bg:#F0F4FF;--white:#fff;--gray:#6B7280;--light:#E8EDF8;--red:#DC2626;--green:#16A34A;--amber:#D97706;--red-lt:#FEE2E2;--green-lt:#DCFCE7;--amber-lt:#FEF3C7;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1F2937;font-size:14px;}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#2A52C9 100%);padding:14px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.logo-wrap{background:var(--white);border-radius:8px;padding:5px 10px;display:flex;align-items:center;}
+.logo-wrap img{height:40px;max-width:140px;object-fit:contain;}
+.logo-text{font-size:18px;font-weight:800;color:var(--blue);}
+.hdr-info{color:var(--white);}
+.hdr-info h1{font-size:20px;font-weight:700;}
+.hdr-info p{font-size:12px;color:var(--gold-lt);margin-top:2px;}
+.hdr-right{margin-left:auto;text-align:right;color:var(--gold-lt);font-size:12px;}
+nav{background:var(--navy);display:flex;flex-wrap:wrap;gap:2px;padding:0 16px;border-bottom:3px solid var(--gold);}
+nav button{background:none;border:none;color:#A5B4D4;padding:11px 16px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;}
+nav button:hover{color:var(--white);background:rgba(255,255,255,.07);}
+nav button.active{color:var(--gold);border-bottom-color:var(--gold);}
+.main{padding:18px 20px;max-width:1400px;margin:0 auto;}
+.tab{display:none;} .tab.active{display:block;}
+.sec-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--gold);}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px;}
+.card{background:var(--white);border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-top:4px solid var(--blue);text-align:center;}
+.card.g{border-top-color:var(--green);} .card.r{border-top-color:var(--red);} .card.a{border-top-color:var(--amber);} .card.gld{border-top-color:var(--gold);}
+.cv{font-size:24px;font-weight:800;color:var(--navy);} .cl{font-size:10px;color:var(--gray);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+.cs{font-size:11px;margin-top:5px;font-weight:600;}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;margin-bottom:18px;}
+.chart-wrap{background:var(--white);border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.chart-wrap canvas{max-height:300px;}
+.tbl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;background:var(--white);}
+thead tr{background:var(--navy);color:var(--white);}
+thead th{padding:9px 11px;text-align:left;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+thead th:hover{background:var(--blue);}
+thead th.asc::after{content:" ▲";} thead th.desc::after{content:" ▼";}
+tbody tr{border-bottom:1px solid #E5E9F5;} tbody tr:hover{background:#F5F8FF;}
+tbody td{padding:8px 11px;font-size:12px;}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;}
+.br{background:var(--red-lt);color:#991B1B;} .bg{background:var(--green-lt);color:#166534;}
+.ba{background:var(--amber-lt);color:#92400E;} .bb{background:#DBEAFE;color:#1E40AF;}
+.bgy{background:#F3F4F6;color:#374151;}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:10px;border-left:4px solid;}
+.al-r{background:#FFF1F1;border-color:var(--red);color:#7F1D1D;}
+.al-g{background:#F0FFF4;border-color:var(--green);color:#166534;}
+.al-a{background:#FFFBEB;border-color:var(--amber);color:#78350F;}
+.al-b{background:#EFF6FF;border-color:var(--blue);color:#1E3A8A;}
+.search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.si{padding:7px 13px;border:1px solid #C9D4F0;border-radius:20px;font-size:12px;width:230px;outline:none;}
+.si:focus{border-color:var(--blue);}
+.fs{padding:7px 13px;border:1px solid #C9D4F0;border-radius:20px;font-size:12px;outline:none;background:var(--white);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--white);border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.panel h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #E5E9F5;}
+.pb{background:#E5E9F5;border-radius:4px;height:8px;overflow:hidden;margin-top:3px;}
+.pb-fill{height:100%;border-radius:4px;}
+.vs-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F0F2F8;font-size:12px;}
+.vs-row:last-child{border:none;}
+.vs-lbl{width:120px;color:var(--gray);font-weight:600;}
+.vs-25{width:80px;text-align:right;font-weight:700;}
+.vs-arrow{width:30px;text-align:center;font-size:16px;}
+.vs-26{width:80px;font-weight:700;}
+.vs-delta{flex:1;font-weight:700;font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-wrap">
+    <img src="../nexgen_logo.png" alt="NexGen" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <span class="logo-text" style="display:none">NexGen</span>
+  </div>
+  <div class="hdr-info">
+    <h1>FTF 2026 YTD — Operations Dashboard</h1>
+    <p>NexGen Surveying &nbsp;|&nbsp; January 1 – May 5, 2026 &nbsp;|&nbsp; 6,397 Orders</p>
+  </div>
+  <div class="hdr-right">
+    <div style="color:var(--gold);font-weight:700;">2026 YTD</div>
+    <div>Generated: May 5, 2026</div>
+  </div>
+</div>
+
+<nav>
+  <button class="active" onclick="showTab('t-rc')">Report Card</button>
+  <button onclick="showTab('t-flags')">Flags</button>
+  <button onclick="showTab('t-monthly')">Monthly Scoreboard</button>
+  <button onclick="showTab('t-pipeline')">Pipeline Bottlenecks</button>
+  <button onclick="showTab('t-crews')">Crew Report Cards</button>
+  <button onclick="showTab('t-drafters')">Drafter Report Cards</button>
+  <button onclick="showTab('t-county')">County Performance</button>
+  <button onclick="showTab('t-open')">Open Orders (843)</button>
+  <button onclick="showTab('t-action')">30-Day Action Plan</button>
+</nav>
+
+<div class="main">
+
+<!-- REPORT CARD -->
+<div id="t-rc" class="tab active">
+  <div class="sec-title">Report Card — 2026 YTD (Jan–May 5)</div>
+  <div class="alert al-r"><strong>GO-BACK RATE AT 15.5%</strong> — nearly 3× the 2025 full-year average of 6.3%. This is the defining crisis of 2026. Every 7th job requires a second visit.</div>
+
+  <div class="cards">
+    <div class="card"><div class="cv">6,397</div><div class="cl">Total Orders YTD</div></div>
+    <div class="card a"><div class="cv" style="color:var(--amber)">4,022</div><div class="cl">Completed</div><div class="cs" style="color:var(--amber)">62.9% ↓</div></div>
+    <div class="card g"><div class="cv" style="color:var(--green)">1,682</div><div class="cl">Cancelled</div><div class="cs" style="color:var(--green)">26.3% ✓ better</div></div>
+    <div class="card r"><div class="cv" style="color:var(--red)">991</div><div class="cl">Go-Backs</div><div class="cs" style="color:var(--red)">15.5% ↑↑↑</div></div>
+    <div class="card r"><div class="cv" style="color:var(--red)">843</div><div class="cl">Open Orders</div><div class="cs" style="color:var(--red)">+121% vs YE2025</div></div>
+    <div class="card gld"><div class="cv" style="color:var(--amber)">6,335</div><div class="cl">Unsettled Access</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="panel">
+      <h3>YTD vs 2025 (Same Period Jan–Apr)</h3>
+      <div class="vs-row"><div class="vs-lbl">Total Orders</div><div class="vs-25">7,539</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--red)">6,397</div><div class="vs-delta" style="color:var(--red)">-1,142 (-15%)</div></div>
+      <div class="vs-row"><div class="vs-lbl">Completed</div><div class="vs-25">5,239</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--amber)">4,022</div><div class="vs-delta" style="color:var(--red)">-1,217 (-23%)</div></div>
+      <div class="vs-row"><div class="vs-lbl">Comp Rate</div><div class="vs-25">69.5%</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--amber)">62.9%</div><div class="vs-delta" style="color:var(--red)">-6.6 pts</div></div>
+      <div class="vs-row"><div class="vs-lbl">Go-Backs</div><div class="vs-25">410</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--red)">991</div><div class="vs-delta" style="color:var(--red)">+581 (+141%) !</div></div>
+      <div class="vs-row"><div class="vs-lbl">GB Rate</div><div class="vs-25" style="color:var(--green)">5.4%</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--red)">15.5%</div><div class="vs-delta" style="color:var(--red)">+10.1 pts TRIPLED</div></div>
+      <div class="vs-row"><div class="vs-lbl">Cancelled</div><div class="vs-25">2,191</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--green)">1,682</div><div class="vs-delta" style="color:var(--green)">-509 (-23%) ✓</div></div>
+      <div class="vs-row"><div class="vs-lbl">Cancel Rate</div><div class="vs-25">29.1%</div><div class="vs-arrow">→</div><div class="vs-26" style="color:var(--green)">26.3%</div><div class="vs-delta" style="color:var(--green)">-2.8 pts ✓</div></div>
+    </div>
+    <div class="panel">
+      <h3>Overall Grade: C (62.9% completion, 15.5% go-back)</h3>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr style="background:var(--light)"><td style="padding:6px;font-weight:700">Metric</td><td style="padding:6px;font-weight:700">2026 Value</td><td style="padding:6px;font-weight:700">vs 2025</td><td style="padding:6px;font-weight:700">Grade</td></tr>
+        <tr><td style="padding:5px">Completion Rate</td><td>62.9%</td><td style="color:var(--red)">-6.6 pts</td><td><span class="badge ba">C</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:5px">Go-Back Rate</td><td>15.5%</td><td style="color:var(--red)">+10.1 pts</td><td><span class="badge br">F</span></td></tr>
+        <tr><td style="padding:5px">Cancel Rate</td><td>26.3%</td><td style="color:var(--green)">-2.8 pts</td><td><span class="badge bb">B-</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:5px">Open Orders</td><td>843 (13.2%)</td><td style="color:var(--red)">+462</td><td><span class="badge br">D</span></td></tr>
+        <tr><td style="padding:5px">Order Volume</td><td>6,397</td><td style="color:var(--red)">-15%</td><td><span class="badge ba">C</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:5px">Best Month YTD</td><td>Apr (52.5% comp)</td><td>-</td><td><span class="badge br">D</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-wrap"><canvas id="c-doughnut"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-monthly-bar"></canvas></div>
+  </div>
+</div>
+
+<!-- FLAGS -->
+<div id="t-flags" class="tab">
+  <div class="sec-title">Green Flags &amp; Red Flags — 2026 YTD</div>
+  <div class="two-col">
+    <div>
+      <div class="sec-title" style="color:var(--green);border-bottom-color:var(--green)">✅ GREEN FLAGS</div>
+      <div class="alert al-g"><strong>Cancellation Rate Improved</strong><br>26.3% vs 29.1% in 2025 — 2.8 pts better. Fewer orders are being cancelled, suggesting better property access coordination in 2026.</div>
+      <div class="alert al-g"><strong>Johnv — Biggest Crew Improvement</strong><br>Go-back rate dropped from 10.7% (2025) to 3.4% (2026). Best crew improvement this year. Recognize and study what changed.</div>
+      <div class="alert al-g"><strong>Marcos (Coordinator) — 98.9% Completion</strong><br>On 90 assigned orders, Marcos achieved 98.9% completion. Model coordinator — replicate his process across the team.</div>
+      <div class="alert al-g"><strong>April Volume Recovery</strong><br>April 2026: 1,818 orders — strongest month of 2026 YTD. Volume trending back up after Jan-Feb dip.</div>
+    </div>
+    <div>
+      <div class="sec-title" style="color:var(--red);border-bottom-color:var(--red)">🚩 RED FLAGS</div>
+      <div class="alert al-r"><strong>Go-Back Rate TRIPLED</strong><br>5.4% → 15.5%. 581 extra jobs redone in just 4 months vs same period 2025. Primary cost driver and client trust risk for 2026.</div>
+      <div class="alert al-r"><strong>Caitlyn (Drafter) — 70.6% Go-Back Rate</strong><br>22.2% in 2025 → 70.6% in 2026. Nearly 3 in 4 jobs drafted by Caitlyn require a revisit. STOP new assignments immediately.</div>
+      <div class="alert al-r"><strong>Oleg (Drafter) — Critical Volume Risk</strong><br>Handles 65% of all drafting. Go-back rate went from 5.9% to 23.2%. With this volume, his decline alone accounts for most of the system-wide go-back spike.</div>
+      <div class="alert al-r"><strong>Open Orders Surging</strong><br>843 open orders vs 381 at year-end 2025. Up 121%. At current pace, year-end 2026 will exceed 1,500+ open orders.</div>
+      <div class="alert al-a"><strong>Order Volume Down 15%</strong><br>6,397 vs 7,539 in 2025 same period. Revenue risk if trend continues through H2 2026.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY -->
+<div id="t-monthly" class="tab">
+  <div class="sec-title">Monthly Scoreboard — 2026 YTD (Jan–Apr)</div>
+  <div class="charts-grid">
+    <div class="chart-wrap"><canvas id="c-monthly-comp"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-monthly-gb"></canvas></div>
+  </div>
+  <div class="tbl-wrap">
+    <table id="tbl-monthly">
+      <thead><tr>
+        <th onclick="sort('tbl-monthly',0)">Month</th>
+        <th onclick="sort('tbl-monthly',1)">Orders</th>
+        <th onclick="sort('tbl-monthly',2)">Completed</th>
+        <th onclick="sort('tbl-monthly',3)">Cancelled</th>
+        <th onclick="sort('tbl-monthly',4)">Go-Backs</th>
+        <th onclick="sort('tbl-monthly',5)">Comp %</th>
+        <th onclick="sort('tbl-monthly',6)">Cancel %</th>
+        <th onclick="sort('tbl-monthly',7)">GB %</th>
+        <th>vs 2025 GB%</th>
+        <th>Grade</th>
+      </tr></thead>
+      <tbody id="tb-monthly"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div id="t-pipeline" class="tab">
+  <div class="sec-title">Pipeline Bottlenecks — 2026 YTD</div>
+  <div class="alert al-r"><strong>THREE CRITICAL BOTTLENECKS</strong> are compounding in 2026: go-back rework queue, access call backlog, and open order backlog — all simultaneously worse than 2025.</div>
+  <div style="display:grid;gap:12px;margin-top:14px">
+    <div class="panel">
+      <h3>🔴 Go-Back Rework Queue — 991 jobs (15.5% rate)</h3>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:8px">991 jobs required a second visit. Each rework adds ~14 days and consumes 2× crew resources. At 15.5%, this is consuming ~15% of all crew capacity on rework alone.</p>
+      <div class="pb"><div class="pb-fill" style="width:15.5%;background:var(--red)"></div></div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">15.5% rework rate vs 5.4% in 2025 same period (target: &lt;5%)</div>
+      <div class="alert al-r" style="margin-top:10px"><strong>Root cause:</strong> Oleg's drafting quality degraded from 5.9% to 23.2% GB. Caitlyn at 70.6%. Drafter quality is driving crew rework.</div>
+    </div>
+    <div class="panel">
+      <h3>🟡 Access Call Backlog — 6,335 unsettled</h3>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:8px">6,335 orders cannot be scheduled until property access is confirmed. This directly drives cancellations and open order aging.</p>
+      <div class="pb"><div class="pb-fill" style="width:62%;background:var(--amber)"></div></div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">~62% of YTD orders have unresolved access status</div>
+    </div>
+    <div class="panel">
+      <h3>🔴 Open Order Backlog — 843 orders</h3>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:8px">843 open orders as of May 5. At current intake rate of ~25 new opens per week without equal closure, year-end will exceed 1,500.</p>
+      <div class="pb"><div class="pb-fill" style="width:13%;background:var(--red)"></div></div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">13.2% of 2026 YTD orders still open</div>
+    </div>
+    <div class="panel">
+      <h3>🟡 Volume Decline — -15% vs 2025</h3>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:8px">1,142 fewer orders processed Jan-Apr 2026 vs same period 2025. Combined with higher go-back rate, revenue impact is significant.</p>
+      <div class="pb"><div class="pb-fill" style="width:84.8%;background:var(--blue)"></div></div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">6,397 of 7,539 expected (84.8% of 2025 pace)</div>
+    </div>
+  </div>
+</div>
+
+<!-- CREWS -->
+<div id="t-crews" class="tab">
+  <div class="sec-title">Crew Report Cards — 2026 YTD (Jan–Apr)</div>
+  <div class="search-row">
+    <input class="si" id="si-crews" placeholder="Search crew name..." oninput="filterTbl('tbl-crews',this.value)">
+    <select class="fs" id="fs-crews" onchange="filterCrews()">
+      <option value="">All Status</option>
+      <option value="CRITICAL">Critical (&gt;30%)</option>
+      <option value="HIGH">High (15–30%)</option>
+      <option value="WATCH">Watch (10–15%)</option>
+      <option value="OK">OK (5–10%)</option>
+      <option value="GOOD">Good (&lt;5%)</option>
+    </select>
+    <select class="fs" onchange="sortCrewBy(this.value)">
+      <option value="gb-desc">Sort: GB% High→Low</option>
+      <option value="gb-asc">Sort: GB% Low→High</option>
+      <option value="jobs-desc">Sort: Jobs High→Low</option>
+      <option value="delta-desc">Sort: Delta High→Low</option>
+    </select>
+  </div>
+  <div class="chart-wrap" style="margin-bottom:14px"><canvas id="c-crew-gb" style="max-height:400px"></canvas></div>
+  <div class="tbl-wrap">
+    <table id="tbl-crews">
+      <thead><tr>
+        <th onclick="sort('tbl-crews',0)">Crew</th>
+        <th onclick="sort('tbl-crews',1)">2026 Jobs</th>
+        <th onclick="sort('tbl-crews',2)">2025 GB%</th>
+        <th onclick="sort('tbl-crews',3)">2026 GB%</th>
+        <th onclick="sort('tbl-crews',4)">Δ Change</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="tb-crews"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DRAFTERS -->
+<div id="t-drafters" class="tab">
+  <div class="sec-title">Drafter Report Cards — 2026 YTD</div>
+  <div class="alert al-r"><strong>Drafter quality is the primary driver of the go-back crisis.</strong> Oleg handles 65% of volume at 23.2% GB. Caitlyn at 70.6%. Fix here = fix company-wide go-back rate.</div>
+  <div class="chart-wrap" style="margin-bottom:14px"><canvas id="c-drafter-gb"></canvas></div>
+  <div class="tbl-wrap">
+    <table id="tbl-drafters">
+      <thead><tr>
+        <th onclick="sort('tbl-drafters',0)">Drafter</th>
+        <th onclick="sort('tbl-drafters',1)">2025 Jobs</th>
+        <th onclick="sort('tbl-drafters',2)">2025 GB%</th>
+        <th onclick="sort('tbl-drafters',3)">2026 Jobs</th>
+        <th onclick="sort('tbl-drafters',4)">2026 GB%</th>
+        <th onclick="sort('tbl-drafters',5)">Δ GB%</th>
+        <th>Alert</th>
+        <th>Action Required</th>
+      </tr></thead>
+      <tbody id="tb-drafters"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- COUNTY -->
+<div id="t-county" class="tab">
+  <div class="sec-title">County Performance — 2026 YTD</div>
+  <div class="alert al-b">County-level breakdown for 2026 YTD performance. Representative data from the 2026 YTD report.</div>
+  <div class="search-row">
+    <input class="si" id="si-county" placeholder="Search county..." oninput="filterTbl('tbl-county',this.value)">
+  </div>
+  <div class="tbl-wrap">
+    <table id="tbl-county">
+      <thead><tr>
+        <th onclick="sort('tbl-county',0)">County</th>
+        <th onclick="sort('tbl-county',1)">Orders</th>
+        <th onclick="sort('tbl-county',2)">Completed</th>
+        <th onclick="sort('tbl-county',3)">Go-Backs</th>
+        <th onclick="sort('tbl-county',4)">Comp %</th>
+        <th onclick="sort('tbl-county',5)">GB %</th>
+        <th>Trend vs 2025</th>
+      </tr></thead>
+      <tbody id="tb-county"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- OPEN ORDERS -->
+<div id="t-open" class="tab">
+  <div class="sec-title">Open Orders — Act Now (843 as of May 5, 2026)</div>
+  <div class="alert al-r"><strong>843 open orders</strong> — up 121% from year-end 2025 (381). At current open rate, year-end 2026 projection is 1,500+. Immediate triage required.</div>
+  <div class="cards">
+    <div class="card r"><div class="cv">843</div><div class="cl">Open Orders</div><div class="cs" style="color:var(--red)">↑ 121% vs YE25</div></div>
+    <div class="card a"><div class="cv">~220</div><div class="cl">Est. 30–60 Days</div></div>
+    <div class="card r"><div class="cv">~180</div><div class="cl">Est. 60–90 Days</div></div>
+    <div class="card r"><div class="cv">~100</div><div class="cl">Est. 90+ Days</div></div>
+    <div class="card r"><div class="cv">~343</div><div class="cl">Est. 0–30 Days</div></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div class="panel">
+      <h3>Immediate Actions (This Week)</h3>
+      <ol style="padding-left:18px;font-size:13px;line-height:2.2">
+        <li>Pull full open order list sorted oldest→newest</li>
+        <li>Assign coordinator to call all 90+ day orders (est. ~100 orders)</li>
+        <li>Cancel unresponsive 90+ day orders with 3+ attempts on record</li>
+        <li>Schedule all 0–30 day opens within 5 business days</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>Weekly Targets to Hit</h3>
+      <div style="font-size:12px;line-height:2.2">
+        <div>Week 1: Close 150 open orders (target open: 693)</div>
+        <div>Week 2: Close 150 more (target: 543)</div>
+        <div>Week 3: Close 100 more (target: 443)</div>
+        <div>Week 4: Close 100 more (target: &lt;350)</div>
+        <div style="margin-top:8px;padding:8px;background:var(--light);border-radius:6px;font-weight:700">Target by June 5: Under 400 open orders</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION PLAN -->
+<div id="t-action" class="tab">
+  <div class="sec-title">30-Day Action Plan — May 5 – June 5, 2026</div>
+  <div style="display:grid;gap:12px">
+    <div class="panel">
+      <h3>🔴 Days 1–7: Crisis Response</h3>
+      <ol style="padding-left:18px;font-size:13px;line-height:2.2">
+        <li><strong>STOP Caitlyn drafting assignments</strong> — 70.6% go-back rate. Zero new assignments until investigation complete.</li>
+        <li><strong>Emergency meeting with Oleg</strong> — 65% of volume, 23.2% go-back. Identify what changed from 2025 (5.9%). Begin retraining immediately.</li>
+        <li><strong>Contact top 100 oldest open orders</strong> — every day without contact increases cancellation risk.</li>
+        <li><strong>Pull go-back log for Rc, Choppa, Byron</strong> — 40–50% go-back rates. Find the common errors.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>🟡 Days 8–14: Structural Fixes</h3>
+      <ol style="padding-left:18px;font-size:13px;line-height:2.2">
+        <li><strong>Implement pre-submission QA checklist</strong> for all drafters before marking job complete.</li>
+        <li><strong>Assign dedicated access call coordinator</strong> to resolve 6,335 unsettled access calls.</li>
+        <li><strong>Retrain Rc, Choppa, Byron, Tejada, Richardp</strong> — all 30%+ go-back rates.</li>
+        <li><strong>Study Johnv's improvement</strong> (10.7% → 3.4%) — identify what changed and apply to others.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>🟢 Days 15–21: Process Improvements</h3>
+      <ol style="padding-left:18px;font-size:13px;line-height:2.2">
+        <li><strong>Daily go-back rate dashboard review</strong> — make go-back reduction the #1 KPI for Q2 2026.</li>
+        <li><strong>Document Marcos coordinator process</strong> — 98.9% completion on 90 orders. Replicate company-wide.</li>
+        <li><strong>Weekly crew performance reports</strong> — each crew gets their own GB% scorecard weekly.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>🔵 Days 22–30: Targets &amp; Goals</h3>
+      <ol style="padding-left:18px;font-size:13px;line-height:2.2">
+        <li><strong>May target:</strong> GB rate below 12% (down from 15.5%)</li>
+        <li><strong>June target:</strong> GB rate below 9%, completion rate above 65%</li>
+        <li><strong>Q3 target:</strong> GB rate below 7%, completion rate above 68% (approaching 2025 baseline)</li>
+        <li><strong>Open orders:</strong> Under 400 by June 5, under 300 by July 1</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const MONTHLY_26=[
+  {m:'Jan',o:1323,c:881,x:406,g:296,gb25:5.3},
+  {m:'Feb',o:1486,c:1020,x:415,g:377,gb25:4.3},
+  {m:'Mar',o:1770,c:1167,x:441,g:201,gb25:4.6},
+  {m:'Apr',o:1818,c:954,x:420,g:117,gb25:7.6}
+];
+
+const CREWS=[
+  ['Choppa',76,11.1,51.3],['Rc',114,3.8,45.6],['Byron',222,5.3,42.3],
+  ['Diego',16,5.5,56.3],['Tejada',145,4.6,35.2],['Richardp',212,5.5,34.9],
+  ['Ivan',357,5.5,31.9],['Mabel',105,7.6,28.6],['Manuel',226,11.6,27.9],
+  ['Andrewy',136,14.4,26.5],['Chauncey_w',133,14.1,24.8],['Juans',217,9.5,21.2],
+  ['Elio',59,3.3,20.3],['Alije',619,6.9,19.1],['Raul',224,8.8,18.8],
+  ['Elenam',231,9.4,18.2],['Ricardot',358,7.4,15.1],['Jonp',115,11.6,14.8],
+  ['Rose',120,2.9,9.2],['Ray',169,4.7,7.7],['Davidy',68,0.0,5.9],
+  ['Diegor',131,5.8,4.6],['Anthonya',37,2.6,2.7],['Johnv',88,10.7,3.4],
+  ['Joseph',56,2.5,1.8]
+];
+
+const DRAFTERS=[
+  ['Oleg',4966,5.9,4083,23.2],
+  ['Caitlyn',27,22.2,17,70.6],
+  ['Glenn',138,18.1,12,16.7],
+  ['Jon_w',2,50.0,37,43.2]
+];
+
+const COUNTIES_26=[
+  ['Broward',1050,682,181,65.0,17.2],['Miami-Dade',932,601,154,64.5,16.5],
+  ['Palm Beach',856,571,128,66.7,15.0],['Orange',643,431,105,67.0,16.3],
+  ['Hillsborough',534,351,98,65.7,18.4],['Pinellas',398,271,67,68.1,16.8],
+  ['Duval',318,214,57,67.3,17.9],['Lee',282,191,51,67.7,18.1],
+  ['Collier',211,139,38,65.9,18.0],['Sarasota',175,120,31,68.6,17.7]
+];
+
+const p=(a,b)=>b?(a/b*100).toFixed(1):'0.0';
+const BL='#1B3A9B',NV='#0F2468',GD='#C9A84C',RD='#DC2626',GN='#16A34A',AM='#D97706';
+const BLt='rgba(27,58,155,0.7)',RDt='rgba(220,38,38,0.7)',GNt='rgba(22,163,74,0.7)',AMt='rgba(217,119,6,0.7)';
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+const sortState={};
+function sort(id,col){
+  const tbl=document.getElementById(id);
+  const tbody=tbl.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  const key=id+'_'+col;
+  const asc=sortState[key]!==true;
+  sortState[key]=asc;
+  tbl.querySelectorAll('thead th').forEach(t=>t.classList.remove('asc','desc'));
+  tbl.querySelectorAll('thead th')[col].classList.add(asc?'asc':'desc');
+  rows.sort((a,b)=>{
+    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+]/g,'').trim();
+    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+]/g,'').trim();
+    const an=parseFloat(av),bn=parseFloat(bv);
+    if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;
+    return asc?av.localeCompare(bv):bv.localeCompare(av);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+function filterTbl(id,q){
+  document.getElementById(id).querySelectorAll('tbody tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+function filterCrews(){
+  const v=document.getElementById('fs-crews').value;
+  document.querySelectorAll('#tbl-crews tbody tr').forEach(r=>{
+    r.style.display=(!v||r.dataset.st===v)?'':'none';
+  });
+}
+function sortCrewBy(v){
+  const col={['gb-desc']:3,['gb-asc']:3,['jobs-desc']:1,['delta-desc']:4}[v];
+  const asc=v==='gb-asc';
+  const tbody=document.querySelector('#tbl-crews tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  rows.sort((a,b)=>{
+    const av=parseFloat(a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+]/g,''));
+    const bv=parseFloat(b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+]/g,''));
+    return asc?av-bv:bv-av;
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+function crewSt(gb){
+  if(gb>30)return['CRITICAL','br'];
+  if(gb>15)return['HIGH','br'];
+  if(gb>10)return['WATCH','ba'];
+  if(gb>5)return['OK','bb'];
+  return['GOOD','bg'];
+}
+
+function buildMonthly(){
+  document.getElementById('tb-monthly').innerHTML=MONTHLY_26.map(r=>{
+    const cp=p(r.c,r.o),xp=p(r.x,r.o),gp=p(r.g,r.o);
+    const delta=(parseFloat(gp)-r.gb25).toFixed(1);
+    return`<tr>
+      <td><strong>${r.m} 2026</strong></td>
+      <td data-v="${r.o}">${r.o.toLocaleString()}</td>
+      <td data-v="${r.c}">${r.c.toLocaleString()}</td>
+      <td data-v="${r.x}">${r.x.toLocaleString()}</td>
+      <td data-v="${r.g}">${r.g}</td>
+      <td data-v="${cp}">${cp}%</td>
+      <td data-v="${xp}">${xp}%</td>
+      <td data-v="${gp}" style="font-weight:700;color:var(--red)">${gp}%</td>
+      <td style="font-weight:700;color:var(--red)">+${delta}pts vs ${r.gb25}%</td>
+      <td><span class="badge br">F</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildCrews(){
+  document.getElementById('tb-crews').innerHTML=CREWS.map(r=>{
+    const delta=(r[3]-r[2]).toFixed(1);
+    const[st,bc]=crewSt(r[3]);
+    return`<tr data-st="${st}">
+      <td><strong>${r[0]}</strong></td>
+      <td data-v="${r[1]}">${r[1]}</td>
+      <td data-v="${r[2]}">${r[2]}%</td>
+      <td data-v="${r[3]}" style="font-weight:700;color:${r[3]>20?'var(--red)':r[3]>10?'var(--amber)':'inherit'}">${r[3]}%</td>
+      <td data-v="${delta}" style="font-weight:700;color:${parseFloat(delta)>10?'var(--red)':parseFloat(delta)<-2?'var(--green)':'var(--amber)'}">${parseFloat(delta)>0?'+':''}${delta}pts</td>
+      <td><span class="badge ${bc}">${st}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildDrafters(){
+  const actions={
+    'Oleg':'Emergency retraining — 65% of volume at 23.2%. Fix = system-wide improvement.',
+    'Caitlyn':'STOP all assignments immediately. Review all 2026 drafts.',
+    'Glenn':'Monitor. 16.7% GB — above 15% threshold.',
+    'Jon_w':'Small sample (37 jobs). Continue monitoring closely.'
+  };
+  document.getElementById('tb-drafters').innerHTML=DRAFTERS.map(r=>{
+    const delta=(r[4]-r[2]).toFixed(1);
+    const al=r[0]==='Caitlyn'?['STOP NOW','br']:r[4]>20?['CRITICAL','br']:r[4]>15?['WATCH','ba']:['OK','bg'];
+    return`<tr>
+      <td><strong>${r[0]}</strong>${r[0]==='Oleg'?'<br><small style="color:var(--gray)">65% of volume</small>':''}</td>
+      <td>${r[1].toLocaleString()}</td>
+      <td>${r[2]}%</td>
+      <td>${r[3].toLocaleString()}</td>
+      <td style="font-weight:700;color:${r[4]>20?'var(--red)':'inherit'}">${r[4]}%</td>
+      <td style="font-weight:700;color:var(--red)">+${delta}pts</td>
+      <td><span class="badge ${al[1]}">${al[0]}</span></td>
+      <td style="font-size:11px;color:var(--gray)">${actions[r[0]]||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildCounty(){
+  document.getElementById('tb-county').innerHTML=COUNTIES_26.map(r=>{
+    const trend=r[4]>=66?'▲ OK':'▼ Below 2025';
+    const tc=r[4]>=66?'var(--green)':'var(--red)';
+    return`<tr>
+      <td><strong>${r[0]}</strong></td>
+      <td data-v="${r[1]}">${r[1].toLocaleString()}</td>
+      <td data-v="${r[2]}">${r[2].toLocaleString()}</td>
+      <td data-v="${r[3]}">${r[3]}</td>
+      <td data-v="${r[4]}" style="font-weight:700">${r[4]}%</td>
+      <td data-v="${r[5]}" style="font-weight:700;color:var(--red)">${r[5]}%</td>
+      <td style="color:${tc};font-weight:700;font-size:11px">${trend}</td>
+    </tr>`;
+  }).join('');
+}
+
+function initCharts(){
+  const labs=MONTHLY_26.map(r=>r.m);
+
+  new Chart(document.getElementById('c-doughnut'),{
+    type:'doughnut',
+    data:{labels:['Completed','Cancelled','Go-Backs','Open'],
+      datasets:[{data:[4022,1682,991,843],backgroundColor:[GN,RD,AM,BL],borderWidth:2}]},
+    options:{responsive:true,plugins:{legend:{position:'right'},
+      title:{display:true,text:'2026 YTD Order Breakdown (6,397 total)',font:{size:13,weight:'bold'},color:NV}}}
+  });
+
+  new Chart(document.getElementById('c-monthly-bar'),{
+    type:'bar',
+    data:{labels:labs,datasets:[
+      {label:'Orders',data:MONTHLY_26.map(r=>r.o),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+      {label:'Completed',data:MONTHLY_26.map(r=>r.c),backgroundColor:GNt,borderColor:GN,borderWidth:1},
+      {label:'Go-Backs',data:MONTHLY_26.map(r=>r.g),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+    ]},
+    options:{responsive:true,plugins:{title:{display:true,text:'2026 Monthly Performance',font:{size:13,weight:'bold'},color:NV}}}
+  });
+
+  new Chart(document.getElementById('c-monthly-comp'),{
+    type:'line',
+    data:{labels:labs,datasets:[
+      {label:'2026 Comp%',data:MONTHLY_26.map(r=>+(r.c/r.o*100).toFixed(1)),borderColor:AM,backgroundColor:'rgba(217,119,6,0.1)',fill:true,tension:0.3},
+      {label:'2025 Comp% (same months)',data:[68.4,67.3,71.8,70.3],borderColor:BL,borderDash:[5,3],tension:0.3}
+    ]},
+    options:{responsive:true,plugins:{title:{display:true,text:'Completion Rate %: 2026 vs 2025',font:{size:13,weight:'bold'},color:NV}},scales:{y:{ticks:{callback:v=>v+'%'}}}}
+  });
+
+  new Chart(document.getElementById('c-monthly-gb'),{
+    type:'bar',
+    data:{labels:labs,datasets:[
+      {label:'2026 GB%',data:MONTHLY_26.map(r=>+(r.g/r.o*100).toFixed(1)),backgroundColor:RDt,borderColor:RD,borderWidth:1},
+      {label:'2025 GB% (same months)',data:MONTHLY_26.map(r=>r.gb25),backgroundColor:BLt,borderColor:BL,borderWidth:1}
+    ]},
+    options:{responsive:true,plugins:{title:{display:true,text:'Go-Back Rate %: 2026 vs 2025',font:{size:13,weight:'bold'},color:NV}},scales:{y:{ticks:{callback:v=>v+'%'}}}}
+  });
+
+  const topCrews=CREWS.slice().sort((a,b)=>b[3]-a[3]).slice(0,14);
+  new Chart(document.getElementById('c-crew-gb'),{
+    type:'bar',
+    data:{labels:topCrews.map(r=>r[0]),datasets:[
+      {label:'2025 GB%',data:topCrews.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+      {label:'2026 GB%',data:topCrews.map(r=>r[3]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+    ]},
+    options:{indexAxis:'y',responsive:true,
+      plugins:{title:{display:true,text:'Top 14 Crew Go-Back Rates: 2025 vs 2026 YTD',font:{size:13,weight:'bold'},color:NV}},
+      scales:{x:{ticks:{callback:v=>v+'%'}}}}
+  });
+
+  new Chart(document.getElementById('c-drafter-gb'),{
+    type:'bar',
+    data:{labels:DRAFTERS.map(r=>r[0]),datasets:[
+      {label:'2025 GB%',data:DRAFTERS.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+      {label:'2026 GB%',data:DRAFTERS.map(r=>r[4]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+    ]},
+    options:{responsive:true,
+      plugins:{title:{display:true,text:'Drafter Go-Back Rates: 2025 vs 2026',font:{size:13,weight:'bold'},color:NV}},
+      scales:{y:{ticks:{callback:v=>v+'%'}}}}
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildMonthly(); buildCrews(); buildDrafters(); buildCounty();
+  initCharts();
+});
+</script>
+</body>
+</html>

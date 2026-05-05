@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexGen FTF — 2025 vs 2026 Comparison Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--blue:#1B3A9B;--navy:#0F2468;--gold:#C9A84C;--gold-lt:#F5E6C0;--bg:#F0F4FF;--white:#fff;--gray:#6B7280;--light:#E8EDF8;--red:#DC2626;--green:#16A34A;--amber:#D97706;--red-lt:#FEE2E2;--green-lt:#DCFCE7;--amber-lt:#FEF3C7;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1F2937;font-size:14px;}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#2A52C9 100%);padding:14px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.logo-wrap{background:var(--white);border-radius:8px;padding:5px 10px;display:flex;align-items:center;}
+.logo-wrap img{height:40px;max-width:140px;object-fit:contain;}
+.logo-text{font-size:18px;font-weight:800;color:var(--blue);}
+.hdr-info{color:var(--white);}
+.hdr-info h1{font-size:20px;font-weight:700;}
+.hdr-info p{font-size:12px;color:var(--gold-lt);margin-top:2px;}
+.hdr-right{margin-left:auto;text-align:right;color:var(--gold-lt);font-size:12px;}
+nav{background:var(--navy);display:flex;flex-wrap:wrap;gap:2px;padding:0 16px;border-bottom:3px solid var(--gold);}
+nav button{background:none;border:none;color:#A5B4D4;padding:11px 16px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;}
+nav button:hover{color:var(--white);background:rgba(255,255,255,.07);}
+nav button.active{color:var(--gold);border-bottom-color:var(--gold);}
+.main{padding:18px 20px;max-width:1400px;margin:0 auto;}
+.tab{display:none;} .tab.active{display:block;}
+.sec-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--gold);}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px;}
+.card{background:var(--white);border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-top:4px solid var(--blue);text-align:center;}
+.card.g{border-top-color:var(--green);} .card.r{border-top-color:var(--red);} .card.a{border-top-color:var(--amber);} .card.gld{border-top-color:var(--gold);}
+.cv{font-size:22px;font-weight:800;color:var(--navy);} .cl{font-size:10px;color:var(--gray);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+.cs{font-size:11px;margin-top:4px;font-weight:600;}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;margin-bottom:18px;}
+.chart-wrap{background:var(--white);border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.chart-wrap canvas{max-height:300px;}
+.tbl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;background:var(--white);}
+thead tr{background:var(--navy);color:var(--white);}
+thead th{padding:9px 11px;text-align:left;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+thead th:hover{background:var(--blue);}
+thead th.asc::after{content:" ▲";} thead th.desc::after{content:" ▼";}
+tbody tr{border-bottom:1px solid #E5E9F5;} tbody tr:hover{background:#F5F8FF;}
+tbody td{padding:8px 11px;font-size:12px;}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;}
+.br{background:var(--red-lt);color:#991B1B;} .bg{background:var(--green-lt);color:#166534;}
+.ba{background:var(--amber-lt);color:#92400E;} .bb{background:#DBEAFE;color:#1E40AF;}
+.bgy{background:#F3F4F6;color:#374151;}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:10px;border-left:4px solid;}
+.al-r{background:#FFF1F1;border-color:var(--red);color:#7F1D1D;}
+.al-g{background:#F0FFF4;border-color:var(--green);color:#166534;}
+.al-a{background:#FFFBEB;border-color:var(--amber);color:#78350F;}
+.al-b{background:#EFF6FF;border-color:var(--blue);color:#1E3A8A;}
+.search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.si{padding:7px 13px;border:1px solid #C9D4F0;border-radius:20px;font-size:12px;width:230px;outline:none;}
+.si:focus{border-color:var(--blue);}
+.fs{padding:7px 13px;border:1px solid #C9D4F0;border-radius:20px;font-size:12px;outline:none;background:var(--white);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--white);border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.panel h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #E5E9F5;}
+/* Headline scorecard comparison boxes */
+.cmp-box{display:flex;gap:10px;align-items:center;padding:10px;background:var(--white);border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:10px;}
+.yr-box{text-align:center;flex:1;padding:8px;border-radius:8px;}
+.yr-box.y25{background:#EFF6FF;}
+.yr-box.y26{background:#FFF1F1;}
+.yr-val{font-size:20px;font-weight:800;}
+.yr-lbl{font-size:10px;color:var(--gray);margin-top:2px;}
+.cmp-arrow{font-size:22px;flex-shrink:0;}
+.cmp-delta{flex:1;text-align:center;}
+.cmp-delta-val{font-size:16px;font-weight:800;}
+.cmp-delta-lbl{font-size:10px;color:var(--gray);}
+.cmp-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-wrap">
+    <img src="../nexgen_logo.png" alt="NexGen" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <span class="logo-text" style="display:none">NexGen</span>
+  </div>
+  <div class="hdr-info">
+    <h1>FTF Year-Over-Year Comparison — 2025 vs 2026</h1>
+    <p>NexGen Surveying &nbsp;|&nbsp; January 1 – April 30 (same window both years) &nbsp;|&nbsp; Generated: May 5, 2026 | 17:08</p>
+  </div>
+  <div class="hdr-right">
+    <div style="color:var(--gold);font-weight:700;">YOY COMPARISON</div>
+    <div>Jan–Apr 2025 vs Jan–Apr 2026</div>
+  </div>
+</div>
+
+<nav>
+  <button class="active" onclick="showTab('t-headline')">Headline Numbers</button>
+  <button onclick="showTab('t-monthly')">Monthly Trends</button>
+  <button onclick="showTab('t-crews')">Crew Scorecards</button>
+  <button onclick="showTab('t-drafters')">Drafter Scorecards</button>
+  <button onclick="showTab('t-coord')">Coordinator Report</button>
+  <button onclick="showTab('t-watch')">Who to Watch</button>
+</nav>
+
+<div class="main">
+
+<!-- HEADLINE NUMBERS -->
+<div id="t-headline" class="tab active">
+  <div class="sec-title">Headline Numbers — Jan–Apr 2025 vs 2026</div>
+
+  <div class="alert al-r"><strong>GO-BACK RATE TRIPLED in 12 months.</strong> 5.4% → 15.5% (+10.1 pts). 581 extra jobs redone in just 4 months, each consuming crew time, fuel, and client goodwill. This is the defining issue of 2026.</div>
+
+  <!-- Big 4 comparison -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+    <div>
+      <div class="cmp-title">Total Orders</div>
+      <div class="cmp-box">
+        <div class="yr-box y25"><div class="yr-val" style="color:var(--navy)">7,539</div><div class="yr-lbl">2025</div></div>
+        <div class="cmp-arrow">→</div>
+        <div class="yr-box y26"><div class="yr-val" style="color:var(--red)">6,397</div><div class="yr-lbl">2026</div></div>
+      </div>
+      <div style="text-align:center"><span class="badge br">-1,142 &nbsp;(-15%)</span></div>
+    </div>
+    <div>
+      <div class="cmp-title">Completion Rate</div>
+      <div class="cmp-box">
+        <div class="yr-box y25"><div class="yr-val" style="color:var(--green)">69.5%</div><div class="yr-lbl">2025</div></div>
+        <div class="cmp-arrow">→</div>
+        <div class="yr-box y26"><div class="yr-val" style="color:var(--amber)">62.9%</div><div class="yr-lbl">2026</div></div>
+      </div>
+      <div style="text-align:center"><span class="badge br">-6.6 pts</span></div>
+    </div>
+    <div>
+      <div class="cmp-title">Go-Back Rate</div>
+      <div class="cmp-box">
+        <div class="yr-box y25"><div class="yr-val" style="color:var(--green)">5.4%</div><div class="yr-lbl">2025</div></div>
+        <div class="cmp-arrow" style="color:var(--red)">→</div>
+        <div class="yr-box y26"><div class="yr-val" style="color:var(--red)">15.5%</div><div class="yr-lbl">2026</div></div>
+      </div>
+      <div style="text-align:center"><span class="badge br">+10.1 pts &nbsp;TRIPLED ↑↑↑</span></div>
+    </div>
+    <div>
+      <div class="cmp-title">Cancel Rate</div>
+      <div class="cmp-box">
+        <div class="yr-box y25"><div class="yr-val" style="color:var(--amber)">29.1%</div><div class="yr-lbl">2025</div></div>
+        <div class="cmp-arrow" style="color:var(--green)">→</div>
+        <div class="yr-box y26"><div class="yr-val" style="color:var(--amber)">26.3%</div><div class="yr-lbl">2026</div></div>
+      </div>
+      <div style="text-align:center"><span class="badge bg">-2.8 pts &nbsp;✓ Improved</span></div>
+    </div>
+  </div>
+
+  <!-- Detailed numbers -->
+  <div class="two-col">
+    <div class="panel">
+      <h3>Full Scorecard — Side by Side</h3>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr style="background:var(--navy);color:var(--white)">
+          <td style="padding:7px;font-weight:700">Metric</td>
+          <td style="padding:7px;font-weight:700;background:#1a4ab5">2025 Jan–Apr</td>
+          <td style="padding:7px;font-weight:700;background:#8B0000">2026 Jan–Apr</td>
+          <td style="padding:7px;font-weight:700">Change</td>
+          <td style="padding:7px;font-weight:700">Grade</td>
+        </tr>
+        <tr><td style="padding:6px">Total Orders</td><td>7,539</td><td>6,397</td><td style="color:var(--red);font-weight:700">-1,142 (-15%)</td><td><span class="badge ba">C</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:6px">Completed</td><td>5,239</td><td>4,022</td><td style="color:var(--red);font-weight:700">-1,217 (-23%)</td><td><span class="badge ba">C</span></td></tr>
+        <tr><td style="padding:6px">Comp Rate</td><td style="color:var(--green);font-weight:700">69.5%</td><td style="color:var(--amber);font-weight:700">62.9%</td><td style="color:var(--red);font-weight:700">-6.6 pts</td><td><span class="badge ba">C</span></td></tr>
+        <tr style="background:#FFF8F8"><td style="padding:6px">Go-Backs</td><td>410</td><td style="color:var(--red);font-weight:700">991</td><td style="color:var(--red);font-weight:700">+581 (+141%)</td><td><span class="badge br">F</span></td></tr>
+        <tr style="background:#FFF0F0"><td style="padding:6px">GB Rate</td><td style="color:var(--green);font-weight:700">5.4%</td><td style="color:var(--red);font-weight:700">15.5%</td><td style="color:var(--red);font-weight:700">+10.1 pts ↑↑↑</td><td><span class="badge br">F</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:6px">Cancelled</td><td>2,191</td><td>1,682</td><td style="color:var(--green);font-weight:700">-509 (-23%) ✓</td><td><span class="badge bg">B-</span></td></tr>
+        <tr><td style="padding:6px">Cancel Rate</td><td>29.1%</td><td>26.3%</td><td style="color:var(--green);font-weight:700">-2.8 pts ✓</td><td><span class="badge bg">B-</span></td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Summary Assessment</h3>
+      <div class="alert al-r"><strong>Catastrophic:</strong> Go-back rate tripled. 581 extra wasted trips. Drafter quality collapse (Oleg +17.3 pts, Caitlyn +48.4 pts) is the primary cause.</div>
+      <div class="alert al-a"><strong>Declining:</strong> Order volume down 15%. Completion rate down 6.6 pts. Fewer jobs, lower success rate — double impact on revenue.</div>
+      <div class="alert al-g"><strong>Improving:</strong> Cancellations down 2.8 pts (29.1% → 26.3%). Property access is being handled better — good signal for operations team.</div>
+      <div class="alert al-b"><strong>Crew standout:</strong> Johnv improved from 10.7% → 3.4% (-7.3 pts). Only crew to show meaningful improvement. Study and replicate.</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-wrap"><canvas id="c-hl-orders"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-hl-gb"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-hl-comp"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-hl-cancel"></canvas></div>
+  </div>
+</div>
+
+<!-- MONTHLY TRENDS -->
+<div id="t-monthly" class="tab">
+  <div class="sec-title">Monthly Trends — Jan–Apr: 2025 vs 2026</div>
+  <div class="charts-grid">
+    <div class="chart-wrap"><canvas id="c-m-orders"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-m-gb"></canvas></div>
+  </div>
+  <div class="chart-wrap" style="margin-bottom:16px"><canvas id="c-m-comp"></canvas></div>
+  <div class="tbl-wrap">
+    <table id="tbl-monthly">
+      <thead><tr>
+        <th onclick="sort('tbl-monthly',0)">Month</th>
+        <th>2025 Orders</th><th>2026 Orders</th><th onclick="sort('tbl-monthly',3)">Δ Orders</th>
+        <th>2025 GB%</th><th>2026 GB%</th><th onclick="sort('tbl-monthly',6)">Δ GB%</th>
+        <th>2025 Comp%</th><th>2026 Comp%</th><th onclick="sort('tbl-monthly',9)">Δ Comp%</th>
+        <th>2025 Cancel%</th><th>2026 Cancel%</th><th onclick="sort('tbl-monthly',12)">Δ Cancel%</th>
+      </tr></thead>
+      <tbody id="tb-monthly"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CREW SCORECARDS -->
+<div id="t-crews" class="tab">
+  <div class="sec-title">Crew Scorecards — Jan–Apr: 2025 vs 2026 (25 Crews)</div>
+  <div class="search-row">
+    <input class="si" id="si-crews" placeholder="Search crew name..." oninput="filterTbl('tbl-crews',this.value)">
+    <select class="fs" id="fs-status" onchange="filterByStatus()">
+      <option value="">All Status</option>
+      <option value="CRITICAL">Critical (&gt;30% GB)</option>
+      <option value="DECLINING">Declining (+5 to +30 pts)</option>
+      <option value="STABLE">Stable (±5 pts)</option>
+      <option value="IMPROVING">Improving (&gt;5 pts better)</option>
+    </select>
+    <select class="fs" onchange="sortCrewBy(this.value)">
+      <option value="delta-desc">Sort: Worst Decline First</option>
+      <option value="delta-asc">Sort: Best Improvement First</option>
+      <option value="gb26-desc">Sort: 2026 GB% High→Low</option>
+      <option value="gb26-asc">Sort: 2026 GB% Low→High</option>
+      <option value="jobs26-desc">Sort: 2026 Volume High→Low</option>
+      <option value="name-asc">Sort: Name A→Z</option>
+    </select>
+  </div>
+  <div class="chart-wrap" style="margin-bottom:14px"><canvas id="c-crew-cmp" style="max-height:420px"></canvas></div>
+  <div class="tbl-wrap">
+    <table id="tbl-crews">
+      <thead><tr>
+        <th onclick="sort('tbl-crews',0)">Crew</th>
+        <th onclick="sort('tbl-crews',1)">2025 Jobs</th>
+        <th onclick="sort('tbl-crews',2)">2025 GB%</th>
+        <th onclick="sort('tbl-crews',3)">2026 Jobs</th>
+        <th onclick="sort('tbl-crews',4)">2026 GB%</th>
+        <th onclick="sort('tbl-crews',5)">Δ GB%</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="tb-crews"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DRAFTER SCORECARDS -->
+<div id="t-drafters" class="tab">
+  <div class="sec-title">Drafter Scorecards — Jan–Apr: 2025 vs 2026</div>
+  <div class="alert al-r"><strong>Drafter quality collapse is the root cause of the go-back crisis.</strong> Oleg (65% of all drafting) went from 5.9% → 23.2%. Caitlyn went from 22.2% → 70.6%. Fixing drafters = fixing the company.</div>
+  <div class="charts-grid">
+    <div class="chart-wrap"><canvas id="c-draft-cmp"></canvas></div>
+    <div class="chart-wrap"><canvas id="c-draft-vol"></canvas></div>
+  </div>
+  <div class="tbl-wrap">
+    <table id="tbl-drafters">
+      <thead><tr>
+        <th onclick="sort('tbl-drafters',0)">Drafter</th>
+        <th onclick="sort('tbl-drafters',1)">2025 Jobs</th>
+        <th onclick="sort('tbl-drafters',2)">2025 GB%</th>
+        <th onclick="sort('tbl-drafters',3)">2026 Jobs</th>
+        <th onclick="sort('tbl-drafters',4)">2026 GB%</th>
+        <th onclick="sort('tbl-drafters',5)">Δ GB%</th>
+        <th>Alert Level</th>
+        <th>Action</th>
+      </tr></thead>
+      <tbody id="tb-drafters"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- COORDINATOR -->
+<div id="t-coord" class="tab">
+  <div class="sec-title">Coordinator Report</div>
+  <div class="alert al-a"><strong>Data Gap:</strong> The <code>survey_coordinator</code> field was barely used in 2025. Meaningful coordinator comparison is only possible for 2026. 2025 coordinator data is sparse and not representative.</div>
+  <div class="two-col" style="margin-top:14px">
+    <div class="panel">
+      <h3>2026 Coordinator Performance (Jan–Apr)</h3>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr style="background:var(--navy);color:var(--white)">
+          <td style="padding:7px;font-weight:700">Coordinator</td>
+          <td style="padding:7px;font-weight:700">Orders</td>
+          <td style="padding:7px;font-weight:700">Completed</td>
+          <td style="padding:7px;font-weight:700">Comp%</td>
+          <td style="padding:7px;font-weight:700">Go-Backs</td>
+          <td style="padding:7px;font-weight:700">Status</td>
+        </tr>
+        <tr style="background:#F0FFF4"><td style="padding:6px"><strong>Marcos</strong></td><td>90</td><td>89</td><td style="color:var(--green);font-weight:700">98.9%</td><td>2</td><td><span class="badge bg">MODEL ★</span></td></tr>
+        <tr><td style="padding:6px">Coordinator B</td><td>67</td><td>45</td><td>67.2%</td><td>9</td><td><span class="badge ba">OK</span></td></tr>
+        <tr style="background:#F9F9FF"><td style="padding:6px">Coordinator C</td><td>43</td><td>28</td><td>65.1%</td><td>7</td><td><span class="badge ba">OK</span></td></tr>
+        <tr><td style="padding:6px"><em>Unassigned</em></td><td>6,197</td><td>3,860</td><td>62.3%</td><td>973</td><td><span class="badge bgy">NO COORD</span></td></tr>
+      </table>
+      <div class="alert al-b" style="margin-top:10px">Orders with a coordinator assigned show significantly better completion rates. Marcos at 98.9% vs 62.3% for unassigned orders. <strong>Priority: assign coordinators to all orders.</strong></div>
+    </div>
+    <div class="panel">
+      <h3>2025 Coordinator Data (Limited)</h3>
+      <div class="alert al-a">The <code>survey_coordinator</code> field was not consistently populated in 2025. Most 2025 orders show NULL/blank coordinator. Cannot make valid 2025 vs 2026 coordinator comparisons.</div>
+      <div style="margin-top:12px;font-size:13px;line-height:2.1">
+        <div><strong>Recommendation:</strong></div>
+        <ol style="padding-left:18px">
+          <li>Make coordinator assignment mandatory for all new orders from May 2026</li>
+          <li>Back-fill coordinator data on all 843 open orders</li>
+          <li>Track coordinator performance as a formal KPI in all future reports</li>
+          <li>Use Marcos as the benchmark: 98.9% completion is achievable</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHO TO WATCH -->
+<div id="t-watch" class="tab">
+  <div class="sec-title">Who to Watch — Named Actions</div>
+  <div class="two-col">
+    <div>
+      <div class="sec-title" style="color:var(--red);border-bottom-color:var(--red)">🚨 DECLINING — Act Immediately</div>
+      <div id="watch-decline"></div>
+    </div>
+    <div>
+      <div class="sec-title" style="color:var(--green);border-bottom-color:var(--green)">✅ IMPROVING — Recognize &amp; Replicate</div>
+      <div id="watch-improve"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const M25=[
+  {m:'Jan',o:1825,c:1248,x:556,g:96},
+  {m:'Feb',o:1833,c:1233,x:571,g:78},
+  {m:'Mar',o:1995,c:1433,x:536,g:92},
+  {m:'Apr',o:1886,c:1325,x:528,g:144}
+];
+const M26=[
+  {m:'Jan',o:1323,c:881,x:406,g:296},
+  {m:'Feb',o:1486,c:1020,x:415,g:377},
+  {m:'Mar',o:1770,c:1167,x:441,g:201},
+  {m:'Apr',o:1818,c:954,x:420,g:117}
+];
+
+// [name, jobs25, gb25%, jobs26, gb26%]
+const CREWS=[
+  ['Choppa',235,11.1,76,51.3],['Rc',133,3.8,114,45.6],['Byron',266,5.3,222,42.3],
+  ['Diego',182,5.5,16,56.3],['Tejada',87,4.6,145,35.2],['Richardp',145,5.5,212,34.9],
+  ['Ivan',218,5.5,357,31.9],['Mabel',132,7.6,105,28.6],['Manuel',224,11.6,226,27.9],
+  ['Andrewy',125,14.4,136,26.5],['Chauncey_w',206,14.1,133,24.8],['Juans',306,9.5,217,21.2],
+  ['Elio',92,3.3,59,20.3],['Alije',707,6.9,619,19.1],['Raul',387,8.8,224,18.8],
+  ['Elenam',106,9.4,231,18.2],['Ricardot',363,7.4,358,15.1],['Jonp',250,11.6,115,14.8],
+  ['Rose',421,2.9,120,9.2],['Ray',236,4.7,169,7.7],['Davidy',78,0.0,68,5.9],
+  ['Diegor',155,5.8,131,4.6],['Anthonya',78,2.6,37,2.7],['Johnv',131,10.7,88,3.4],
+  ['Joseph',79,2.5,56,1.8]
+];
+
+// [name, jobs25, gb25%, jobs26, gb26%]
+const DRAFTERS=[
+  ['Oleg',4966,5.9,4083,23.2],
+  ['Caitlyn',27,22.2,17,70.6],
+  ['Glenn',138,18.1,12,16.7],
+  ['Jon_w',2,50.0,37,43.2]
+];
+
+const DECLINING=[
+  {n:'Caitlyn (Drafter)',change:'22.2% → 70.6%',delta:'+48.4 pts',action:'STOP all new drafting assignments. Audit all her 2026 work. Identify the pattern of errors before reassignment.'},
+  {n:'Rc (Crew)',change:'3.8% → 45.6%',delta:'+41.8 pts',action:'Performance review required. Pull go-back log: identify top 3 error types. Retrain or reassign to lower-complexity jobs.'},
+  {n:'Choppa (Crew)',change:'11.1% → 51.3%',delta:'+40.2 pts',action:'Immediate performance review. 51% of all Choppa jobs are being redone — not sustainable. Root cause analysis.'},
+  {n:'Byron (Crew)',change:'5.3% → 42.3%',delta:'+37.0 pts',action:'Retrain on survey standards. Pair with top performer (Davidy/Joseph) for 2 weeks of supervised jobs.'},
+  {n:'Tejada (Crew)',change:'4.6% → 35.2%',delta:'+30.6 pts',action:'Performance improvement plan. Identify if equipment, training, or territory is the driver.'},
+  {n:'Richardp (Crew)',change:'5.5% → 34.9%',delta:'+29.4 pts',action:'Performance improvement plan. Escalate if no improvement within 30 days.'},
+  {n:'Oleg (Drafter)',change:'5.9% → 23.2%',delta:'+17.3 pts',action:'CRITICAL: He handles 65% of all drafts. Immediate retraining. Identify what changed from 2025. Consider temporary volume reduction while fixing.'}
+];
+
+const IMPROVING=[
+  {n:'Johnv (Crew)',change:'10.7% → 3.4%',delta:'-7.3 pts',action:'Biggest improvement company-wide. Interview Johnv: what changed in his process? Document and share as a case study with all crews.'},
+  {n:'Diegor (Crew)',change:'5.8% → 4.6%',delta:'-1.2 pts',action:'Consistent improvement. Stable performer. Consider for lead crew position.'},
+  {n:'Joseph (Crew)',change:'2.5% → 1.8%',delta:'-0.7 pts',action:'Best go-back rate in 2026 (1.8%). Recognize publicly. Ask him to mentor high-GB crews.'},
+  {n:'Anthonya (Crew)',change:'2.6% → 2.7%',delta:'Flat',action:'Consistent top performer both years. Reliable. Assign complex or high-value jobs to maintain standards.'},
+  {n:'Marcos (Coordinator)',change:'N/A',delta:'98.9% comp rate',action:'Model coordinator: 98.9% completion on 90 jobs vs 62.3% company average. Document his access call and scheduling process. Replicate for all coordinators.'}
+];
+
+const p=(a,b)=>b?(a/b*100).toFixed(1):'0.0';
+const BL='#1B3A9B',NV='#0F2468',RD='#DC2626',GN='#16A34A',AM='#D97706';
+const BLt='rgba(27,58,155,0.7)',RDt='rgba(220,38,38,0.7)',GNt='rgba(22,163,74,0.7)',AMt='rgba(217,119,6,0.7)';
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+const sortState={};
+function sort(id,col){
+  const tbl=document.getElementById(id);
+  const tbody=tbl.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  const key=id+'_'+col;
+  const asc=sortState[key]!==true;
+  sortState[key]=asc;
+  tbl.querySelectorAll('thead th').forEach(t=>t.classList.remove('asc','desc'));
+  tbl.querySelectorAll('thead th')[col].classList.add(asc?'asc':'desc');
+  rows.sort((a,b)=>{
+    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+pts]/g,'').trim();
+    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+pts]/g,'').trim();
+    const an=parseFloat(av),bn=parseFloat(bv);
+    if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;
+    return asc?av.localeCompare(bv):bv.localeCompare(av);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+function filterTbl(id,q){
+  document.getElementById(id).querySelectorAll('tbody tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+
+function filterByStatus(){
+  const v=document.getElementById('fs-status').value;
+  document.querySelectorAll('#tbl-crews tbody tr').forEach(r=>{
+    r.style.display=(!v||r.dataset.st===v)?'':'none';
+  });
+}
+
+function sortCrewBy(v){
+  const colMap={'delta-desc':5,'delta-asc':5,'gb26-desc':4,'gb26-asc':4,'jobs26-desc':3,'name-asc':0};
+  const col=colMap[v]||5;
+  const asc=v==='delta-asc'||v==='gb26-asc'||v==='name-asc';
+  const tbody=document.querySelector('#tbl-crews tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  rows.sort((a,b)=>{
+    const av=parseFloat(a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+pts]/g,''))||0;
+    const bv=parseFloat(b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+pts]/g,''))||0;
+    if(v==='name-asc')return a.cells[0].textContent.localeCompare(b.cells[0].textContent);
+    return asc?av-bv:bv-av;
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+function crewStatus(delta){
+  if(delta>30)return['CRITICAL','br'];
+  if(delta>5)return['DECLINING','br'];
+  if(delta<-5)return['IMPROVING','bg'];
+  if(delta>=-5&&delta<=5)return['STABLE','bb'];
+  return['STABLE','bb'];
+}
+
+function buildMonthly(){
+  document.getElementById('tb-monthly').innerHTML=M25.map((r25,i)=>{
+    const r26=M26[i];
+    const gb25=p(r25.g,r25.o),gb26=p(r26.g,r26.o);
+    const cp25=p(r25.c,r25.o),cp26=p(r26.c,r26.o);
+    const ca25=p(r25.x,r25.o),ca26=p(r26.x,r26.o);
+    const dO=r26.o-r25.o,dGb=(parseFloat(gb26)-parseFloat(gb25)).toFixed(1);
+    const dCp=(parseFloat(cp26)-parseFloat(cp25)).toFixed(1),dCa=(parseFloat(ca26)-parseFloat(ca25)).toFixed(1);
+    return`<tr>
+      <td><strong>${r25.m}</strong></td>
+      <td>${r25.o.toLocaleString()}</td><td>${r26.o.toLocaleString()}</td>
+      <td data-v="${dO}" style="font-weight:700;color:${dO<0?'var(--red)':'var(--green)'}">${dO>0?'+':''}${dO}</td>
+      <td>${gb25}%</td><td style="color:var(--red);font-weight:700">${gb26}%</td>
+      <td data-v="${dGb}" style="font-weight:700;color:var(--red)">+${dGb}pts</td>
+      <td>${cp25}%</td><td>${cp26}%</td>
+      <td data-v="${dCp}" style="font-weight:700;color:${parseFloat(dCp)<0?'var(--red)':'var(--green)'}">${dCp}pts</td>
+      <td>${ca25}%</td><td>${ca26}%</td>
+      <td data-v="${dCa}" style="font-weight:700;color:${parseFloat(dCa)<0?'var(--green)':'var(--red)'}">${dCa}pts</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildCrews(){
+  document.getElementById('tb-crews').innerHTML=CREWS.map(r=>{
+    const delta=(r[4]-r[2]).toFixed(1);
+    const[st,bc]=crewStatus(parseFloat(delta));
+    return`<tr data-st="${st}">
+      <td><strong>${r[0]}</strong></td>
+      <td data-v="${r[1]}">${r[1]}</td>
+      <td data-v="${r[2]}">${r[2]}%</td>
+      <td data-v="${r[3]}">${r[3]}</td>
+      <td data-v="${r[4]}" style="font-weight:700;color:${r[4]>30?'var(--red)':r[4]>15?'var(--amber)':r[4]<5?'var(--green)':'inherit'}">${r[4]}%</td>
+      <td data-v="${delta}" style="font-weight:700;color:${parseFloat(delta)>5?'var(--red)':parseFloat(delta)<-5?'var(--green)':'var(--amber)'}">
+        ${parseFloat(delta)>0?'+':''}${delta}pts
+      </td>
+      <td><span class="badge ${bc}">${st}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildDrafters(){
+  const actions={
+    'Oleg':'Emergency retraining NOW — 65% of all drafts. Fixing Oleg alone would drop company-wide GB rate by ~8 pts.',
+    'Caitlyn':'STOP all assignments. 70.6% = 3 in 4 drafts fail. Audit all her 2026 work immediately.',
+    'Glenn':'Monitor — 16.7% in 2026, small volume (12 jobs). Keep watching.',
+    'Jon_w':'Watch — 43.2% but only 37 jobs. Small sample. Monitor next 30 jobs closely.'
+  };
+  document.getElementById('tb-drafters').innerHTML=DRAFTERS.map(r=>{
+    const delta=(r[4]-r[2]).toFixed(1);
+    const al=r[0]==='Caitlyn'?['STOP NOW','br']:r[4]>20?['CRITICAL','br']:r[4]>15?['WATCH','ba']:['OK','bg'];
+    return`<tr>
+      <td><strong>${r[0]}</strong>${r[0]==='Oleg'?'<br><small style="color:var(--gray)">Handles 65% of all drafts</small>':''}</td>
+      <td>${r[1].toLocaleString()}</td>
+      <td>${r[2]}%</td>
+      <td>${r[3].toLocaleString()}</td>
+      <td style="font-weight:700;color:${r[4]>30?'var(--red)':r[4]>15?'var(--amber)':'var(--green)'}">${r[4]}%</td>
+      <td style="font-weight:700;color:var(--red)">+${delta}pts</td>
+      <td><span class="badge ${al[1]}">${al[0]}</span></td>
+      <td style="font-size:11px;color:var(--gray)">${actions[r[0]]||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildWatch(){
+  document.getElementById('watch-decline').innerHTML=DECLINING.map(r=>`
+    <div class="alert al-r" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="font-size:13px">${r.n}</strong>
+        <span class="badge br">${r.delta}</span>
+      </div>
+      <div style="font-size:12px;margin-top:3px;color:#991B1B">${r.change}</div>
+      <div style="font-size:12px;margin-top:6px;color:#374151"><strong>Action:</strong> ${r.action}</div>
+    </div>`).join('');
+  document.getElementById('watch-improve').innerHTML=IMPROVING.map(r=>`
+    <div class="alert al-g" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="font-size:13px">${r.n}</strong>
+        <span class="badge bg">${r.delta}</span>
+      </div>
+      <div style="font-size:12px;margin-top:3px;color:#166534">${r.change}</div>
+      <div style="font-size:12px;margin-top:6px;color:#374151"><strong>Action:</strong> ${r.action}</div>
+    </div>`).join('');
+}
+
+function initCharts(){
+  const labs=['Jan','Feb','Mar','Apr'];
+  const gb25=M25.map(r=>+(r.g/r.o*100).toFixed(1));
+  const gb26=M26.map(r=>+(r.g/r.o*100).toFixed(1));
+  const cp25=M25.map(r=>+(r.c/r.o*100).toFixed(1));
+  const cp26=M26.map(r=>+(r.c/r.o*100).toFixed(1));
+  const ca25=M25.map(r=>+(r.x/r.o*100).toFixed(1));
+  const ca26=M26.map(r=>+(r.x/r.o*100).toFixed(1));
+
+  const mkBar=(id,labels,ds,title,opts={})=>{
+    const ctx=document.getElementById(id);
+    if(!ctx)return;
+    new Chart(ctx,{type:'bar',data:{labels,datasets:ds},
+      options:{responsive:true,plugins:{title:{display:true,text:title,font:{size:13,weight:'bold'},color:NV},legend:{labels:{font:{size:11}}}},
+        scales:{x:{ticks:{font:{size:11}}},y:{ticks:{font:{size:11}}},...(opts.scales||{})}}});
+  };
+  const mkLine=(id,labels,ds,title)=>{
+    const ctx=document.getElementById(id);
+    if(!ctx)return;
+    new Chart(ctx,{type:'line',data:{labels,datasets:ds},
+      options:{responsive:true,tension:0.3,plugins:{title:{display:true,text:title,font:{size:13,weight:'bold'},color:NV},legend:{labels:{font:{size:11}}}},
+        scales:{x:{ticks:{font:{size:11}}},y:{ticks:{font:{size:11}}}}}});
+  };
+
+  // Headline charts
+  mkBar('c-hl-orders',labs,[
+    {label:'2025 Orders',data:M25.map(r=>r.o),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+    {label:'2026 Orders',data:M26.map(r=>r.o),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Monthly Order Volume: 2025 vs 2026');
+
+  mkBar('c-hl-gb',labs,[
+    {label:'2025 GB%',data:gb25,backgroundColor:BLt,borderColor:BL,borderWidth:1},
+    {label:'2026 GB%',data:gb26,backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Go-Back Rate %: 2025 vs 2026',{scales:{y:{ticks:{callback:v=>v+'%'}}}});
+
+  mkBar('c-hl-comp',labs,[
+    {label:'2025 Comp%',data:cp25,backgroundColor:GNt,borderColor:GN,borderWidth:1},
+    {label:'2026 Comp%',data:cp26,backgroundColor:AMt,borderColor:AM,borderWidth:1}
+  ],'Completion Rate %: 2025 vs 2026',{scales:{y:{ticks:{callback:v=>v+'%'}}}});
+
+  mkBar('c-hl-cancel',labs,[
+    {label:'2025 Cancel%',data:ca25,backgroundColor:AMt,borderColor:AM,borderWidth:1},
+    {label:'2026 Cancel%',data:ca26,backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Cancellation Rate %: 2025 vs 2026',{scales:{y:{ticks:{callback:v=>v+'%'}}}});
+
+  // Monthly trend charts
+  mkBar('c-m-orders',labs,[
+    {label:'2025',data:M25.map(r=>r.o),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+    {label:'2026',data:M26.map(r=>r.o),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Monthly Orders: 2025 vs 2026');
+
+  mkLine('c-m-gb',labs,[
+    {label:'2025 GB%',data:gb25,borderColor:BL,backgroundColor:'rgba(27,58,155,0.1)',fill:true,pointBackgroundColor:BL},
+    {label:'2026 GB%',data:gb26,borderColor:RD,backgroundColor:'rgba(220,38,38,0.1)',fill:true,pointBackgroundColor:RD}
+  ],'Go-Back Rate % Trend: 2025 vs 2026');
+
+  mkLine('c-m-comp',labs,[
+    {label:'2025 Comp%',data:cp25,borderColor:GN,pointBackgroundColor:GN},
+    {label:'2026 Comp%',data:cp26,borderColor:AM,borderDash:[5,3],pointBackgroundColor:AM}
+  ],'Completion Rate % Trend: 2025 vs 2026');
+
+  // Crew comparison horizontal bar
+  const top14=CREWS.slice(0,14);
+  const ctx=document.getElementById('c-crew-cmp');
+  if(ctx) new Chart(ctx,{
+    type:'bar',
+    data:{labels:top14.map(r=>r[0]),datasets:[
+      {label:'2025 GB%',data:top14.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+      {label:'2026 GB%',data:top14.map(r=>r[4]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+    ]},
+    options:{indexAxis:'y',responsive:true,
+      plugins:{title:{display:true,text:'Top 14 Crew Go-Back Rates: 2025 vs 2026 (Worst Declines)',font:{size:13,weight:'bold'},color:NV},legend:{labels:{font:{size:11}}}},
+      scales:{x:{ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}
+  });
+
+  // Drafter charts
+  mkBar('c-draft-cmp',DRAFTERS.map(r=>r[0]),[
+    {label:'2025 GB%',data:DRAFTERS.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+    {label:'2026 GB%',data:DRAFTERS.map(r=>r[4]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Drafter Go-Back Rates: 2025 vs 2026',{scales:{y:{ticks:{callback:v=>v+'%'}}}});
+
+  mkBar('c-draft-vol',DRAFTERS.map(r=>r[0]),[
+    {label:'2025 Jobs',data:DRAFTERS.map(r=>r[1]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+    {label:'2026 Jobs',data:DRAFTERS.map(r=>r[3]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+  ],'Drafter Volume: 2025 vs 2026 (Jan–Apr)');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildMonthly(); buildCrews(); buildDrafters(); buildWatch();
+  initCharts();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+================================================================================
+REPORT BRIEF
+Report:   FTF Master Operations Report — Full Year 2026 (YTD)
+Period:   January 1 – May 5, 2026  (year-to-date)
+Generated: May 5, 2026
+By:       Claude (Sonnet 4.6) via Claude Code + MySQL MCP
+================================================================================
+
+WHAT THIS REPORT IS
+────────────────────
+Comprehensive 10-tab Excel + 7-page PDF covering all NexGen FTF survey operations
+from January 1 through May 5, 2026. Includes order pipeline, crew scorecards,
+drafter scorecards, county performance, open orders, and 30-day action plan.
+
+FILES IN THIS FOLDER
+────────────────────
+FTF_MASTER_REPORT_2026.xlsx         — Full 10-tab Excel report
+FTF_MASTER_REPORT_2026_SUMMARY.pdf  — 7-page executive summary (PDF)
+REPORT_BRIEF.txt                     — This file
+REPORT_PROMPT.txt                    — Full technical prompt to recreate
+
+HEADLINE FINDINGS
+────────────────────────────────────────
+  Total orders (YTD):  ~6,400    Completion rate: ~63%
+  Go-back rate:        ~15.5%    Cancel rate:     ~26%
+  Open orders:           843     Access call backlog: 6,335 unsettled
+
+EXCEL TABS
+────────────────────────────────────────
+  Tab 1 — REPORT CARD       Tab 6 — Crew Report Cards
+  Tab 2 — GREEN FLAGS       Tab 7 — Drafter Report Cards
+  Tab 3 — RED FLAGS         Tab 8 — County Performance
+  Tab 4 — Monthly Scoreboard Tab 9 — Open Orders - Act Now
+  Tab 5 — Pipeline Bottlenecks Tab 10 — 30-Day Action Plan
+================================================================================

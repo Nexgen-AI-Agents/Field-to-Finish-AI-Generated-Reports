@@ -1,0 +1,63 @@
+================================================================================
+REPORT BRIEF
+Report:   FTF 2025 vs 2026 Year-Over-Year Comparison
+Period:   January 1 – April 30  (same window, both years)
+Generated: May 5, 2026  |  17:08
+By:       Claude (Sonnet 4.6) via Claude Code + MySQL MCP
+================================================================================
+
+WHAT THIS REPORT IS
+────────────────────
+A side-by-side comparison of NexGen FTF survey operations between January–April
+2025 and January–April 2026. Covers order volume, completion rates, go-back rates,
+crew performance by name, drafter performance by name, and coordinator data.
+Includes Excel charts (bar graphs) and a 4-page PDF executive summary.
+
+FILES IN THIS FOLDER
+────────────────────
+FTF_COMPARISON_2025_vs_2026_Jan-Apr.xlsx  — 6-tab Excel with bar charts
+FTF_COMPARISON_2025_vs_2026_Jan-Apr_SUMMARY.pdf  — 4-page PDF summary
+REPORT_BRIEF.txt  — This file (what this report is, at a glance)
+REPORT_PROMPT.txt — Full technical prompt to recreate this report
+
+HEADLINE FINDINGS (3-sentence summary)
+────────────────────────────────────────
+The go-back rate tripled from 5.4% in 2025 to 15.5% in 2026 — meaning 581 extra
+jobs had to be redone in just four months, costing time, fuel, and client trust.
+Order volume fell 15% and completion rate dropped 6.6 points, though cancellations
+improved slightly (29.1% → 26.3%). The single most urgent fix is addressing crew
+and drafter quality: 18 of 24 tracked crews got worse, while Oleg's drafter
+go-back rate quadrupled and Caitlyn's reached 70.6%.
+
+KEY NUMBERS
+────────────────────────────────────────
+  2025 Jan-Apr: 7,539 orders  |  69.5% completed  |  5.4% go-back  |  29.1% cancel
+  2026 Jan-Apr: 6,397 orders  |  62.9% completed  |  15.5% go-back |  26.3% cancel
+
+TOP 3 CREW DECLINES (go-back rate change)
+  Choppa:   11.1% → 51.3%  (+40.2 pts)
+  Rc:        3.8% → 45.6%  (+41.8 pts)
+  Byron:     5.3% → 42.3%  (+37.0 pts)
+
+TOP 3 CREW IMPROVEMENTS
+  Johnv:    10.7% → 3.4%   (-7.3 pts) ← biggest improvement
+  Joseph:    2.5% → 1.8%   (-0.7 pts)
+  Diegor:    5.8% → 4.6%   (-1.2 pts)
+
+DRAFTER ALERT
+  Oleg (65% of all drafting):  5.9% → 23.2%  (+17.3 pts) — CRITICAL
+  Caitlyn:                    22.2% → 70.6%  (+48.4 pts) — STOP ASSIGNMENTS
+
+COORDINATOR NOTE
+  Only 2026 data available (field barely used in 2025).
+  Marcos: 98.9% completion on 90 orders — model coordinator.
+
+EXCEL TABS
+────────────────────────────────────────
+  Tab 1 — HEADLINE NUMBERS     (overall scorecard with grades)
+  Tab 2 — MONTHLY TRENDS       (month-by-month + 3 bar charts)
+  Tab 3 — CREW SCORECARDS      (all 24 crews + comparison bar chart)
+  Tab 4 — DRAFTER SCORECARDS   (all drafters + bar chart)
+  Tab 5 — COORDINATOR REPORT   (2026 coordinator data + notes)
+  Tab 6 — WHO TO WATCH         (named list: declining + improving)
+================================================================================

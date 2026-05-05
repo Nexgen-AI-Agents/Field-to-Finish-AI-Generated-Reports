@@ -1,0 +1,45 @@
+================================================================================
+REPORT BRIEF
+Report:   FTF Master Operations Report — Full Year 2025
+Period:   January 1 – December 31, 2025  (complete calendar year)
+Generated: May 5, 2026  |  16:49
+By:       Claude (Sonnet 4.6) via Claude Code + MySQL MCP
+================================================================================
+
+WHAT THIS REPORT IS
+────────────────────
+Full-year 2025 operations report for NexGen FTF. 10-tab Excel + 6-page PDF.
+Covers all 20,454 orders across the complete 2025 calendar year. Provides the
+baseline to compare against 2026 performance.
+
+FILES IN THIS FOLDER
+────────────────────
+FTF_MASTER_REPORT_2025.xlsx         — Full 10-tab Excel report
+FTF_MASTER_REPORT_2025_SUMMARY.pdf  — 6-page executive summary (PDF)
+REPORT_BRIEF.txt                     — This file
+REPORT_PROMPT.txt                    — Full technical prompt to recreate
+
+HEADLINE FINDINGS
+────────────────────────────────────────
+  Total orders:    20,454    Completion rate:  69.1%
+  Go-back rate:     6.3%    Cancel rate:      29.1%
+  Open at year end:  381    Unsettled access: 19,656
+  Active crews:       33    Active drafters:      11
+
+TOP PERFORMERS
+  Best crew:    Davidy (0.0% go-back, 218 jobs)
+  Best month:   June (72% completion)
+  Best drafter: Oleg (7.7% GB — much better than 2026)
+
+WORST PERFORMERS
+  Worst month:   September (34.5% cancellation)
+  Worst drafter: Fred_draft (87.7-day avg delivery)
+
+EXCEL TABS
+────────────────────────────────────────
+  Tab 1 — REPORT CARD       Tab 6 — Crew Report Cards
+  Tab 2 — GREEN FLAGS       Tab 7 — Drafter Report Cards
+  Tab 3 — RED FLAGS         Tab 8 — County Performance
+  Tab 4 — Monthly Scoreboard Tab 9 — Open Orders - Act Now (381)
+  Tab 5 — Pipeline Bottlenecks Tab 10 — 30-Day Action Plan
+================================================================================
