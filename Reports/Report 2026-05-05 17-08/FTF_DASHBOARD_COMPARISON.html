@@ -383,9 +383,10 @@ const BLt='rgba(27,58,155,0.7)',RDt='rgba(220,38,38,0.7)',GNt='rgba(22,163,74,0.
 
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.classList.toggle('active', (b.getAttribute('onclick')||'').includes("'"+id+"'"));
+  });
   document.getElementById(id).classList.add('active');
-  event.currentTarget.classList.add('active');
 }
 
 const sortState={};
@@ -399,8 +400,8 @@ function sort(id,col){
   tbl.querySelectorAll('thead th').forEach(t=>t.classList.remove('asc','desc'));
   tbl.querySelectorAll('thead th')[col].classList.add(asc?'asc':'desc');
   rows.sort((a,b)=>{
-    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+pts]/g,'').trim();
-    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+pts]/g,'').trim();
+    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').trim();
+    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').trim();
     const an=parseFloat(av),bn=parseFloat(bv);
     if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;
     return asc?av.localeCompare(bv):bv.localeCompare(av);
@@ -589,19 +590,21 @@ function initCharts(){
     {label:'2026 Comp%',data:cp26,borderColor:AM,borderDash:[5,3],pointBackgroundColor:AM}
   ],'Completion Rate % Trend: 2025 vs 2026');
 
-  // Crew comparison horizontal bar
-  const top14=CREWS.slice(0,14);
+  // Crew comparison horizontal bar — all 25 crews
   const ctx=document.getElementById('c-crew-cmp');
-  if(ctx) new Chart(ctx,{
-    type:'bar',
-    data:{labels:top14.map(r=>r[0]),datasets:[
-      {label:'2025 GB%',data:top14.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
-      {label:'2026 GB%',data:top14.map(r=>r[4]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
-    ]},
-    options:{indexAxis:'y',responsive:true,
-      plugins:{title:{display:true,text:'Top 14 Crew Go-Back Rates: 2025 vs 2026 (Worst Declines)',font:{size:13,weight:'bold'},color:NV},legend:{labels:{font:{size:11}}}},
-      scales:{x:{ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}
-  });
+  if(ctx){
+    ctx.parentElement.style.height='680px';
+    new Chart(ctx,{
+      type:'bar',
+      data:{labels:CREWS.map(r=>r[0]),datasets:[
+        {label:'2025 GB%',data:CREWS.map(r=>r[2]),backgroundColor:BLt,borderColor:BL,borderWidth:1},
+        {label:'2026 GB%',data:CREWS.map(r=>r[4]),backgroundColor:RDt,borderColor:RD,borderWidth:1}
+      ]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{title:{display:true,text:'All 25 Crews — Go-Back Rates: 2025 vs 2026 (Sorted: Worst Decline First)',font:{size:13,weight:'bold'},color:NV},legend:{labels:{font:{size:11}}}},
+        scales:{x:{ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}
+    });
+  }
 
   // Drafter charts
   mkBar('c-draft-cmp',DRAFTERS.map(r=>r[0]),[
