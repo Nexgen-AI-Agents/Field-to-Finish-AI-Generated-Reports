@@ -95,6 +95,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
   </div>
   <div class="section">
     <h2>Monthly Cycle Time — Jan–Apr Comparison <span class="src">(same window both years | days, hrs in tooltip)</span></h2>
+      <div class="note" style="margin-bottom:8px">Full end-to-end turnaround: from order placed to survey delivered (ng_orders, Jan–Apr both years). Lower is better. Apr 2026 (10.6d) is the best month on record — vs Apr 2025 (30.7d). This is total cycle time, not time in a single status.</div>
     <div class="grid2">
       <div class="chart-wrap" style="height:230px"><canvas id="c-monthly-sum"></canvas></div>
       <table class="cmp-table"><thead><tr><th>Month</th><th class="yr25">2025 Days (hrs)</th><th class="yr26">2026 Days (hrs)</th><th class="chg">YoY</th></tr></thead><tbody id="monthly-cmp-tbody"></tbody></table>
@@ -121,7 +122,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
     <h2>Detailed Stage Comparison — All in Hours (days in parentheses)</h2>
     <table class="cmp-table"><thead><tr><th>Pipeline Stage</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr25">2025 Orders</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="yr26">2026 Orders</th><th class="chg">Change (hrs)</th><th class="chg">Change %</th></tr></thead><tbody id="pipeline-tbody"></tbody></table>
   </div>
-  <div class="section"><h2>Monthly Cycle Time — Jan–Apr 2025 vs 2026 (days)</h2><div class="chart-wrap" style="height:280px"><canvas id="c-monthly-main"></canvas></div></div>
+  <div class="section"><h2>Monthly Cycle Time — Jan–Apr 2025 vs 2026 (days)</h2><div class="note" style="margin-bottom:8px">Full order-to-delivery turnaround (order placed → survey delivered). Jan–Apr same window both years. 2026 tracking better overall — April hit 10.6d vs 30.7d in 2025. February 2026 (25.3d) remains elevated.</div><div class="chart-wrap" style="height:280px"><canvas id="c-monthly-main"></canvas></div></div>
 </div>
 <!-- TAB 4: RED FLAGS -->
 <div class="tab" id="t-flags">
@@ -138,7 +139,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
 </div>
 <!-- TAB 5: CREW REPORT -->
 <div class="tab" id="t-crew">
-  <div class="note"><strong>In-Field Hrs</strong> from order_status_tracking (precise). <strong>Go-Back %</strong> and <strong>Cycle Time</strong> from ng_orders milestones. <strong>Color:</strong> <span class="hrs-red">Red ≥200h or ≥40% GB</span> | <span class="hrs-amber">Amber 80-200h or 25-40% GB</span> | <span class="hrs-green">Green = OK</span></div>
+  <div class="note"><strong>In-Field Hrs</strong> = time from crew assigned (crew_assign_date) to fieldwork completion (ng_date_fieldwork) from ng_orders. <strong>Go-Back %</strong> = is_go_back flag. <strong>Cycle Time</strong> = order placed to delivered. Jan–Apr 2026 delivered orders only (≥3 jobs). <strong>Color:</strong> <span class="hrs-red">Red ≥200h or ≥40% GB</span> | <span class="hrs-amber">Amber 80-200h or 25-40% GB</span> | <span class="hrs-green">Green = OK</span></div>
   <div class="kpi-grid" id="crew-kpis"></div>
   <div class="grid2">
     <div class="section"><h2>Avg In-Field Hours by Crew (2026) <span class="src">sorted highest → lowest</span></h2><div class="chart-wrap" style="height:580px"><canvas id="c-crew-if"></canvas></div></div>
@@ -160,7 +161,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
   <div class="filters">
     <label>Search:</label><input type="text" id="ord-q" placeholder="Order #, address, county, crew…" oninput="filterO()" style="width:220px">
     <label>Status:</label><select id="ord-s" onchange="filterO()"><option value="">All</option><option>Assigned</option><option>In-Field</option><option>Drafting Queue</option><option>Drafting</option><option>Checking</option><option>On Hold</option><option>Quote</option><option>Pending</option></select>
-    <label>Year:</label><select id="ord-y" onchange="filterO()"><option value="">All</option><option>2025</option><option>2026</option></select>
+    <label>Year:</label><select id="ord-y" onchange="filterO()"><option value="">All</option><option>2025</option><option selected>2026</option></select>
     <span id="ord-cnt" style="font-size:.76rem;color:var(--gray);font-weight:600;"></span>
   </div>
   <table class="cmp-table" id="ord-tbl"><thead><tr>
@@ -204,65 +205,79 @@ const MONTHLY=[
   {yr:2026,mo:'Mar',days:22.1,n:38},{yr:2026,mo:'Apr',days:10.6,n:18}
 ];
 const ACTIVE=[
-  {s:'Pending',code:1,cnt:5,avg:75.6,max:165},
-  {s:'Assigned',code:2,cnt:35,avg:152.9,max:1456},
-  {s:'In-Field',code:3,cnt:14,avg:133.7,max:305},
-  {s:'Drafting Queue',code:4,cnt:33,avg:284.9,max:1312},
-  {s:'Drafting',code:5,cnt:81,avg:44.6,max:453},
-  {s:'Checking',code:6,cnt:50,avg:18.1,max:198},
-  {s:'On Hold',code:11,cnt:545,avg:5096.4,max:11710},
-  {s:'Quote',code:12,cnt:24,avg:526.1,max:1368},
-  {s:'Go Back',code:14,cnt:1,avg:17.0,max:17}
+  {s:'Pending',code:1,cnt:7,avg:56,max:166},
+  {s:'Assigned',code:2,cnt:34,avg:158,max:1457},
+  {s:'In-Field',code:3,cnt:16,avg:121,max:307},
+  {s:'Drafting Queue',code:4,cnt:32,avg:295,max:1313},
+  {s:'Drafting',code:5,cnt:67,avg:41,max:455},
+  {s:'Checking',code:6,cnt:62,avg:17,max:199},
+  {s:'On Hold',code:11,cnt:545,avg:5098,max:11711},
+  {s:'Quote',code:12,cnt:24,avg:528,max:1369},
+  {s:'Go Back',code:14,cnt:1,avg:19,max:19}
 ];
 const RED_FLAGS=[
-  {order:'1000257291',addr:'9025 SE BRIDGE RD',county:'Martin County',crew:'Ex_field',status:'Assigned',code:2,since:'2026-03-06 17:45',hrs:1457,total:11075,sev:'CRITICAL'},
-  {order:'1000279412',addr:'4384 KEMPSON LN',county:'Charlotte County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-03-12 18:04',hrs:1312,total:1650,sev:'CRITICAL'},
-  {order:'1000270268',addr:'19366 NW 294TH ST',county:'Okeechobee County',crew:'Elenam',status:'Drafting Queue',code:4,since:'2026-03-15 15:12',hrs:1243,total:6169,sev:'CRITICAL'},
-  {order:'1000269556',addr:'662 FLAMINGO RD',county:'Sarasota County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-04-03 12:01',hrs:790,total:6434,sev:'CRITICAL'},
-  {order:'1000266714',addr:'4345 6TH AVE NE',county:'Collier County',crew:'Alije',status:'Drafting Queue',code:4,since:'2026-04-04 16:50',hrs:761,total:7583,sev:'CRITICAL'},
-  {order:'1000273780',addr:'2922 SW 68TH LN',county:'Alachua County',crew:'Johnv',status:'Drafting Queue',code:4,since:'2026-04-10 12:19',hrs:622,total:4513,sev:'CRITICAL'},
-  {order:'1000275475',addr:'5729 SW 60TH AVE',county:'Miami-Dade County',crew:'Andrewy',status:'Drafting Queue',code:4,since:'2026-04-10 15:43',hrs:619,total:3648,sev:'CRITICAL'},
-  {order:'1000264423',addr:'1606 DESOTO AVENUE',county:'Lee County',crew:'Raul',status:'Drafting Queue',code:4,since:'2026-04-14 13:04',hrs:525,total:8614,sev:'HIGH'},
-  {order:'1000280184',addr:'1443 LENOX AVE',county:'Miami-Dade County',crew:'Byron',status:'Assigned',code:2,since:'2026-04-14 14:25',hrs:524,total:1338,sev:'HIGH'},
-  {order:'1000270875',addr:'605 COUNTY ROAD 217',county:'Clay County',crew:'Joseph',status:'Drafting Queue',code:4,since:'2026-04-16 16:04',hrs:474,total:5877,sev:'HIGH'},
-  {order:'1000280435',addr:'408 JACKSON DR',county:'Sarasota County',crew:'Unassigned',status:'Drafting',code:5,since:'2026-04-17 12:30',hrs:454,total:1201,sev:'HIGH'},
-  {order:'1000282503',addr:'14390 ORANGE BLVD',county:'Palm Beach County',crew:'Clollis',status:'In-Field',code:3,since:'2026-04-23 16:36',hrs:306,total:330,sev:'WARN'},
-  {order:'1000281668',addr:'3865 SW 164TH TER',county:'Broward County',crew:'Tejada',status:'Assigned',code:2,since:'2026-04-23 15:54',hrs:306,total:672,sev:'WARN'},
-  {order:'1000279203',addr:'11167 BEACH CLUB PT',county:'Palm Beach County',crew:'Chauncey_w',status:'Assigned',code:2,since:'2026-04-24 16:13',hrs:282,total:1702,sev:'WARN'},
-  {order:'1000281715',addr:'281 GRANADA RD',county:'Palm Beach County',crew:'Clollis',status:'In-Field',code:3,since:'2026-04-26 09:16',hrs:241,total:354,sev:'WARN'},
-  {order:'1000282041',addr:'18910 SW 32ND CT',county:'Broward County',crew:'Luis_p',status:'Drafting',code:5,since:'2026-04-24 12:54',hrs:285,total:524,sev:'WARN'}
+  {order:'1000257291',addr:'9025 SE BRIDGE RD',county:'Martin County',crew:'Ex_field',status:'Assigned',code:2,since:'2026-03-06 22:45',hrs:1453,total:11077,sev:'CRITICAL'},
+  {order:'1000280003',addr:'6805 LYLA LANE',county:'Sarasota County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-10 13:51',hrs:1366,total:1387,sev:'CRITICAL'},
+  {order:'1000280099',addr:'5550 STEAMBOAT RD',county:'St. Johns County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-10 20:58',hrs:1359,total:1363,sev:'CRITICAL'},
+  {order:'1000279412',addr:'4384 KEMPSON LN',county:'Charlotte County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-03-12 22:04',hrs:1310,total:1651,sev:'CRITICAL'},
+  {order:'1000270268',addr:'19366 NW 294TH ST',county:'Okeechobee County',crew:'Elenam',status:'Drafting Queue',code:4,since:'2026-03-15 19:12',hrs:1241,total:6170,sev:'CRITICAL'},
+  {order:'1000280456',addr:'5465 SE FOREST GLADE TRAIL',county:'Martin County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-17 17:02',hrs:1195,total:1199,sev:'CRITICAL'},
+  {order:'1000280814',addr:'10911 BROWN PELICAN CIR',county:'Lee County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-24 15:24',hrs:1028,total:1051,sev:'CRITICAL'},
+  {order:'1000280896',addr:'8608 N 13TH ST',county:'Hillsborough County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-24 19:51',hrs:1024,total:1028,sev:'CRITICAL'},
+  {order:'1000281059',addr:'349 NW 46TH ST',county:'Miami-Dade County',crew:'Unassigned',status:'Quote',code:12,since:'2026-03-27 13:32',hrs:958,total:962,sev:'CRITICAL'},
+  {order:'1000281365',addr:'3219 WHITE BLVD',county:'Collier County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-01 21:26',hrs:830,total:835,sev:'CRITICAL'},
+  {order:'1000281408',addr:'3446 ANGLIN DR',county:'Sarasota County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-02 17:31',hrs:810,total:814,sev:'CRITICAL'},
+  {order:'1000269556',addr:'662 FLAMINGO RD',county:'Sarasota County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-04-03 16:01',hrs:788,total:6435,sev:'CRITICAL'},
+  {order:'1000266714',addr:'4345 6TH AVE NE',county:'Collier County',crew:'Alije',status:'Drafting Queue',code:4,since:'2026-04-04 20:50',hrs:759,total:7584,sev:'CRITICAL'},
+  {order:'1000281604',addr:'8667 SE 157TH PL',county:'Marion County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-07 15:54',hrs:692,total:696,sev:'CRITICAL'},
+  {order:'1000273780',addr:'2922 SW 68TH LN',county:'Alachua County',crew:'Johnv',status:'Drafting Queue',code:4,since:'2026-04-10 16:19',hrs:620,total:4515,sev:'CRITICAL'},
+  {order:'1000275475',addr:'5729 SW 60TH AVE',county:'Miami-Dade County',crew:'Andrewy',status:'Drafting Queue',code:4,since:'2026-04-10 19:43',hrs:616,total:3649,sev:'CRITICAL'},
+  {order:'1000264423',addr:'1606 DESOTO AVENUE',county:'Lee County',crew:'Raul',status:'Drafting Queue',code:4,since:'2026-04-14 17:04',hrs:523,total:8615,sev:'CRITICAL'},
+  {order:'1000281328',addr:'1462 NW 2ND AVE',county:'Miami-Dade County',crew:'Clollis',status:'Assigned',code:2,since:'2026-04-14 20:13',hrs:520,total:838,sev:'CRITICAL'},
+  {order:'1000282132',addr:'12075 NW 11TH ST',county:'Broward County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-15 20:20',hrs:496,total:500,sev:'HIGH'},
+  {order:'1000282154',addr:'4049 SE 6TH WAY',county:'Sumter County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-16 17:45',hrs:474,total:481,sev:'HIGH'},
+  {order:'1000270875',addr:'605 COUNTY ROAD 217',county:'Clay County',crew:'Joseph',status:'Drafting Queue',code:4,since:'2026-04-16 20:04',hrs:472,total:5879,sev:'HIGH'},
+  {order:'1000280435',addr:'408 JACKSON DR',county:'Sarasota County',crew:'Unassigned',status:'Drafting',code:5,since:'2026-04-17 16:30',hrs:451,total:1202,sev:'HIGH'},
+  {order:'1000282274',addr:'822 WOODLAWN ST',county:'Pinellas County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-17 18:16',hrs:450,total:454,sev:'HIGH'},
+  {order:'1000282398',addr:'Lot 1890 Louise Street',county:'Palm Beach County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-21 12:55',hrs:359,total:378,sev:'HIGH'},
+  {order:'1000281850',addr:'E MANASOTA BEACH RD',county:'Sarasota County',crew:'Clollis',status:'Assigned',code:2,since:'2026-04-21 21:31',hrs:350,total:623,sev:'HIGH'},
+  {order:'1000282084',addr:'5800 S MILITARY TRAIL',county:'Palm Beach County',crew:'Chauncey_w',status:'Assigned',code:2,since:'2026-04-22 00:53',hrs:347,total:506,sev:'HIGH'},
+  {order:'1000282493',addr:'39751 ANCHOR AVE',county:'Lake County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-22 14:48',hrs:333,total:338,sev:'HIGH'},
+  {order:'1000282536',addr:'1101 N FEDERAL HWY 1',county:'Palm Beach County',crew:'Unassigned',status:'Quote',code:12,since:'2026-04-23 21:40',hrs:302,total:333,sev:'HIGH'},
+  {order:'1000282550',addr:'210 OCEAN TERRACE',county:'Palm Beach County',crew:'Ex_field',status:'Assigned',code:2,since:'2026-04-24 13:01',hrs:287,total:331,sev:'WARN'},
+  {order:'1000282041',addr:'18910 SW 32ND CT',county:'Broward County',crew:'Luis_p',status:'Drafting',code:5,since:'2026-04-24 16:54',hrs:283,total:525,sev:'WARN'}
 ];
 const CREWS_RAW=[
-  {name:'Elio',jobs_if:10,avg_if:248.8,max_if:503,total:61,avg_p:148.7,avg_c:296.1,gb:12,gb_pct:19.7},
-  {name:'Diego',jobs_if:10,avg_if:180.4,max_if:360,total:15,avg_p:201.9,avg_c:386.3,gb:8,gb_pct:53.3},
-  {name:'Alije',jobs_if:122,avg_if:171.8,max_if:614,total:619,avg_p:135.2,avg_c:269.7,gb:103,gb_pct:16.6},
-  {name:'Tejada',jobs_if:50,avg_if:159.7,max_if:433,total:144,avg_p:189.0,avg_c:310.5,gb:49,gb_pct:34.0},
-  {name:'Jonp',jobs_if:19,avg_if:148.3,max_if:428,total:116,avg_p:103.1,avg_c:207.7,gb:15,gb_pct:12.9},
-  {name:'Raul',jobs_if:42,avg_if:147.6,max_if:554,total:221,avg_p:81.3,avg_c:168.1,gb:35,gb_pct:15.8},
-  {name:'Choppa',jobs_if:39,avg_if:146.5,max_if:402,total:76,avg_p:163.6,avg_c:272.2,gb:39,gb_pct:51.3},
-  {name:'Ivan',jobs_if:120,avg_if:140.8,max_if:570,total:354,avg_p:156.9,avg_c:316.5,gb:106,gb_pct:29.9},
-  {name:'Ricardot',jobs_if:61,avg_if:139.4,max_if:653,total:357,avg_p:74.1,avg_c:181.2,gb:46,gb_pct:12.9},
-  {name:'Ray',jobs_if:13,avg_if:137.8,max_if:264,total:174,avg_p:124.0,avg_c:231.1,gb:13,gb_pct:7.5},
-  {name:'Byron',jobs_if:96,avg_if:136.2,max_if:604,total:221,avg_p:149.9,avg_c:297.9,gb:90,gb_pct:40.7},
-  {name:'Manuel',jobs_if:68,avg_if:133.7,max_if:430,total:231,avg_p:142.3,avg_c:261.8,gb:62,gb_pct:26.8},
-  {name:'Chauncey_w',jobs_if:33,avg_if:131.9,max_if:534,total:129,avg_p:210.6,avg_c:381.2,gb:27,gb_pct:20.9},
-  {name:'Andrewy',jobs_if:40,avg_if:129.8,max_if:452,total:137,avg_p:180.9,avg_c:303.8,gb:33,gb_pct:24.1},
-  {name:'Mabel',jobs_if:31,avg_if:128.9,max_if:679,total:103,avg_p:103.7,avg_c:202.9,gb:27,gb_pct:26.2},
-  {name:'Richardp',jobs_if:79,avg_if:122.9,max_if:530,total:221,avg_p:114.0,avg_c:253.2,gb:73,gb_pct:33.0},
-  {name:'Juans',jobs_if:57,avg_if:122.7,max_if:560,total:222,avg_p:129.9,avg_c:264.8,gb:45,gb_pct:20.3},
-  {name:'Elenam',jobs_if:48,avg_if:121.7,max_if:379,total:235,avg_p:119.7,avg_c:223.8,gb:36,gb_pct:15.3},
-  {name:'Rc',jobs_if:54,avg_if:106.2,max_if:461,total:115,avg_p:145.0,avg_c:274.9,gb:52,gb_pct:45.2},
-  {name:'Rose',jobs_if:16,avg_if:102.3,max_if:212,total:119,avg_p:92.4,avg_c:224.7,gb:10,gb_pct:8.4},
-  {name:'Kurt',jobs_if:10,avg_if:102.2,max_if:439,total:57,avg_p:75.9,avg_c:128.8,gb:7,gb_pct:12.3},
-  {name:'Diegor',jobs_if:9,avg_if:95.5,max_if:289,total:138,avg_p:70.8,avg_c:172.5,gb:6,gb_pct:4.3},
-  {name:'Joseph',jobs_if:2,avg_if:55.5,max_if:70,total:59,avg_p:92.2,avg_c:181.0,gb:1,gb_pct:1.7},
-  {name:'Anthonya',jobs_if:2,avg_if:25.0,max_if:50,total:39,avg_p:69.2,avg_c:203.9,gb:1,gb_pct:2.6},
-  {name:'Ex_field',jobs_if:4,avg_if:24.3,max_if:118,total:29,avg_p:113.2,avg_c:310.0,gb:3,gb_pct:10.3},
-  {name:'Johnv',jobs_if:6,avg_if:24.2,max_if:70,total:92,avg_p:95.6,avg_c:172.1,gb:2,gb_pct:2.2},
-  {name:'Luis_p',jobs_if:2,avg_if:22.0,max_if:44,total:20,avg_p:97.9,avg_c:191.6,gb:0,gb_pct:0.0},
-  {name:'Davidy',jobs_if:3,avg_if:31.3,max_if:46,total:69,avg_p:65.3,avg_c:138.2,gb:4,gb_pct:5.8},
-  {name:'Clollis',jobs_if:2,avg_if:0,max_if:0,total:52,avg_p:186.5,avg_c:548.6,gb:8,gb_pct:15.4},
-  {name:'Ilya',jobs_if:1,avg_if:337.0,max_if:337,total:8,avg_p:117.8,avg_c:162.9,gb:1,gb_pct:12.5}
+  {name:'Clollis',jobs_if:27,avg_if:107.7,max_if:467.2,total:45,avg_p:240.6,avg_c:562.1,gb:9,gb_pct:20.0},
+  {name:'Luis_p',jobs_if:11,avg_if:88.9,max_if:144.2,total:12,avg_p:100.6,avg_c:192.0,gb:0,gb_pct:0.0},
+  {name:'Elio',jobs_if:52,avg_if:79.5,max_if:648.0,total:59,avg_p:153.9,avg_c:296.6,gb:12,gb_pct:20.3},
+  {name:'Richardp',jobs_if:182,avg_if:77.9,max_if:430.8,total:191,avg_p:123.4,avg_c:258.2,gb:71,gb_pct:37.2},
+  {name:'Byron',jobs_if:193,avg_if:77.7,max_if:719.0,total:204,avg_p:183.5,avg_c:310.8,gb:94,gb_pct:46.1},
+  {name:'Rc',jobs_if:95,avg_if:75.7,max_if:650.2,total:102,avg_p:152.5,avg_c:275.4,gb:52,gb_pct:51.0},
+  {name:'Juans',jobs_if:195,avg_if:71.7,max_if:598.0,total:210,avg_p:143.8,avg_c:269.9,gb:46,gb_pct:21.9},
+  {name:'Jonp',jobs_if:110,avg_if:64.7,max_if:720.0,total:111,avg_p:119.8,avg_c:233.3,gb:17,gb_pct:15.3},
+  {name:'Manuel',jobs_if:200,avg_if:58.9,max_if:648.0,total:213,avg_p:153.0,avg_c:266.1,gb:63,gb_pct:29.6},
+  {name:'Andrewy',jobs_if:107,avg_if:57.5,max_if:552.0,total:128,avg_p:203.7,avg_c:323.6,gb:36,gb_pct:28.1},
+  {name:'Ivan',jobs_if:274,avg_if:56.4,max_if:720.0,total:336,avg_p:192.8,avg_c:341.4,gb:114,gb_pct:33.9},
+  {name:'Chauncey_w',jobs_if:56,avg_if:56.2,max_if:576.0,total:121,avg_p:275.0,avg_c:428.2,gb:31,gb_pct:25.6},
+  {name:'Elenam',jobs_if:200,avg_if:53.3,max_if:696.0,total:217,avg_p:161.0,avg_c:265.4,gb:41,gb_pct:18.9},
+  {name:'Rose',jobs_if:104,avg_if:49.0,max_if:406.6,total:111,avg_p:102.2,avg_c:231.0,gb:11,gb_pct:9.9},
+  {name:'Ricardot',jobs_if:292,avg_if:48.3,max_if:611.3,total:334,avg_p:106.0,avg_c:207.0,gb:52,gb_pct:15.6},
+  {name:'Raul',jobs_if:200,avg_if:46.0,max_if:358.9,total:215,avg_p:119.3,avg_c:199.3,gb:42,gb_pct:19.5},
+  {name:'Alije',jobs_if:493,avg_if:42.1,max_if:672.0,total:571,avg_p:158.0,avg_c:292.9,gb:112,gb_pct:19.6},
+  {name:'Mabel',jobs_if:87,avg_if:40.9,max_if:199.8,total:98,avg_p:154.8,avg_c:251.4,gb:30,gb_pct:30.6},
+  {name:'Tejada',jobs_if:126,avg_if:39.3,max_if:360.0,total:130,avg_p:222.6,avg_c:321.2,gb:51,gb_pct:39.2},
+  {name:'Diegor',jobs_if:126,avg_if:35.5,max_if:655.6,total:128,avg_p:73.8,avg_c:174.2,gb:6,gb_pct:4.7},
+  {name:'Diego',jobs_if:15,avg_if:30.9,max_if:216.0,total:16,avg_p:237.3,avg_c:417.5,gb:9,gb_pct:56.3},
+  {name:'Choppa',jobs_if:62,avg_if:13.6,max_if:75.4,total:73,avg_p:168.3,avg_c:272.6,gb:39,gb_pct:53.4},
+  {name:'Anthonya',jobs_if:33,avg_if:6.5,max_if:24.0,total:36,avg_p:71.1,avg_c:204.4,gb:1,gb_pct:2.8},
+  {name:'Johnv',jobs_if:80,avg_if:2.7,max_if:48.0,total:85,avg_p:112.9,avg_c:186.4,gb:3,gb_pct:3.5},
+  {name:'Davidy',jobs_if:65,avg_if:2.3,max_if:8.1,total:67,avg_p:66.0,avg_c:138.7,gb:4,gb_pct:6.0},
+  {name:'Joseph',jobs_if:44,avg_if:2.0,max_if:13.8,total:50,avg_p:97.3,avg_c:181.5,gb:1,gb_pct:2.0},
+  {name:'Ex_field',jobs_if:1,avg_if:0.0,max_if:0.0,total:26,avg_p:113.0,avg_c:310.4,gb:3,gb_pct:11.5},
+  {name:'Ilya',jobs_if:8,avg_if:0.0,max_if:0.0,total:8,avg_p:118.2,avg_c:163.5,gb:1,gb_pct:12.5},
+  {name:'Kurt',jobs_if:51,avg_if:0.0,max_if:0.0,total:54,avg_p:60.2,avg_c:129.3,gb:5,gb_pct:9.3},
+  {name:'Ray',jobs_if:153,avg_if:0.0,max_if:0.0,total:161,avg_p:126.0,avg_c:231.5,gb:13,gb_pct:8.1}
 ];
 const SB={1:'s1',2:'s2',3:'s3',4:'s4',5:'s5',6:'s6',7:'s7',8:'s8',11:'s11',12:'s12',13:'s12',14:'s14',15:'s3'};
 function daysFmt(h){if(!h)return'–';return(h/24).toFixed(1)+'d';}
@@ -614,7 +629,7 @@ const OPEN_ORDERS=[
     labels:actEx.map(a=>a.s),
     datasets:[{label:'Avg Hrs in Current Status',data:actEx.map(a=>a.avg),
       backgroundColor:actEx.map(a=>a.avg>=200?'#DC2626':a.avg>=80?'#D97706':'#16A34A')}]
-  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d)`}}},scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
+  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d) — ${actEx[c.dataIndex].cnt} orders`}}},scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
 
   // Monthly comparison table — Jan–Apr only (same window both years)
   const months=['Jan','Feb','Mar','Apr'];
@@ -652,7 +667,20 @@ const OPEN_ORDERS=[
       scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
   };
   makeBar('c-dur26',SD26,'2026 Avg Hrs (Jan–Apr)');
-  makeBar('c-dur25',SD25,'2025 Avg Hrs (Jan–Apr, milestone)');
+  // 2025 chart — same status list as 2026; gray bars where milestone data unavailable
+  (function(){
+    const sd25Map=Object.fromEntries(SD25.map(d=>[d.code,d.hrs]));
+    const labels=SD26.map(d=>d.s);
+    const vals=SD26.map(d=>sd25Map[d.code]!=null?sd25Map[d.code]:0);
+    const hasDat=SD26.map(d=>sd25Map[d.code]!=null);
+    new Chart(document.getElementById('c-dur25'),{type:'bar',data:{
+      labels,
+      datasets:[{label:'2025 Avg Hrs (Jan–Apr, milestone)',data:vals,
+        backgroundColor:hasDat.map((ok,i)=>ok?(vals[i]>=200?'#DC2626':vals[i]>=80?'#D97706':'#16A34A'):'#D1D5DB')}]
+    },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>hasDat[c.dataIndex]?`${c.raw}h (${(c.raw/24).toFixed(1)}d)`:'No 2025 milestone data for this status'}}},
+      scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
+  })();
 
   // Full comparison table: all 2026 statuses + 2025 where available
   document.getElementById('dur26-detail-tbody').innerHTML=SD26.map(r26=>{
@@ -680,7 +708,7 @@ const OPEN_ORDERS=[
       {label:'2026 Avg Hrs',data:PIPELINE.map(p=>p.h26),backgroundColor:'rgba(201,168,76,.8)',borderColor:'#C9A84C',borderWidth:1}
     ]
   },options:{responsive:true,maintainAspectRatio:false,
-    plugins:{tooltip:{callbacks:{label:c=>c.raw!=null?`${c.dataset.label}: ${c.raw}h (${(c.raw/24).toFixed(1)}d)`:'N/A (data not yet available)'}}},
+    plugins:{tooltip:{callbacks:{label:c=>{if(c.raw==null)return 'N/A — data not yet available';const p=PIPELINE[c.dataIndex];const n=c.datasetIndex===0?p.n25:p.n26;return `${c.dataset.label}: ${c.raw}h (${(c.raw/24).toFixed(1)}d)${n?' — '+n.toLocaleString()+' orders':''}`;}}}},
     scales:{y:{title:{display:true,text:'Avg Hours'}},x:{ticks:{maxRotation:20}}}}});
 
   document.getElementById('pipeline-tbody').innerHTML=PIPELINE.map(p=>{
@@ -777,7 +805,7 @@ function sC(col){crewSort={col,dir:crewSort.col===col?-crewSort.dir:-1};renderCr
   const topGB=CREWS_RAW.reduce((a,b)=>b.gb_pct>a.gb_pct?b:a);
   const topIF=CREWS_RAW.reduce((a,b)=>b.avg_if>a.avg_if?b:a);
   document.getElementById('crew-kpis').innerHTML=[
-    {lbl:'Crews Tracked (2026)',val:CREWS_RAW.length,sub:'With 1+ jobs in order_status_tracking'},
+    {lbl:'Crews Tracked (2026)',val:CREWS_RAW.length,sub:'Jan–Apr 2026, ≥3 delivered jobs'},
     {lbl:'Highest Go-Back Rate',val:topGB.name,sub:`${topGB.gb_pct}% (${topGB.gb} / ${topGB.total} jobs)`,cls:'red'},
     {lbl:'Longest Avg In-Field',val:topIF.name,sub:`${topIF.avg_if}h avg (${(topIF.avg_if/24).toFixed(1)}d)`,cls:'amber'},
     {lbl:'Fleet Go-Back Rate',val:avg_gb+'%',sub:'All crews combined, 2026',cls:avg_gb>=30?'red':avg_gb>=15?'amber':''},
