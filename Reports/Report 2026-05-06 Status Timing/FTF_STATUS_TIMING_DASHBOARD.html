@@ -2,177 +2,280 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexGen FTF — Order Status Timing Dashboard (2025 & 2026)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NexGen FTF — Order Status Timing 2025 vs 2026</title>
 <script src="../chart.min.js"></script>
 <style>
-:root{--blue:#1B3A9B;--navy:#0F2468;--gold:#C9A84C;--gold-lt:#F5E6C0;--bg:#F0F4FF;--white:#fff;--gray:#6B7280;--light:#E8EDF8;--red:#DC2626;--green:#16A34A;--amber:#D97706;--red-lt:#FEE2E2;--green-lt:#DCFCE7;--amber-lt:#FEF3C7;--purple:#7C3AED;--indigo:#4F46E5;--teal:#0D9488;}
+:root{--blue:#1B3A9B;--navy:#0F2468;--gold:#C9A84C;--gold-lt:#F5E6C0;--bg:#F0F4FF;--gray:#6B7280;--light:#E8EDF8;--red:#DC2626;--green:#16A34A;--amber:#D97706;--red-lt:#FEE2E2;--green-lt:#DCFCE7;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:var(--bg);color:#111;}
-header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
-header h1{font-size:1.3rem;font-weight:700;}
-header p{font-size:.8rem;opacity:.8;margin-top:2px;}
-.badge{background:var(--gold);color:#000;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:700;}
-nav{background:var(--navy);display:flex;flex-wrap:wrap;gap:2px;padding:0 16px;}
-nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:12px 18px;cursor:pointer;font-size:.8rem;font-weight:600;border-bottom:3px solid transparent;transition:all .2s;}
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:16px 28px;display:flex;justify-content:space-between;align-items:center;}
+header h1{font-size:1.2rem;font-weight:700;}
+header p{font-size:.75rem;opacity:.75;margin-top:2px;}
+.badges{display:flex;gap:8px;align-items:center;}
+.badge{padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:700;}
+.badge-gold{background:var(--gold);color:#000;}.badge-red{background:#DC2626;color:#fff;}
+nav{background:var(--navy);display:flex;flex-wrap:wrap;gap:2px;padding:0 14px;}
+nav button{background:none;border:none;color:rgba(255,255,255,.65);padding:10px 14px;cursor:pointer;font-size:.78rem;font-weight:600;border-bottom:3px solid transparent;transition:all .15s;}
 nav button.active,nav button:hover{color:#fff;border-bottom-color:var(--gold);}
-.tab{display:none;padding:24px;}
-.tab.active{display:block;}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
-.kpi{background:#fff;border-radius:10px;padding:18px;border-left:4px solid var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
-.kpi .label{font-size:.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;}
-.kpi .value{font-size:1.7rem;font-weight:700;color:var(--navy);margin:4px 0;}
-.kpi .sub{font-size:.75rem;color:var(--gray);}
-.kpi.warn{border-left-color:var(--red);}
-.kpi.ok{border-left-color:var(--green);}
-.kpi.amber{border-left-color:var(--amber);}
-.section{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-.section h2{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:16px;border-bottom:1px solid var(--light);padding-bottom:8px;}
-.chart-wrap{position:relative;width:100%;}
-table{width:100%;border-collapse:collapse;font-size:.8rem;}
-th{background:var(--navy);color:#fff;padding:8px 10px;text-align:left;font-weight:600;cursor:pointer;white-space:nowrap;}
-th:hover{background:var(--blue);}
-td{padding:7px 10px;border-bottom:1px solid var(--light);}
-tr:hover td{background:#F8FAFF;}
-.badge-status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;}
-.s1{background:#FEF3C7;color:#92400E;}
-.s2{background:#DBEAFE;color:#1E40AF;}
-.s3{background:#DCFCE7;color:#166534;}
-.s4{background:#EDE9FE;color:#5B21B6;}
-.s5{background:#E0E7FF;color:#3730A3;}
-.s6{background:#FFEDD5;color:#9A3412;}
-.s11{background:#FEE2E2;color:#991B1B;}
-.s12{background:#F3F4F6;color:#374151;}
-.s14{background:#FEE2E2;color:#991B1B;}
-.s15{background:#ECFDF5;color:#065F46;}
-.s18{background:#FEF3C7;color:#92400E;}
-.hrs-cell{font-weight:700;}
-.hrs-hi{color:var(--red);}
-.hrs-md{color:var(--amber);}
-.hrs-ok{color:var(--green);}
-input[type=text],select{padding:7px 12px;border:1px solid #D1D5DB;border-radius:6px;font-size:.82rem;outline:none;}
-input[type=text]:focus,select:focus{border-color:var(--blue);}
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
-.filters label{font-size:.78rem;color:var(--gray);font-weight:600;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.tab{display:none;padding:18px;}.tab.active{display:block;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px;}
+.kpi{background:#fff;border-radius:8px;padding:14px;border-left:4px solid var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.kpi.red{border-left-color:#DC2626;}.kpi.amber{border-left-color:#D97706;}.kpi.green{border-left-color:#16A34A;}
+.kpi .lbl{font-size:.68rem;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;}
+.kpi .val{font-size:1.45rem;font-weight:700;color:var(--navy);margin:3px 0 2px;}
+.kpi .sub{font-size:.7rem;color:var(--gray);}
+.section{background:#fff;border-radius:8px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.section h2{font-size:.88rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--light);}
+.section h2 .src{font-size:.68rem;font-weight:400;color:var(--gray);margin-left:6px;}
+.cmp-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+.cmp-table th{background:var(--navy);color:#fff;padding:8px 10px;font-weight:600;text-align:left;cursor:pointer;}
+.cmp-table th:hover{background:var(--blue);}
+.cmp-table th.yr25{background:#1B3A9B;}.cmp-table th.yr26{background:#b8951f;color:#fff;}
+.cmp-table th.chg{background:#374151;}
+.cmp-table td{padding:7px 10px;border-bottom:1px solid var(--light);vertical-align:middle;}
+.cmp-table tr:hover td{background:#F8FAFF;}
+.chg-up{display:inline-block;background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;}
+.chg-dn{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;}
+.chg-neu{display:inline-block;background:#F3F4F6;color:#374151;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;}
+.flag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:14px;}
+.flag-card{border-radius:8px;padding:13px;border-left:5px solid;}
+.flag-crit{background:#FEF2F2;border-color:#DC2626;}.flag-high{background:#FFFBEB;border-color:#D97706;}.flag-warn{background:#F0FDF4;border-color:#16A34A;}
+.flag-card .fc-title{font-weight:700;font-size:.83rem;margin-bottom:3px;}
+.flag-card .fc-order{font-size:.75rem;color:var(--gray);}
+.flag-card .fc-hrs{font-size:1.05rem;font-weight:700;margin:5px 0 2px;}
+.flag-card .fc-meta{font-size:.73rem;color:#555;margin-top:3px;}
+.sb{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.7rem;font-weight:700;}
+.s1{background:#FEF3C7;color:#92400E;}.s2{background:#DBEAFE;color:#1E40AF;}.s3{background:#DCFCE7;color:#166534;}
+.s4{background:#EDE9FE;color:#5B21B6;}.s5{background:#E0E7FF;color:#3730A3;}.s6{background:#FFEDD5;color:#9A3412;}
+.s11{background:#FEE2E2;color:#991B1B;}.s12{background:#F3F4F6;color:#374151;}.s14{background:#FEE2E2;color:#991B1B;}
+.hrs-red{color:#DC2626;font-weight:700;}.hrs-amber{color:#D97706;font-weight:700;}.hrs-green{color:#16A34A;font-weight:700;}.hrs-blue{color:#1B3A9B;font-weight:700;}
+.crew-name{font-weight:700;color:var(--navy);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:700px){.grid2{grid-template-columns:1fr;}}
-.flow-arrow{text-align:center;font-size:1.2rem;color:var(--gray);padding:4px 0;}
-.flow-stage{background:var(--light);border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.flow-stage .name{font-weight:700;font-size:.85rem;color:var(--navy);}
-.flow-stage .hrs25{color:var(--blue);font-size:.85rem;font-weight:600;}
-.flow-stage .hrs26{color:var(--gold);font-size:.85rem;font-weight:600;}
-.flow-stage .diff.up{color:var(--red);}
-.flow-stage .diff.dn{color:var(--green);}
-.info-note{background:var(--gold-lt);border:1px solid var(--gold);border-radius:6px;padding:10px 14px;font-size:.78rem;color:#78500A;margin-bottom:14px;}
-.transition-row-long td{background:#FEF2F2;}
+.note{background:var(--gold-lt);border:1px solid var(--gold);border-radius:6px;padding:9px 13px;font-size:.76rem;color:#78500A;margin-bottom:12px;}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.filters label{font-size:.76rem;color:var(--gray);font-weight:600;}
+input[type=text],select{padding:6px 10px;border:1px solid #D1D5DB;border-radius:6px;font-size:.78rem;}
+input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>NexGen FTF — Order Status Timing</h1>
-    <p>Time orders spend in each status & transition times | 2025 vs 2026</p>
+  <div><h1>NexGen FTF — Order Status Timing Report</h1>
+  <p>Time in each status (hrs) &amp; pipeline transitions | 2025 Full Year vs 2026 YTD (Jan 1 – May 6, 2026)</p></div>
+  <div class="badges">
+    <span class="badge badge-gold">May 6, 2026</span>
+    <span class="badge badge-red" id="badge-flags">⚠ Loading…</span>
   </div>
-  <span class="badge">Live Data</span>
 </header>
 <nav>
-  <button onclick="showTab('t-overview')" class="active">Overview</button>
-  <button onclick="showTab('t-status-dur')">Status Duration</button>
-  <button onclick="showTab('t-stages')">Pipeline Stages</button>
-  <button onclick="showTab('t-transitions')">Transition Matrix</button>
-  <button onclick="showTab('t-cycle')">Monthly Cycle Time</button>
-  <button onclick="showTab('t-orders')">Open Orders</button>
+  <button onclick="showTab('t-summary')" class="active">📊 Summary</button>
+  <button onclick="showTab('t-status')">⏱ Status Hours</button>
+  <button onclick="showTab('t-pipeline')">🔄 Pipeline</button>
+  <button onclick="showTab('t-flags')">🚨 Red Flags</button>
+  <button onclick="showTab('t-crew')">👷 Crew Report</button>
+  <button onclick="showTab('t-orders')">📋 Open Orders</button>
 </nav>
 
-<!-- DATA -->
+<div id="content" style="max-width:1400px;margin:0 auto;">
+<!-- TAB 1: SUMMARY -->
+<div class="tab active" id="t-summary">
+  <div class="kpi-grid" id="sum-kpis"></div>
+  <div class="grid2">
+    <div class="section">
+      <h2>2025 vs 2026 — Hours Spent in Each Status <span class="src">(before moving to next)</span></h2>
+      <div class="note" style="margin-bottom:10px"><strong>2026</strong> = order_status_tracking Jan–May 6 (large sample, accurate). <strong>2025</strong> = Dec 22–31 only (small sample, directional only — tracking started Dec 22, 2025).</div>
+      <table class="cmp-table"><thead><tr><th>Status</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="chg">Change ▲▼</th></tr></thead><tbody id="sum-dur-tbody"></tbody></table>
+    </div>
+    <div class="section">
+      <h2>Active Orders — Avg Hours in Current Status <span class="src">(excl. On Hold)</span></h2>
+      <div class="chart-wrap" style="height:320px"><canvas id="c-active-bar"></canvas></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>Monthly Avg Cycle Time: Order Placed → Delivered <span class="src">(days | hrs in tooltip)</span></h2>
+    <div class="grid2">
+      <div class="chart-wrap" style="height:230px"><canvas id="c-monthly-sum"></canvas></div>
+      <table class="cmp-table"><thead><tr><th>Month</th><th class="yr25">2025 Days (hrs)</th><th class="yr26">2026 Days (hrs)</th><th class="chg">YoY</th></tr></thead><tbody id="monthly-cmp-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+<!-- TAB 2: STATUS HOURS -->
+<div class="tab" id="t-status">
+  <div class="note"><strong>How to read:</strong> Hours an order sat in that status before transitioning. <span style="color:#DC2626;font-weight:700">Red=200h+</span> <span style="color:#D97706;font-weight:700">Amber=80-200h</span> <span style="color:#16A34A;font-weight:700">Green&lt;80h</span>. 2026 source: completed transitions in order_status_tracking. 2025 Dec 22–31 sample.</div>
+  <div class="grid2">
+    <div class="section"><h2>2026 — Avg Hours per Status (Jan–May 6, 2026)</h2><div class="chart-wrap" style="height:400px"><canvas id="c-dur26"></canvas></div></div>
+    <div class="section"><h2>2025 — Avg Hours per Status (Dec 22–31 sample ⚠)</h2><div class="chart-wrap" style="height:400px"><canvas id="c-dur25"></canvas></div></div>
+  </div>
+  <div class="section">
+    <h2>2026 Status Duration — Full Detail (hours &amp; days)</h2>
+    <table class="cmp-table"><thead><tr><th>Status</th><th>Avg Hrs</th><th>Avg Days</th><th>Sample Size</th><th>Severity</th></tr></thead><tbody id="dur26-detail-tbody"></tbody></table>
+  </div>
+</div>
+<!-- TAB 3: PIPELINE -->
+<div class="tab" id="t-pipeline">
+  <div class="note"><strong>Source:</strong> ng_orders milestone dates (0–720 hr range, positive values only). 2026 checker/delivery milestones not yet fully populated — showing N/A.</div>
+  <div class="section"><h2>Stage-by-Stage Pipeline: 2025 vs 2026 — Avg Hours</h2><div class="chart-wrap" style="height:300px"><canvas id="c-pipeline"></canvas></div></div>
+  <div class="section">
+    <h2>Detailed Stage Comparison — All in Hours (days in parentheses)</h2>
+    <table class="cmp-table"><thead><tr><th>Pipeline Stage</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr25">2025 Orders</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="yr26">2026 Orders</th><th class="chg">Change (hrs)</th><th class="chg">Change %</th></tr></thead><tbody id="pipeline-tbody"></tbody></table>
+  </div>
+  <div class="section"><h2>Monthly Cycle Time Trend (days)</h2><div class="chart-wrap" style="height:280px"><canvas id="c-monthly-main"></canvas></div></div>
+</div>
+<!-- TAB 4: RED FLAGS -->
+<div class="tab" id="t-flags">
+  <div class="kpi-grid" id="flags-kpis"></div>
+  <div class="section"><h2>🔴 CRITICAL — Stuck 500+ hrs (20+ days) in Active Status</h2><div class="flag-grid" id="flags-crit"></div></div>
+  <div class="section"><h2>🟠 HIGH — Stuck 300–500 hrs (12–20 days)</h2><div class="flag-grid" id="flags-high"></div></div>
+  <div class="section"><h2>🟡 WARNING — Stuck 240–300 hrs (10–12 days)</h2><div class="flag-grid" id="flags-warn"></div></div>
+  <div class="section"><h2>🔴 Crew Red Flags — Go-Back Rate &gt;25% (2026)</h2>
+    <table class="cmp-table"><thead><tr><th>Crew Name</th><th>Total Jobs</th><th>Go-Backs</th><th>Go-Back %</th><th>Avg Cycle (hrs)</th><th>Avg Cycle (days)</th></tr></thead><tbody id="crew-flags-tbody"></tbody></table>
+  </div>
+  <div class="section"><h2>📦 Open Order Backlog by Status</h2>
+    <table class="cmp-table"><thead><tr><th>Status</th><th>Order Count</th><th>Avg Hrs in Status</th><th>Avg Days</th><th>Max Hrs</th><th>Max Days</th><th>Alert</th></tr></thead><tbody id="backlog-tbody"></tbody></table>
+  </div>
+</div>
+<!-- TAB 5: CREW REPORT -->
+<div class="tab" id="t-crew">
+  <div class="note"><strong>In-Field Hrs</strong> from order_status_tracking (precise). <strong>Go-Back %</strong> and <strong>Cycle Time</strong> from ng_orders milestones. <strong>Color:</strong> <span class="hrs-red">Red ≥200h or ≥40% GB</span> | <span class="hrs-amber">Amber 80-200h or 25-40% GB</span> | <span class="hrs-green">Green = OK</span></div>
+  <div class="kpi-grid" id="crew-kpis"></div>
+  <div class="grid2">
+    <div class="section"><h2>Avg In-Field Hours by Crew (2026) <span class="src">sorted highest → lowest</span></h2><div class="chart-wrap" style="height:580px"><canvas id="c-crew-if"></canvas></div></div>
+    <div class="section"><h2>Go-Back Rate by Crew (2026) <span class="src">sorted highest → lowest</span></h2><div class="chart-wrap" style="height:580px"><canvas id="c-crew-gb"></canvas></div></div>
+  </div>
+  <div class="section">
+    <h2>Full Crew Table — 2026 <span class="src">click headers to sort</span></h2>
+    <table class="cmp-table" id="crew-tbl"><thead><tr>
+      <th onclick="sC(0)">Crew</th><th onclick="sC(1)">Total Jobs</th><th onclick="sC(2)">In-Field Tracked</th>
+      <th onclick="sC(3)">Avg In-Field (hrs)</th><th onclick="sC(4)">Avg In-Field (days)</th><th onclick="sC(5)">Max In-Field (hrs)</th>
+      <th onclick="sC(6)">Go-Backs</th><th onclick="sC(7)">Go-Back %</th>
+      <th onclick="sC(8)">Avg Pending (hrs)</th><th onclick="sC(9)">Avg Cycle (hrs)</th><th onclick="sC(10)">Avg Cycle (days)</th>
+    </tr></thead><tbody id="crew-tbody"></tbody></table>
+  </div>
+</div>
+<!-- TAB 6: OPEN ORDERS -->
+<div class="tab" id="t-orders">
+  <div class="note">300 longest-waiting open orders (non Canceled/Complete/Delivered). <strong>All times in hours.</strong> Days equivalent shown in parentheses. Sorted by Hrs in Status desc by default.</div>
+  <div class="filters">
+    <label>Search:</label><input type="text" id="ord-q" placeholder="Order #, address, county, crew…" oninput="filterO()" style="width:220px">
+    <label>Status:</label><select id="ord-s" onchange="filterO()"><option value="">All</option><option>Assigned</option><option>In-Field</option><option>Drafting Queue</option><option>Drafting</option><option>Checking</option><option>On Hold</option><option>Quote</option><option>Pending</option></select>
+    <label>Year:</label><select id="ord-y" onchange="filterO()"><option value="">All</option><option>2025</option><option>2026</option></select>
+    <span id="ord-cnt" style="font-size:.76rem;color:var(--gray);font-weight:600;"></span>
+  </div>
+  <table class="cmp-table" id="ord-tbl"><thead><tr>
+    <th onclick="sO(0)">Order #</th><th onclick="sO(1)">Address</th><th onclick="sO(2)">County</th>
+    <th onclick="sO(3)">Crew</th><th onclick="sO(4)">Drafter</th><th onclick="sO(5)">Status</th>
+    <th onclick="sO(6)">Order Date</th><th onclick="sO(7)">In Status Since</th>
+    <th onclick="sO(8)">Total Age (hrs)</th><th onclick="sO(9)">Hrs in Status</th><th onclick="sO(10)">Days in Status</th>
+  </tr></thead><tbody id="ord-tbody"></tbody></table>
+</div>
+
+</div>
 <script>
-const STATUS_DUR_2025=[
-  {s:'Pending',hrs:67.4,n:27},
-  {s:'Assigned',hrs:136.7,n:15},
-  {s:'In-Field',hrs:241.5,n:56},
-  {s:'Drafting Queue',hrs:300.8,n:39},
-  {s:'Drafting',hrs:204.0,n:38},
-  {s:'Checking',hrs:280.0,n:176},
-  {s:'Complete',hrs:86.9,n:14},
-  {s:'Delivered',hrs:144.7,n:42},
-  {s:'On Hold',hrs:32.1,n:2},
-  {s:'Quote',hrs:344.1,n:17},
-  {s:'Go Back',hrs:133.0,n:11}
+const SD26=[
+  {s:'Pending',code:1,hrs:78.1,n:372},{s:'Assigned',code:2,hrs:103.7,n:242},
+  {s:'In-Field',code:3,hrs:161.8,n:1176},{s:'Drafting Queue',code:4,hrs:101.3,n:675},
+  {s:'Drafting',code:5,hrs:113.3,n:545},{s:'Checking',code:6,hrs:151.9,n:1655},
+  {s:'Complete',code:7,hrs:111.6,n:674},{s:'Delivered',code:8,hrs:137.4,n:448},
+  {s:'On Hold',code:11,hrs:119.4,n:50},{s:'Quote',code:12,hrs:210.2,n:208},
+  {s:'Go Back',code:14,hrs:89.5,n:105}
 ];
-const STATUS_DUR_2026=[
-  {s:'Pending',hrs:78.1,n:372},
-  {s:'Assigned',hrs:103.7,n:242},
-  {s:'In-Field',hrs:161.8,n:1176},
-  {s:'Drafting Queue',hrs:101.3,n:675},
-  {s:'Drafting',hrs:113.3,n:545},
-  {s:'Checking',hrs:151.9,n:1655},
-  {s:'Complete',hrs:111.6,n:674},
-  {s:'Delivered',hrs:137.4,n:448},
-  {s:'On Hold',hrs:119.4,n:50},
-  {s:'Quote',hrs:210.2,n:208},
-  {s:'Go Back',hrs:89.5,n:105}
+const SD25=[
+  {s:'Pending',code:1,hrs:67.4,n:27},{s:'Assigned',code:2,hrs:136.7,n:15},
+  {s:'In-Field',code:3,hrs:241.5,n:56},{s:'Drafting Queue',code:4,hrs:300.8,n:39},
+  {s:'Drafting',code:5,hrs:204.0,n:38},{s:'Checking',code:6,hrs:280.0,n:176},
+  {s:'Complete',code:7,hrs:86.9,n:14},{s:'Delivered',code:8,hrs:144.7,n:42},
+  {s:'On Hold',code:11,hrs:32.1,n:2},{s:'Quote',code:12,hrs:344.1,n:17},
+  {s:'Go Back',code:14,hrs:133.0,n:11}
 ];
-const STAGES_2025=[
-  {stage:'Pending → Assigned',hrs25:90.7,hrs26:125.9,n25:14274,n26:4447},
-  {stage:'Assigned → In-Field',hrs25:26.8,hrs26:50.8,n25:4038,n26:1815},
-  {stage:'In-Field → Drafting',hrs25:33.7,hrs26:29.0,n25:9582,n26:2494},
-  {stage:'Drafting → Checking',hrs25:37.1,hrs26:null,n25:7621,n26:0},
-  {stage:'Checking → Delivered',hrs25:76.2,hrs26:null,n25:10228,n26:0}
+const PIPELINE=[
+  {stage:'Pending → Assigned',h25:90.7,h26:125.9,n25:14274,n26:4447},
+  {stage:'Assigned → In-Field',h25:26.8,h26:50.8,n25:4038,n26:1815},
+  {stage:'In-Field → Drafting',h25:33.7,h26:29.0,n25:9582,n26:2494},
+  {stage:'Drafting → Checking',h25:37.1,h26:null,n25:7621,n26:0},
+  {stage:'Checking → Delivered',h25:76.2,h26:null,n25:10228,n26:0}
 ];
-const TRANSITIONS=[
-  {from:'In-Field',to:'Drafting Queue',cnt:1119,hrs:145.0},
-  {from:'Quote',to:'Pending',cnt:151,hrs:145.0},
-  {from:'Checking',to:'Set Corners',cnt:10,hrs:130.4},
-  {from:'In Progress',to:'Go Back',cnt:22,hrs:122.4},
-  {from:'On Hold',to:'Checking',cnt:10,hrs:120.3},
-  {from:'Assigned',to:'Drafting Queue',cnt:94,hrs:116.8},
-  {from:'Checking',to:'Go Back',cnt:120,hrs:113.6},
-  {from:'Delivered',to:'Go Back',cnt:142,hrs:111.1},
-  {from:'Complete',to:'Go Back',cnt:584,hrs:110.3},
-  {from:'Delivered',to:'Complete',cnt:18,hrs:100.3},
-  {from:'Drafting',to:'Go Back',cnt:53,hrs:94.3},
-  {from:'On Hold',to:'Pending',cnt:19,hrs:91.7},
-  {from:'Go Back',to:'Drafting Queue',cnt:53,hrs:84.1},
-  {from:'Assigned',to:'Checking',cnt:13,hrs:80.5},
-  {from:'Pending',to:'Assigned',cnt:122,hrs:80.1},
-  {from:'Pending',to:'Quote',cnt:223,hrs:62.7},
-  {from:'Drafting Queue',to:'Drafting',cnt:632,hrs:56.0},
-  {from:'Drafting Queue',to:'Go Back',cnt:71,hrs:55.4},
-  {from:'Assigned',to:'Pending',cnt:16,hrs:49.3},
-  {from:'Checking',to:'Complete',cnt:1800,hrs:76.9},
-  {from:'Drafting',to:'Checking',cnt:375,hrs:75.5}
+const MONTHLY=[
+  {yr:2025,mo:'Jan',days:23.1,n:53},{yr:2025,mo:'Feb',days:27.1,n:21},
+  {yr:2025,mo:'Mar',days:22.7,n:30},{yr:2025,mo:'Apr',days:30.7,n:21},
+  {yr:2025,mo:'May',days:24.5,n:36},{yr:2025,mo:'Jun',days:21.6,n:38},
+  {yr:2025,mo:'Jul',days:28.2,n:38},{yr:2025,mo:'Aug',days:24.7,n:35},
+  {yr:2025,mo:'Sep',days:19.6,n:40},{yr:2025,mo:'Oct',days:19.7,n:46},
+  {yr:2025,mo:'Nov',days:12.1,n:36},{yr:2025,mo:'Dec',days:22.7,n:31},
+  {yr:2026,mo:'Jan',days:20.3,n:33},{yr:2026,mo:'Feb',days:25.3,n:24},
+  {yr:2026,mo:'Mar',days:22.1,n:38},{yr:2026,mo:'Apr',days:10.6,n:18}
 ];
-const MONTHLY_CYCLE=[
-  {yr:2025,mo:1,days:23.1,orders:53},
-  {yr:2025,mo:2,days:27.1,orders:21},
-  {yr:2025,mo:3,days:22.7,orders:30},
-  {yr:2025,mo:4,days:30.7,orders:21},
-  {yr:2025,mo:5,days:24.5,orders:36},
-  {yr:2025,mo:6,days:21.6,orders:38},
-  {yr:2025,mo:7,days:28.2,orders:38},
-  {yr:2025,mo:8,days:24.7,orders:35},
-  {yr:2025,mo:9,days:19.6,orders:40},
-  {yr:2025,mo:10,days:19.7,orders:46},
-  {yr:2025,mo:11,days:12.1,orders:36},
-  {yr:2025,mo:12,days:22.7,orders:31},
-  {yr:2026,mo:1,days:20.3,orders:33},
-  {yr:2026,mo:2,days:25.3,orders:24},
-  {yr:2026,mo:3,days:22.1,orders:38},
-  {yr:2026,mo:4,days:10.6,orders:18}
+const ACTIVE=[
+  {s:'Pending',code:1,cnt:5,avg:75.6,max:165},
+  {s:'Assigned',code:2,cnt:35,avg:152.9,max:1456},
+  {s:'In-Field',code:3,cnt:14,avg:133.7,max:305},
+  {s:'Drafting Queue',code:4,cnt:33,avg:284.9,max:1312},
+  {s:'Drafting',code:5,cnt:81,avg:44.6,max:453},
+  {s:'Checking',code:6,cnt:50,avg:18.1,max:198},
+  {s:'On Hold',code:11,cnt:545,avg:5096.4,max:11710},
+  {s:'Quote',code:12,cnt:24,avg:526.1,max:1368},
+  {s:'Go Back',code:14,cnt:1,avg:17.0,max:17}
 ];
-const ACTIVE_STATUS=[
-  {s:'Pending',code:1,cnt:5,avg_hrs:75.6,max_hrs:165},
-  {s:'Assigned',code:2,cnt:35,avg_hrs:152.9,max_hrs:1456},
-  {s:'In-Field',code:3,cnt:14,avg_hrs:133.7,max_hrs:305},
-  {s:'Drafting Queue',code:4,cnt:33,avg_hrs:284.9,max_hrs:1312},
-  {s:'Drafting',code:5,cnt:81,avg_hrs:44.6,max_hrs:453},
-  {s:'Checking',code:6,cnt:50,avg_hrs:18.1,max_hrs:198},
-  {s:'On Hold',code:11,cnt:545,avg_hrs:5096.4,max_hrs:11710},
-  {s:'Quote',code:12,cnt:24,avg_hrs:526.1,max_hrs:1368},
-  {s:'Go Back',code:14,cnt:1,avg_hrs:17.0,max_hrs:17}
+const RED_FLAGS=[
+  {order:'1000257291',addr:'9025 SE BRIDGE RD',county:'Martin County',crew:'Ex_field',status:'Assigned',code:2,since:'2026-03-06 17:45',hrs:1457,total:11075,sev:'CRITICAL'},
+  {order:'1000279412',addr:'4384 KEMPSON LN',county:'Charlotte County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-03-12 18:04',hrs:1312,total:1650,sev:'CRITICAL'},
+  {order:'1000270268',addr:'19366 NW 294TH ST',county:'Okeechobee County',crew:'Elenam',status:'Drafting Queue',code:4,since:'2026-03-15 15:12',hrs:1243,total:6169,sev:'CRITICAL'},
+  {order:'1000269556',addr:'662 FLAMINGO RD',county:'Sarasota County',crew:'Ricardot',status:'Drafting Queue',code:4,since:'2026-04-03 12:01',hrs:790,total:6434,sev:'CRITICAL'},
+  {order:'1000266714',addr:'4345 6TH AVE NE',county:'Collier County',crew:'Alije',status:'Drafting Queue',code:4,since:'2026-04-04 16:50',hrs:761,total:7583,sev:'CRITICAL'},
+  {order:'1000273780',addr:'2922 SW 68TH LN',county:'Alachua County',crew:'Johnv',status:'Drafting Queue',code:4,since:'2026-04-10 12:19',hrs:622,total:4513,sev:'CRITICAL'},
+  {order:'1000275475',addr:'5729 SW 60TH AVE',county:'Miami-Dade County',crew:'Andrewy',status:'Drafting Queue',code:4,since:'2026-04-10 15:43',hrs:619,total:3648,sev:'CRITICAL'},
+  {order:'1000264423',addr:'1606 DESOTO AVENUE',county:'Lee County',crew:'Raul',status:'Drafting Queue',code:4,since:'2026-04-14 13:04',hrs:525,total:8614,sev:'HIGH'},
+  {order:'1000280184',addr:'1443 LENOX AVE',county:'Miami-Dade County',crew:'Byron',status:'Assigned',code:2,since:'2026-04-14 14:25',hrs:524,total:1338,sev:'HIGH'},
+  {order:'1000270875',addr:'605 COUNTY ROAD 217',county:'Clay County',crew:'Joseph',status:'Drafting Queue',code:4,since:'2026-04-16 16:04',hrs:474,total:5877,sev:'HIGH'},
+  {order:'1000280435',addr:'408 JACKSON DR',county:'Sarasota County',crew:'Unassigned',status:'Drafting',code:5,since:'2026-04-17 12:30',hrs:454,total:1201,sev:'HIGH'},
+  {order:'1000282503',addr:'14390 ORANGE BLVD',county:'Palm Beach County',crew:'Clollis',status:'In-Field',code:3,since:'2026-04-23 16:36',hrs:306,total:330,sev:'WARN'},
+  {order:'1000281668',addr:'3865 SW 164TH TER',county:'Broward County',crew:'Tejada',status:'Assigned',code:2,since:'2026-04-23 15:54',hrs:306,total:672,sev:'WARN'},
+  {order:'1000279203',addr:'11167 BEACH CLUB PT',county:'Palm Beach County',crew:'Chauncey_w',status:'Assigned',code:2,since:'2026-04-24 16:13',hrs:282,total:1702,sev:'WARN'},
+  {order:'1000281715',addr:'281 GRANADA RD',county:'Palm Beach County',crew:'Clollis',status:'In-Field',code:3,since:'2026-04-26 09:16',hrs:241,total:354,sev:'WARN'},
+  {order:'1000282041',addr:'18910 SW 32ND CT',county:'Broward County',crew:'Luis_p',status:'Drafting',code:5,since:'2026-04-24 12:54',hrs:285,total:524,sev:'WARN'}
 ];
-const OPEN_ORDERS = [
-['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11,'On Hold','2025-01-03','2025-01-03 11:44',11711,11710],
+const CREWS_RAW=[
+  {name:'Elio',jobs_if:10,avg_if:248.8,max_if:503,total:61,avg_p:148.7,avg_c:296.1,gb:12,gb_pct:19.7},
+  {name:'Diego',jobs_if:10,avg_if:180.4,max_if:360,total:15,avg_p:201.9,avg_c:386.3,gb:8,gb_pct:53.3},
+  {name:'Alije',jobs_if:122,avg_if:171.8,max_if:614,total:619,avg_p:135.2,avg_c:269.7,gb:103,gb_pct:16.6},
+  {name:'Tejada',jobs_if:50,avg_if:159.7,max_if:433,total:144,avg_p:189.0,avg_c:310.5,gb:49,gb_pct:34.0},
+  {name:'Jonp',jobs_if:19,avg_if:148.3,max_if:428,total:116,avg_p:103.1,avg_c:207.7,gb:15,gb_pct:12.9},
+  {name:'Raul',jobs_if:42,avg_if:147.6,max_if:554,total:221,avg_p:81.3,avg_c:168.1,gb:35,gb_pct:15.8},
+  {name:'Choppa',jobs_if:39,avg_if:146.5,max_if:402,total:76,avg_p:163.6,avg_c:272.2,gb:39,gb_pct:51.3},
+  {name:'Ivan',jobs_if:120,avg_if:140.8,max_if:570,total:354,avg_p:156.9,avg_c:316.5,gb:106,gb_pct:29.9},
+  {name:'Ricardot',jobs_if:61,avg_if:139.4,max_if:653,total:357,avg_p:74.1,avg_c:181.2,gb:46,gb_pct:12.9},
+  {name:'Ray',jobs_if:13,avg_if:137.8,max_if:264,total:174,avg_p:124.0,avg_c:231.1,gb:13,gb_pct:7.5},
+  {name:'Byron',jobs_if:96,avg_if:136.2,max_if:604,total:221,avg_p:149.9,avg_c:297.9,gb:90,gb_pct:40.7},
+  {name:'Manuel',jobs_if:68,avg_if:133.7,max_if:430,total:231,avg_p:142.3,avg_c:261.8,gb:62,gb_pct:26.8},
+  {name:'Chauncey_w',jobs_if:33,avg_if:131.9,max_if:534,total:129,avg_p:210.6,avg_c:381.2,gb:27,gb_pct:20.9},
+  {name:'Andrewy',jobs_if:40,avg_if:129.8,max_if:452,total:137,avg_p:180.9,avg_c:303.8,gb:33,gb_pct:24.1},
+  {name:'Mabel',jobs_if:31,avg_if:128.9,max_if:679,total:103,avg_p:103.7,avg_c:202.9,gb:27,gb_pct:26.2},
+  {name:'Richardp',jobs_if:79,avg_if:122.9,max_if:530,total:221,avg_p:114.0,avg_c:253.2,gb:73,gb_pct:33.0},
+  {name:'Juans',jobs_if:57,avg_if:122.7,max_if:560,total:222,avg_p:129.9,avg_c:264.8,gb:45,gb_pct:20.3},
+  {name:'Elenam',jobs_if:48,avg_if:121.7,max_if:379,total:235,avg_p:119.7,avg_c:223.8,gb:36,gb_pct:15.3},
+  {name:'Rc',jobs_if:54,avg_if:106.2,max_if:461,total:115,avg_p:145.0,avg_c:274.9,gb:52,gb_pct:45.2},
+  {name:'Rose',jobs_if:16,avg_if:102.3,max_if:212,total:119,avg_p:92.4,avg_c:224.7,gb:10,gb_pct:8.4},
+  {name:'Kurt',jobs_if:10,avg_if:102.2,max_if:439,total:57,avg_p:75.9,avg_c:128.8,gb:7,gb_pct:12.3},
+  {name:'Diegor',jobs_if:9,avg_if:95.5,max_if:289,total:138,avg_p:70.8,avg_c:172.5,gb:6,gb_pct:4.3},
+  {name:'Joseph',jobs_if:2,avg_if:55.5,max_if:70,total:59,avg_p:92.2,avg_c:181.0,gb:1,gb_pct:1.7},
+  {name:'Anthonya',jobs_if:2,avg_if:25.0,max_if:50,total:39,avg_p:69.2,avg_c:203.9,gb:1,gb_pct:2.6},
+  {name:'Ex_field',jobs_if:4,avg_if:24.3,max_if:118,total:29,avg_p:113.2,avg_c:310.0,gb:3,gb_pct:10.3},
+  {name:'Johnv',jobs_if:6,avg_if:24.2,max_if:70,total:92,avg_p:95.6,avg_c:172.1,gb:2,gb_pct:2.2},
+  {name:'Luis_p',jobs_if:2,avg_if:22.0,max_if:44,total:20,avg_p:97.9,avg_c:191.6,gb:0,gb_pct:0.0},
+  {name:'Davidy',jobs_if:3,avg_if:31.3,max_if:46,total:69,avg_p:65.3,avg_c:138.2,gb:4,gb_pct:5.8},
+  {name:'Clollis',jobs_if:2,avg_if:0,max_if:0,total:52,avg_p:186.5,avg_c:548.6,gb:8,gb_pct:15.4},
+  {name:'Ilya',jobs_if:1,avg_if:337.0,max_if:337,total:8,avg_p:117.8,avg_c:162.9,gb:1,gb_pct:12.5}
+];
+const SB={1:'s1',2:'s2',3:'s3',4:'s4',5:'s5',6:'s6',7:'s7',8:'s8',11:'s11',12:'s12',14:'s14'};
+function daysFmt(h){if(!h)return'–';return(h/24).toFixed(1)+'d';}
+function hcls(h){return h>=200?'hrs-red':h>=80?'hrs-amber':'hrs-green';}
+function chgBadge(a,b){if(b==null)return'<span class="chg-neu">N/A</span>';const d=(b-a).toFixed(1),p=((b-a)/a*100).toFixed(0);return d>0?`<span class="chg-up">▲${d}h (+${p}%)</span>`:`<span class="chg-dn">▼${Math.abs(d)}h (${p}%)</span>`;}
+function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',(b.getAttribute('onclick')||'').includes("'"+id+"'")));document.getElementById(id).classList.add('active');}
+</script>
+
+<script>
+const OPEN_ORDERS=[['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11,'On Hold','2025-01-03','2025-01-03 11:44',11711,11710],
 ['1000256283','461 SE EVANS AVE','St. Lucie County','Vaughn','',11,'On Hold','2025-01-02','2025-01-03 16:03',11730,11706],
 ['1000256384','19943 PINETREE DR','PALM BEACH COUNTY','','',11,'On Hold','2025-01-06','2025-01-06 09:08',11641,11641],
 ['1000256657','8200 BUTLER GREENWOOD DR','PALM BEACH COUNTY','','',11,'On Hold','2025-01-08','2025-01-08 15:24',11586,11586],
@@ -472,391 +575,270 @@ const OPEN_ORDERS = [
 ['1000273335','1480 PEACH PLACE','COLLIER COUNTY','','',11,'On Hold','2025-11-04','2025-11-04 10:29',4391,4391],
 ['1000274109','510 RIVIERA DR','BROWARD COUNTY','','',11,'On Hold','2025-11-05','2025-11-05 10:43',4367,4367],
 ['1000274044','603 24TH AVE W','Manatee County','Kurt','',11,'On Hold','2025-11-04','2025-11-05 12:17',4388,4365]
+];
 
-];</script>
-<script>
-</script>
-
-<!-- TAB 1: OVERVIEW -->
-<div class="tab active" id="t-overview">
-  <div class="kpi-grid" id="kpi-grid"></div>
-  <div class="grid2">
-    <div class="section">
-      <h2>Active Orders by Status (Open Today)</h2>
-      <div class="chart-wrap" style="height:320px"><canvas id="c-active-donut"></canvas></div>
-    </div>
-    <div class="section">
-      <h2>Avg Hours in Current Status</h2>
-      <div class="chart-wrap" style="height:320px"><canvas id="c-active-bar"></canvas></div>
-    </div>
-  </div>
-  <div class="section">
-    <h2>Monthly Avg Cycle Time: Order → Delivered (Days)</h2>
-    <div class="chart-wrap" style="height:260px"><canvas id="c-cycle-overview"></canvas></div>
-  </div>
-</div>
-
-<!-- TAB 2: STATUS DURATION -->
-<div class="tab" id="t-status-dur">
-  <div class="info-note">⚑ 2026 data from <strong>order_status_tracking</strong> (Jan 1 – May 6, 2026 | completed transitions). 2025 data from Dec 22–31 sample (tracking table started Dec 22, 2025).</div>
-  <div class="grid2">
-    <div class="section">
-      <h2>2026 — Avg Hours Spent in Each Status</h2>
-      <div class="chart-wrap" style="height:400px"><canvas id="c-dur-2026"></canvas></div>
-    </div>
-    <div class="section">
-      <h2>2025 (Dec 22–31) — Avg Hours Spent in Each Status</h2>
-      <div class="chart-wrap" style="height:400px"><canvas id="c-dur-2025"></canvas></div>
-    </div>
-  </div>
-  <div class="section">
-    <h2>2025 vs 2026 — Status Duration Comparison Table</h2>
-    <table id="tbl-dur">
-      <thead><tr><th onclick="sortTbl('tbl-dur',0)">Status</th><th onclick="sortTbl('tbl-dur',1)">2025 Avg Hrs</th><th onclick="sortTbl('tbl-dur',2)">2026 Avg Hrs</th><th onclick="sortTbl('tbl-dur',3)">Change</th><th onclick="sortTbl('tbl-dur',4)">2025 Transitions</th><th onclick="sortTbl('tbl-dur',5)">2026 Transitions</th></tr></thead>
-      <tbody id="dur-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- TAB 3: PIPELINE STAGES -->
-<div class="tab" id="t-stages">
-  <div class="info-note">⚑ Based on milestone dates from <code>ng_orders</code>: order date → crew assign → fieldwork → drafter assign → checker assign → delivered. Orders with negative durations (data entry sequencing) excluded.</div>
-  <div class="section">
-    <h2>Stage-by-Stage Pipeline: Avg Hours per Transition (2025 vs 2026)</h2>
-    <div class="chart-wrap" style="height:340px"><canvas id="c-stages-bar"></canvas></div>
-  </div>
-  <div class="section">
-    <h2>Stage Breakdown Detail</h2>
-    <div id="flow-stages"></div>
-  </div>
-  <div class="section">
-    <h2>2025 Full-Year Avg Total Cycle Time</h2>
-    <div class="kpi-grid" id="cycle-kpis"></div>
-  </div>
-</div>
-
-<!-- TAB 4: TRANSITION MATRIX -->
-<div class="tab" id="t-transitions">
-  <div class="info-note">⚑ 2026 data only (Jan 1 – May 6). Shows avg hours an order spent in the FROM status before moving to the TO status. Source: <code>order_status_tracking</code>.</div>
-  <div class="section">
-    <h2>Top Transitions by Avg Wait Time (hrs)</h2>
-    <div class="chart-wrap" style="height:520px"><canvas id="c-transitions"></canvas></div>
-  </div>
-  <div class="section">
-    <h2>Full Transition Table</h2>
-    <table id="tbl-trans">
-      <thead><tr><th onclick="sortTbl('tbl-trans',0)">From Status</th><th onclick="sortTbl('tbl-trans',1)">To Status</th><th onclick="sortTbl('tbl-trans',2)">Count</th><th onclick="sortTbl('tbl-trans',3)">Avg Hrs in From-Status</th></tr></thead>
-      <tbody id="trans-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- TAB 5: MONTHLY CYCLE TIME -->
-<div class="tab" id="t-cycle">
-  <div class="section">
-    <h2>Monthly Avg Cycle Time: Order Placed → Delivered (Days) — 2025 Full Year vs 2026 YTD</h2>
-    <div class="chart-wrap" style="height:360px"><canvas id="c-cycle-main"></canvas></div>
-  </div>
-  <div class="section">
-    <h2>Monthly Data Table</h2>
-    <table id="tbl-cycle">
-      <thead><tr><th onclick="sortTbl('tbl-cycle',0)">Year</th><th onclick="sortTbl('tbl-cycle',1)">Month</th><th onclick="sortTbl('tbl-cycle',2)">Delivered Orders</th><th onclick="sortTbl('tbl-cycle',3)">Avg Cycle Days</th></tr></thead>
-      <tbody id="cycle-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- TAB 6: OPEN ORDERS -->
-<div class="tab" id="t-orders">
-  <div class="info-note">⚑ 300 longest-waiting open orders (status ≠ Canceled/Complete/Delivered). Sorted by hours in current status descending. Data as of May 6, 2026.</div>
-  <div class="filters">
-    <label>Search:</label>
-    <input type="text" id="orders-search" placeholder="Order #, address, county, crew…" oninput="filterOrders()" style="width:240px">
-    <label>Status:</label>
-    <select id="orders-status" onchange="filterOrders()">
-      <option value="">All Statuses</option>
-      <option value="Pending">Pending</option>
-      <option value="Assigned">Assigned</option>
-      <option value="In-Field">In-Field</option>
-      <option value="Drafting Queue">Drafting Queue</option>
-      <option value="Drafting">Drafting</option>
-      <option value="Checking">Checking</option>
-      <option value="On Hold">On Hold</option>
-      <option value="Quote">Quote</option>
-      <option value="Go Back">Go Back</option>
-    </select>
-    <label>Year:</label>
-    <select id="orders-year" onchange="filterOrders()">
-      <option value="">2025 & 2026</option>
-      <option value="2025">2025</option>
-      <option value="2026">2026</option>
-    </select>
-    <span id="orders-count" style="font-size:.78rem;color:var(--gray);"></span>
-  </div>
-  <table id="tbl-orders">
-    <thead>
-      <tr>
-        <th onclick="sortOrders(0)">Order #</th>
-        <th onclick="sortOrders(1)">Address</th>
-        <th onclick="sortOrders(2)">County</th>
-        <th onclick="sortOrders(3)">Crew</th>
-        <th onclick="sortOrders(4)">Drafter</th>
-        <th onclick="sortOrders(5)">Status</th>
-        <th onclick="sortOrders(6)">Order Date</th>
-        <th onclick="sortOrders(7)">In Status Since</th>
-        <th onclick="sortOrders(8)">Total Age (hrs)</th>
-        <th onclick="sortOrders(9)">Hrs in Status</th>
-      </tr>
-    </thead>
-    <tbody id="orders-tbody"></tbody>
-  </table>
-</div>
-
-<script>
-function showTab(id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>{
-    b.classList.toggle('active',(b.getAttribute('onclick')||'').includes("'"+id+"'"));
-  });
-  document.getElementById(id).classList.add('active');
-}
-
-const MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const STATUS_COLORS={1:'#FCD34D',2:'#60A5FA',3:'#34D399',4:'#A78BFA',5:'#818CF8',6:'#F97316',7:'#2DD4BF',8:'#22C55E',11:'#F87171',12:'#9CA3AF',14:'#EF4444',15:'#10B981',18:'#FBBF24'};
-const S_BADGE={1:'s1',2:'s2',3:'s3',4:'s4',5:'s5',6:'s6',11:'s11',12:'s12',14:'s14',15:'s15',18:'s18'};
-
-function hrsColor(h){return h>200?'hrs-hi':h>80?'hrs-md':'hrs-ok';}
-function hrsBar(h,max){const pct=Math.min(100,h/max*100);const c=h>200?'var(--red)':h>80?'var(--amber)':'var(--green)';return `<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;background:#eee;border-radius:4px;height:8px"><div style="width:${pct}%;background:${c};border-radius:4px;height:8px"></div></div><span style="font-size:.75rem;font-weight:700;min-width:36px">${h}h</span></div>`;}
-
-// KPIs
-(function(){
-  const totalActive=ACTIVE_STATUS.filter(a=>a.code!==11).reduce((s,a)=>s+a.cnt,0);
-  const onHold=ACTIVE_STATUS.find(a=>a.code===11);
-  const avgCycle25=MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((s,m)=>s+m.days*m.orders,0)/MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((s,m)=>s+m.orders,0);
-  const avgCycle26=MONTHLY_CYCLE.filter(m=>m.yr===2026).reduce((s,m)=>s+m.days*m.orders,0)/MONTHLY_CYCLE.filter(m=>m.yr===2026).reduce((s,m)=>s+m.orders,0);
+// ── Summary Tab ──────────────────────────────────────────────────────────────
+(function renderSummary(){
+  // KPI cards
+  const crit=RED_FLAGS.filter(r=>r.sev==='CRITICAL').length;
+  const high=RED_FLAGS.filter(r=>r.sev==='HIGH').length;
+  const warn=RED_FLAGS.filter(r=>r.sev==='WARN').length;
+  document.getElementById('badge-flags').textContent=`⚠ ${crit} CRITICAL, ${high} HIGH`;
+  const excHold=ACTIVE.filter(a=>a.code!==11);
   const kpis=[
-    {label:'Active Orders (excl On Hold)',value:totalActive,sub:'Currently in pipeline',cls:''},
-    {label:'On Hold Orders',value:onHold?onHold.cnt:0,sub:'Avg '+Math.round((onHold?onHold.avg_hrs:0)/24)+' days on hold',cls:'warn'},
-    {label:'2025 Avg Cycle Time',value:avgCycle25.toFixed(1)+'d',sub:'Order → Delivered',cls:''},
-    {label:'2026 Avg Cycle Time',value:avgCycle26.toFixed(1)+'d',sub:'Order → Delivered',cls:avgCycle26>avgCycle25?'warn':'ok'},
-    {label:'Longest Active Wait',value:'48.8 days',sub:'On Hold (max 11,710 hrs)',cls:'warn'},
-    {label:'2026 In-Field Avg Wait',value:'161.8 hrs',sub:'6.7 days avg in In-Field',cls:'amber'},
-    {label:'2026 Checking Avg Wait',value:'151.9 hrs',sub:'6.3 days avg in Checking',cls:'amber'},
-    {label:'Pipeline Bottleneck',value:'In-Field',sub:'161.8 hrs avg (highest)',cls:'warn'}
+    {lbl:'2026 Avg In-Field',val:'161.8h',sub:'6.7 days avg per order',cls:'red'},
+    {lbl:'2026 Avg Checking',val:'151.9h',sub:'6.3 days avg per order',cls:'red'},
+    {lbl:'2026 Avg Quote Hold',val:'210.2h',sub:'8.8 days — longest status',cls:'red'},
+    {lbl:'Active Open Orders',val:ACTIVE.reduce((a,b)=>a+b.cnt,0),sub:'excl. Canceled/Delivered',cls:'amber'},
+    {lbl:'🚨 CRITICAL Flags',val:crit,sub:'Stuck 500+ hrs in active status',cls:'red'},
+    {lbl:'🟠 HIGH Flags',val:high,sub:'Stuck 300–500 hrs',cls:'amber'},
+    {lbl:'Pending→Assigned 2025',val:'90.7h',sub:'3.8 days avg wait'},
+    {lbl:'Pending→Assigned 2026',val:'125.9h',sub:'5.2 days avg — +38.8% slower',cls:'amber'},
   ];
-  const g=document.getElementById('kpi-grid');
-  kpis.forEach(k=>{g.innerHTML+=`<div class="kpi ${k.cls}"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>`;});
+  document.getElementById('sum-kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
+
+  // Status duration comparison table
+  const tbody=document.getElementById('sum-dur-tbody');
+  tbody.innerHTML=SD26.map(r26=>{
+    const r25=SD25.find(x=>x.code===r26.code);
+    const h25=r25?r25.hrs:null;
+    return`<tr><td><span class="sb ${SB[r26.code]||''}">${r26.s}</span></td>
+    <td class="${r25?hcls(h25):'hrs-blue'}">${h25?h25+'h':'N/A'}</td>
+    <td>${h25?'('+daysFmt(h25)+')':'–'}</td>
+    <td class="${hcls(r26.hrs)}">${r26.hrs}h</td>
+    <td>(${daysFmt(r26.hrs)})</td>
+    <td>${h25?chgBadge(h25,r26.hrs):'<span class="chg-neu">—</span>'}</td></tr>`;
+  }).join('');
+
+  // Active orders bar chart (excl On Hold)
+  const actEx=ACTIVE.filter(a=>a.code!==11);
+  new Chart(document.getElementById('c-active-bar'),{type:'bar',data:{
+    labels:actEx.map(a=>a.s),
+    datasets:[{label:'Avg Hrs in Current Status',data:actEx.map(a=>a.avg),
+      backgroundColor:actEx.map(a=>a.avg>=200?'#DC2626':a.avg>=80?'#D97706':'#16A34A')}]
+  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d)`}}},scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
+
+  // Monthly comparison table
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const m25=Object.fromEntries(MONTHLY.filter(m=>m.yr===2025).map(m=>[m.mo,m]));
+  const m26=Object.fromEntries(MONTHLY.filter(m=>m.yr===2026).map(m=>[m.mo,m]));
+  document.getElementById('monthly-cmp-tbody').innerHTML=months.map(mo=>{
+    const a=m25[mo],b=m26[mo];
+    if(!a&&!b) return'';
+    const h25=a?+(a.days*24).toFixed(0):null,h26=b?+(b.days*24).toFixed(0):null;
+    return`<tr><td>${mo}</td>
+    <td>${a?`${a.days}d (${h25}h) n=${a.n}`:'—'}</td>
+    <td>${b?`${b.days}d (${h26}h) n=${b.n}`:'—'}</td>
+    <td>${(a&&b)?chgBadge(a.days,b.days):'<span class="chg-neu">N/A</span>'}</td></tr>`;
+  }).join('');
+
+  // Monthly mini chart
+  const labels25=MONTHLY.filter(m=>m.yr===2025).map(m=>m.mo);
+  const labels26=MONTHLY.filter(m=>m.yr===2026).map(m=>m.mo);
+  new Chart(document.getElementById('c-monthly-sum'),{type:'line',data:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets:[
+      {label:'2025 (days)',data:months.map(mo=>{const m=m25[mo];return m?m.days:null;}),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.1)',pointRadius:3,tension:.3,spanGaps:false},
+      {label:'2026 (days)',data:months.map(mo=>{const m=m26[mo];return m?m.days:null;}),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.1)',pointRadius:3,tension:.3,spanGaps:false}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d (${+(c.raw*24).toFixed(0)}h)`}}}}});
 })();
 
-// Active donut
-new Chart(document.getElementById('c-active-donut'),{
-  type:'doughnut',
-  data:{
-    labels:ACTIVE_STATUS.map(a=>a.s),
-    datasets:[{data:ACTIVE_STATUS.map(a=>a.cnt),backgroundColor:ACTIVE_STATUS.map(a=>STATUS_COLORS[a.code]||'#999'),borderWidth:2}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}
-});
+// ── Status Hours Tab ──────────────────────────────────────────────────────────
+(function renderStatus(){
+  const makeBar=(canvasId,data,lbl)=>{
+    new Chart(document.getElementById(canvasId),{type:'bar',data:{
+      labels:data.map(d=>d.s),
+      datasets:[{label:lbl,data:data.map(d=>d.hrs),
+        backgroundColor:data.map(d=>d.hrs>=200?'#DC2626':d.hrs>=80?'#D97706':'#16A34A')}]
+    },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d)`}}},
+      scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
+  };
+  makeBar('c-dur26',SD26,'2026 Avg Hrs');
+  makeBar('c-dur25',SD25,'2025 Avg Hrs (Dec 22-31 sample)');
 
-// Active bar - avg hrs in status
-(function(){
-  const filtered=ACTIVE_STATUS.filter(a=>a.code!==11);
-  const ctx=document.getElementById('c-active-bar');
-  ctx.parentElement.style.height='320px';
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels:filtered.map(a=>a.s),
-      datasets:[{label:'Avg Hrs in Status',data:filtered.map(a=>a.avg_hrs),backgroundColor:filtered.map(a=>STATUS_COLORS[a.code]||'#999')}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Hours'}}}}
-  });
+  document.getElementById('dur26-detail-tbody').innerHTML=SD26.map(r=>{
+    const sev=r.hrs>=200?'<span class="chg-up">CRITICAL</span>':r.hrs>=80?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;">ELEVATED</span>':'<span class="chg-dn">OK</span>';
+    return`<tr><td><span class="sb ${SB[r.code]||''}">${r.s}</span></td>
+    <td class="${hcls(r.hrs)}">${r.hrs}h</td><td>(${daysFmt(r.hrs)})</td>
+    <td>${r.n.toLocaleString()} transitions</td><td>${sev}</td></tr>`;
+  }).join('');
 })();
 
-// Overview cycle chart
-(function(){
-  const months=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>MONTHS[m.mo]);
-  const d25=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>m.days);
-  const d26months=MONTHLY_CYCLE.filter(m=>m.yr===2026).map(m=>m.days);
-  const d26=[...d26months,...Array(12-d26months.length).fill(null)];
-  new Chart(document.getElementById('c-cycle-overview'),{
-    type:'line',
-    data:{labels:months,datasets:[
-      {label:'2025',data:d25,borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.1)',tension:.3,fill:true},
-      {label:'2026 (YTD)',data:d26,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.1)',tension:.3,fill:true,borderDash:[5,3]}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'Days'}}}}
-  });
+// ── Pipeline Tab ─────────────────────────────────────────────────────────────
+(function renderPipeline(){
+  const hasData=PIPELINE.filter(p=>p.h26!==null);
+  new Chart(document.getElementById('c-pipeline'),{type:'bar',data:{
+    labels:PIPELINE.map(p=>p.stage),
+    datasets:[
+      {label:'2025 Avg Hrs',data:PIPELINE.map(p=>p.h25),backgroundColor:'rgba(27,58,155,.7)',borderColor:'#1B3A9B',borderWidth:1},
+      {label:'2026 Avg Hrs',data:PIPELINE.map(p=>p.h26),backgroundColor:'rgba(201,168,76,.8)',borderColor:'#C9A84C',borderWidth:1}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{tooltip:{callbacks:{label:c=>c.raw!=null?`${c.dataset.label}: ${c.raw}h (${(c.raw/24).toFixed(1)}d)`:'N/A (data not yet available)'}}},
+    scales:{y:{title:{display:true,text:'Avg Hours'}},x:{ticks:{maxRotation:20}}}}});
+
+  document.getElementById('pipeline-tbody').innerHTML=PIPELINE.map(p=>{
+    const chg=p.h26!=null?chgBadge(p.h25,p.h26):'<span class="chg-neu">N/A</span>';
+    const pct=p.h26!=null?chgBadge(p.h25,p.h26):'<span class="chg-neu">N/A</span>';
+    const d=p.h26!=null?((p.h26-p.h25)/p.h25*100).toFixed(0)+'%':'—';
+    return`<tr><td><strong>${p.stage}</strong></td>
+    <td class="${hcls(p.h25)}">${p.h25}h</td><td>(${daysFmt(p.h25)})</td><td>${p.n25.toLocaleString()}</td>
+    <td class="${p.h26?hcls(p.h26):'hrs-blue'}">${p.h26!=null?p.h26+'h':'N/A'}</td>
+    <td>${p.h26!=null?'('+daysFmt(p.h26)+')':'—'}</td><td>${p.n26?p.n26.toLocaleString():'—'}</td>
+    <td>${chg}</td><td>${p.h26!=null?d:'—'}</td></tr>`;
+  }).join('');
+
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const m25=Object.fromEntries(MONTHLY.filter(m=>m.yr===2025).map(m=>[m.mo,m]));
+  const m26=Object.fromEntries(MONTHLY.filter(m=>m.yr===2026).map(m=>[m.mo,m]));
+  new Chart(document.getElementById('c-monthly-main'),{type:'line',data:{
+    labels:months,
+    datasets:[
+      {label:'2025 Cycle Days',data:months.map(mo=>m25[mo]?m25[mo].days:null),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.08)',pointRadius:4,tension:.3,spanGaps:false},
+      {label:'2026 Cycle Days',data:months.map(mo=>m26[mo]?m26[mo].days:null),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.08)',pointRadius:4,tension:.3,spanGaps:false}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d`}}},scales:{y:{title:{display:true,text:'Cycle Days'}}}}});
 })();
 
-// Status duration charts
-(function(){
-  const labels=STATUS_DUR_2026.map(d=>d.s);
-  const ctx26=document.getElementById('c-dur-2026');
-  ctx26.parentElement.style.height='400px';
-  new Chart(ctx26,{
-    type:'bar',data:{labels,datasets:[{label:'Avg Hrs (2026)',data:STATUS_DUR_2026.map(d=>d.hrs),backgroundColor:'#1B3A9B'}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
-  });
-  const labels25=STATUS_DUR_2025.map(d=>d.s);
-  const ctx25=document.getElementById('c-dur-2025');
-  ctx25.parentElement.style.height='400px';
-  new Chart(ctx25,{
-    type:'bar',data:{labels:labels25,datasets:[{label:'Avg Hrs (2025)',data:STATUS_DUR_2025.map(d=>d.hrs),backgroundColor:'#C9A84C'}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
-  });
+// ── Red Flags Tab ─────────────────────────────────────────────────────────────
+(function renderFlags(){
+  const crit=RED_FLAGS.filter(r=>r.sev==='CRITICAL');
+  const high=RED_FLAGS.filter(r=>r.sev==='HIGH');
+  const warn=RED_FLAGS.filter(r=>r.sev==='WARN');
+  document.getElementById('flags-kpis').innerHTML=[
+    {lbl:'CRITICAL (500h+)',val:crit.length,sub:`Up to ${Math.max(...crit.map(r=>r.hrs))}h stuck`,cls:'red'},
+    {lbl:'HIGH (300–500h)',val:high.length,sub:`Up to ${Math.max(...high.map(r=>r.hrs))}h stuck`,cls:'amber'},
+    {lbl:'WARN (240–300h)',val:warn.length,sub:`Up to ${Math.max(...warn.map(r=>r.hrs))}h stuck`,cls:''},
+    {lbl:'Total Flagged',val:RED_FLAGS.length,sub:'Non-On-Hold active orders',cls:'red'},
+  ].map(k=>`<div class="kpi ${k.cls}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 
-  // Comparison table
-  const map25={};STATUS_DUR_2025.forEach(d=>map25[d.s]=d);
-  const tbody=document.getElementById('dur-tbody');
-  STATUS_DUR_2026.forEach(d=>{
-    const d25=map25[d.s];
-    const diff=d25?(d.hrs-d25.hrs).toFixed(1):'-';
-    const diffStr=d25?(d.hrs>d25.hrs?`<span style="color:var(--red)">▲${diff}</span>`:`<span style="color:var(--green)">▼${Math.abs(diff)}</span>`):'–';
-    tbody.innerHTML+=`<tr><td>${d.s}</td><td data-v="${d25?d25.hrs:0}">${d25?d25.hrs+'h':'–'}</td><td data-v="${d.hrs}">${d.hrs}h</td><td>${diffStr}</td><td>${d25?d25.n:'–'}</td><td>${d.n}</td></tr>`;
-  });
+  const card=(r)=>`<div class="flag-card flag-${r.sev.toLowerCase()}">
+    <div class="fc-title"><span class="sb ${SB[r.code]||''}">${r.status}</span> — ${r.crew||'Unassigned'}</div>
+    <div class="fc-order">Order: ${r.order}</div>
+    <div class="fc-order">${r.addr}, ${r.county}</div>
+    <div class="fc-hrs"><span class="hrs-red">${r.hrs}h</span> <span style="color:#555;font-size:.78rem">(${(r.hrs/24).toFixed(1)}d) in status</span></div>
+    <div class="fc-meta">In status since: ${r.since}</div>
+    <div class="fc-meta">Total order age: ${r.total}h (${(r.total/24).toFixed(1)}d)</div>
+  </div>`;
+  document.getElementById('flags-crit').innerHTML=crit.map(card).join('');
+  document.getElementById('flags-high').innerHTML=high.map(card).join('');
+  document.getElementById('flags-warn').innerHTML=warn.map(card).join('');
+
+  // Crew go-back flags
+  const gbFlaged=CREWS_RAW.filter(c=>c.gb_pct>=25).sort((a,b)=>b.gb_pct-a.gb_pct);
+  document.getElementById('crew-flags-tbody').innerHTML=gbFlaged.map(c=>{
+    const gbcls=c.gb_pct>=40?'hrs-red':c.gb_pct>=25?'hrs-amber':'hrs-green';
+    return`<tr><td class="crew-name">${c.name}</td><td>${c.total}</td><td>${c.gb}</td>
+    <td class="${gbcls}">${c.gb_pct}%</td>
+    <td class="${hcls(c.avg_c)}">${c.avg_c}h</td><td>(${daysFmt(c.avg_c)})</td></tr>`;
+  }).join('');
+
+  // Backlog table
+  document.getElementById('backlog-tbody').innerHTML=ACTIVE.map(a=>{
+    const alert=a.avg>=500?'<span class="chg-up">CRITICAL</span>':a.avg>=150?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;">ELEVATED</span>':'<span class="chg-dn">OK</span>';
+    return`<tr><td><span class="sb ${SB[a.code]||''}">${a.s}</span></td>
+    <td>${a.cnt}</td>
+    <td class="${hcls(a.avg)}">${a.avg}h</td><td>(${daysFmt(a.avg)})</td>
+    <td class="${hcls(a.max)}">${a.max}h</td><td>(${daysFmt(a.max)})</td>
+    <td>${alert}</td></tr>`;
+  }).join('');
 })();
 
-// Pipeline stages
-(function(){
-  const stagesWithData=STAGES_2025.filter(s=>s.hrs25!==null);
-  const ctx=document.getElementById('c-stages-bar');
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels:STAGES_2025.map(s=>s.stage),
-      datasets:[
-        {label:'2025 (milestone avg hrs)',data:STAGES_2025.map(s=>s.hrs25),backgroundColor:'rgba(27,58,155,.8)'},
-        {label:'2026 (milestone avg hrs)',data:STAGES_2025.map(s=>s.hrs26),backgroundColor:'rgba(201,168,76,.8)'}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'Hours'}}}}
+// ── Crew Tab ──────────────────────────────────────────────────────────────────
+let crewSort={col:3,dir:-1};
+function renderCrew(){
+  const sorted=[...CREWS_RAW].sort((a,b)=>{
+    const cols=[a.name,a.total,a.jobs_if,a.avg_if,a.avg_if/24,a.max_if,a.gb,a.gb_pct,a.avg_p,a.avg_c,a.avg_c/24];
+    const vals=[b.name,b.total,b.jobs_if,b.avg_if,b.avg_if/24,b.max_if,b.gb,b.gb_pct,b.avg_p,b.avg_c,b.avg_c/24];
+    const av=cols[crewSort.col],bv=vals[crewSort.col];
+    return crewSort.dir*(typeof av==='string'?av.localeCompare(bv):av-bv);
   });
+  document.getElementById('crew-tbody').innerHTML=sorted.map(c=>{
+    const ifcls=c.avg_if>=200?'hrs-red':c.avg_if>=80?'hrs-amber':'hrs-green';
+    const gbcls=c.gb_pct>=40?'hrs-red':c.gb_pct>=25?'hrs-amber':'hrs-green';
+    return`<tr><td class="crew-name">${c.name}</td><td>${c.total}</td><td>${c.jobs_if}</td>
+    <td class="${ifcls}">${c.avg_if}h</td><td>(${daysFmt(c.avg_if)})</td>
+    <td>${c.max_if>0?c.max_if+'h':'—'}</td>
+    <td>${c.gb}</td><td class="${gbcls}">${c.gb_pct}%</td>
+    <td>${c.avg_p}h</td><td class="${hcls(c.avg_c)}">${c.avg_c}h</td><td>(${daysFmt(c.avg_c)})</td></tr>`;
+  }).join('');
+}
+function sC(col){crewSort={col,dir:crewSort.col===col?-crewSort.dir:-1};renderCrew();}
 
-  const div=document.getElementById('flow-stages');
-  STAGES_2025.forEach(s=>{
-    const diff26=s.hrs26!==null?(s.hrs26-s.hrs25).toFixed(1):null;
-    const diffHtml=diff26!==null?(parseFloat(diff26)>0?`<span class="diff up">▲${diff26}h</span>`:`<span class="diff dn">▼${Math.abs(diff26)}h</span>`):`<span style="color:var(--gray);font-size:.75rem">N/A (2026)</span>`;
-    div.innerHTML+=`<div class="flow-stage"><span class="name">${s.stage}</span><span class="hrs25">2025: ${s.hrs25}h <small>(${s.n25.toLocaleString()} orders)</small></span><span class="hrs26">2026: ${s.hrs26!==null?s.hrs26+'h':'–'} ${s.n26>0?`<small>(${s.n26.toLocaleString()} orders)</small>`:''}</span>${diffHtml}</div>`;
-  });
+(function initCrew(){
+  // KPIs
+  const avg_gb=(CREWS_RAW.reduce((a,c)=>a+c.gb,0)/CREWS_RAW.reduce((a,c)=>a+c.total,0)*100).toFixed(1);
+  const topGB=CREWS_RAW.reduce((a,b)=>b.gb_pct>a.gb_pct?b:a);
+  const topIF=CREWS_RAW.reduce((a,b)=>b.avg_if>a.avg_if?b:a);
+  document.getElementById('crew-kpis').innerHTML=[
+    {lbl:'Crews Tracked (2026)',val:CREWS_RAW.length,sub:'With 1+ jobs in order_status_tracking'},
+    {lbl:'Highest Go-Back Rate',val:topGB.name,sub:`${topGB.gb_pct}% (${topGB.gb} / ${topGB.total} jobs)`,cls:'red'},
+    {lbl:'Longest Avg In-Field',val:topIF.name,sub:`${topIF.avg_if}h avg (${(topIF.avg_if/24).toFixed(1)}d)`,cls:'amber'},
+    {lbl:'Fleet Go-Back Rate',val:avg_gb+'%',sub:'All crews combined, 2026',cls:avg_gb>=30?'red':avg_gb>=15?'amber':''},
+  ].map(k=>`<div class="kpi ${k.cls||''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 
-  const ck=document.getElementById('cycle-kpis');
-  const totDelivered=MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((a,m)=>a+m.orders,0);
-  const avgDays=(MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((a,m)=>a+m.days*m.orders,0)/totDelivered).toFixed(1);
-  ck.innerHTML=`
-    <div class="kpi"><div class="label">Delivered Orders (2025)</div><div class="value">${totDelivered}</div><div class="sub">Orders with full cycle tracked</div></div>
-    <div class="kpi"><div class="label">2025 Avg Cycle Time</div><div class="value">${avgDays} days</div><div class="sub">${(avgDays*24).toFixed(0)} hours order→delivered</div></div>
-    <div class="kpi amber"><div class="label">Fastest Month 2025</div><div class="value">12.1 days</div><div class="sub">November 2025</div></div>
-    <div class="kpi warn"><div class="label">Slowest Month 2025</div><div class="value">30.7 days</div><div class="sub">April 2025</div></div>`;
+  // In-Field chart (top 20 by avg_if, sorted desc)
+  const sorted=[...CREWS_RAW].filter(c=>c.jobs_if>0).sort((a,b)=>b.avg_if-a.avg_if).slice(0,20);
+  new Chart(document.getElementById('c-crew-if'),{type:'bar',data:{
+    labels:sorted.map(c=>c.name),
+    datasets:[{label:'Avg In-Field (hrs)',data:sorted.map(c=>c.avg_if),
+      backgroundColor:sorted.map(c=>c.avg_if>=200?'#DC2626':c.avg_if>=80?'#D97706':'#16A34A')}]
+  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d) — ${sorted[c.dataIndex].jobs_if} jobs`}}},
+    scales:{x:{title:{display:true,text:'Avg Hrs In-Field'}}}}});
+
+  // Go-back chart
+  const sortedGB=[...CREWS_RAW].filter(c=>c.total>=5).sort((a,b)=>b.gb_pct-a.gb_pct).slice(0,20);
+  new Chart(document.getElementById('c-crew-gb'),{type:'bar',data:{
+    labels:sortedGB.map(c=>c.name),
+    datasets:[{label:'Go-Back %',data:sortedGB.map(c=>c.gb_pct),
+      backgroundColor:sortedGB.map(c=>c.gb_pct>=40?'#DC2626':c.gb_pct>=25?'#D97706':'#16A34A')}]
+  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}% — ${sortedGB[c.dataIndex].gb} go-backs / ${sortedGB[c.dataIndex].total} jobs`}}},
+    scales:{x:{title:{display:true,text:'Go-Back Rate %'}}}}});
+
+  renderCrew();
 })();
 
-// Transition chart
-(function(){
-  const top15=TRANSITIONS.slice().sort((a,b)=>b.hrs-a.hrs).slice(0,15);
-  const ctx=document.getElementById('c-transitions');
-  ctx.parentElement.style.height='520px';
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels:top15.map(t=>t.from+' → '+t.to),
-      datasets:[{label:'Avg Hrs in From-Status Before Transition',data:top15.map(t=>t.hrs),backgroundColor:'rgba(27,58,155,.8)'}]
-    },
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
+// ── Open Orders Tab ───────────────────────────────────────────────────────────
+const STATUS_MAP={1:'Pending',2:'Assigned',3:'In-Field',4:'Drafting Queue',5:'Drafting',6:'Checking',11:'On Hold',12:'Quote',14:'Go Back'};
+let ordSort={col:9,dir:-1};
+let filteredOrders=OPEN_ORDERS;
+
+function filterO(){
+  const q=(document.getElementById('ord-q').value||'').toLowerCase();
+  const sf=document.getElementById('ord-s').value;
+  const yf=document.getElementById('ord-y').value;
+  filteredOrders=OPEN_ORDERS.filter(r=>{
+    const sd=STATUS_MAP[r[5]]||r[5]||'';
+    if(sf&&sd!==sf) return false;
+    if(yf&&!r[7].startsWith(yf)) return false;
+    if(q&&![r[0],r[1],r[2],r[3],r[4],sd].join('|').toLowerCase().includes(q)) return false;
+    return true;
   });
-
-  const tbody=document.getElementById('trans-tbody');
-  TRANSITIONS.slice().sort((a,b)=>b.hrs-a.hrs).forEach(t=>{
-    const cls=t.hrs>120?'transition-row-long':'';
-    tbody.innerHTML+=`<tr class="${cls}"><td>${t.from}</td><td>${t.to}</td><td>${t.cnt.toLocaleString()}</td><td class="hrs-cell ${hrsColor(t.hrs)}">${t.hrs}h</td></tr>`;
-  });
-})();
-
-// Monthly cycle main chart
-(function(){
-  const months=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>MONTHS[m.mo]);
-  const d25=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>m.days);
-  const d26months=MONTHLY_CYCLE.filter(m=>m.yr===2026).map(m=>m.days);
-  const d26=[...d26months,...Array(12-d26months.length).fill(null)];
-  new Chart(document.getElementById('c-cycle-main'),{
-    type:'line',
-    data:{labels:months,datasets:[
-      {label:'2025 Avg Days',data:d25,borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.15)',tension:.3,fill:true,pointRadius:5},
-      {label:'2026 Avg Days (YTD)',data:d26,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.15)',tension:.3,fill:true,borderDash:[6,3],pointRadius:5}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{min:0,title:{display:true,text:'Days'}}}}
-  });
-
-  const tbody=document.getElementById('cycle-tbody');
-  MONTHLY_CYCLE.forEach(m=>{
-    tbody.innerHTML+=`<tr><td>${m.yr}</td><td>${MONTHS[m.mo]}</td><td>${m.orders}</td><td data-v="${m.days}" class="hrs-cell ${m.days>28?'hrs-hi':m.days<18?'hrs-ok':''}">${m.days}d</td></tr>`;
-  });
-})();
-
-// Open orders table
-let ordersSort={col:9,dir:-1};
-let ordersFiltered=[...OPEN_ORDERS];
-
+  renderOrders();
+}
+function sO(col){ordSort={col,dir:ordSort.col===col?-ordSort.dir:-1};renderOrders();}
 function renderOrders(){
-  const tbody=document.getElementById('orders-tbody');
-  tbody.innerHTML='';
-  document.getElementById('orders-count').textContent=`Showing ${ordersFiltered.length} orders`;
-  ordersFiltered.forEach(r=>{
-    const sc=S_BADGE[r[5]]||'s12';
-    const hc=hrsColor(r[10]);
-    const thc=hrsColor(r[9]/24);
-    tbody.innerHTML+=`<tr>
-      <td><strong>${r[0]}</strong></td>
-      <td>${r[1]||''}</td>
-      <td>${r[2]||''}</td>
-      <td>${r[3]||'–'}</td>
-      <td>${r[4]||'–'}</td>
-      <td><span class="badge-status ${sc}">${r[6]}</span></td>
-      <td>${r[7]}</td>
-      <td>${r[8]}</td>
-      <td class="hrs-cell ${thc}">${r[9]}</td>
-      <td class="hrs-cell ${hc}">${r[10]}</td>
-    </tr>`;
+  const sorted=[...filteredOrders].sort((a,b)=>{
+    const av=a[ordSort.col],bv=b[ordSort.col];
+    return ordSort.dir*(typeof av==='string'?av.localeCompare(bv):av-bv);
   });
+  document.getElementById('ord-cnt').textContent=`${sorted.length} orders`;
+  document.getElementById('ord-tbody').innerHTML=sorted.map(r=>{
+    const sd=STATUS_MAP[r[5]]||r[5]||'';
+    const hcl=r[10]>=200?'hrs-red':r[10]>=80?'hrs-amber':'hrs-green';
+    const flag=r[10]>=500?'🔴':r[10]>=300?'🟠':r[10]>=240?'🟡':'';
+    return`<tr><td><strong>${r[0]}</strong></td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r[1]}</td>
+    <td>${r[2]}</td><td class="crew-name">${r[3]||'—'}</td><td>${r[4]||'—'}</td>
+    <td><span class="sb ${SB[r[5]]||''}">${sd}</span></td>
+    <td>${r[7]}</td><td>${r[8]}</td>
+    <td>${r[9]}h</td><td class="${hcl}">${flag}${r[10]}h</td><td>(${(r[10]/24).toFixed(1)}d)</td></tr>`;
+  }).join('');
 }
-
-function filterOrders(){
-  const q=(document.getElementById('orders-search').value||'').toLowerCase();
-  const st=(document.getElementById('orders-status').value||'').toLowerCase();
-  const yr=(document.getElementById('orders-year').value||'');
-  ordersFiltered=OPEN_ORDERS.filter(r=>{
-    const matchQ=!q||(r[0]+r[1]+r[2]+r[3]+r[4]).toLowerCase().includes(q);
-    const matchSt=!st||r[6].toLowerCase()===st;
-    const matchYr=!yr||r[7].startsWith(yr);
-    return matchQ&&matchSt&&matchYr;
-  });
-  ordersFiltered.sort((a,b)=>(b[10]-a[10]));
-  renderOrders();
-}
-
-function sortOrders(col){
-  if(ordersSort.col===col){ordersSort.dir*=-1;}else{ordersSort={col,dir:col>=9?-1:1};}
-  ordersFiltered.sort((a,b)=>{
-    const av=a[col]||'';const bv=b[col]||'';
-    return typeof av==='number'?(av-bv)*ordersSort.dir:(String(av).localeCompare(String(bv)))*ordersSort.dir;
-  });
-  renderOrders();
-}
-
-function sortTbl(id,col){
-  const tbl=document.getElementById(id);
-  const rows=Array.from(tbl.querySelectorAll('tbody tr'));
-  const dir=tbl.dataset.sort==col?-1*(tbl.dataset.dir||1):1;
-  tbl.dataset.sort=col;tbl.dataset.dir=dir;
-  rows.sort((a,b)=>{
-    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').replace(/[▲▼]/g,'').trim();
-    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').replace(/[▲▼]/g,'').trim();
-    const an=parseFloat(av),bn=parseFloat(bv);
-    return (isNaN(an)||isNaN(bn)?av.localeCompare(bv):(an-bn))*dir;
-  });
-  rows.forEach(r=>tbl.querySelector('tbody').appendChild(r));
-}
-
-filterOrders();
+filterO();
 </script>
 </body>
 </html>

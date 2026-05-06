@@ -1,50 +1,96 @@
-REPORT: Order Status Timing — 2025 & 2026
+REPORT: Order Status Timing — 2025 & 2026 (Rebuilt May 6, 2026)
 Generated: May 6, 2026
 Source: nexgen_ftf_db (order_status_tracking + ng_orders)
 
 WHAT THIS REPORT SHOWS
 -----------------------
-How long orders sit in each status, and how long it takes to transition between statuses.
-Covers both 2025 (full year, milestone-based) and 2026 YTD (Jan 1 – May 6, precise tracking).
+How long orders sit in each status (in hours), and how long pipeline stage transitions take.
+Crystal-clear 2025 vs 2026 comparison with ▲▼ change badges. Red flags for stuck orders.
+Full crew report with in-field hours and go-back rates.
 
 DATA SOURCES
 ------------
-- 2026 status durations: order_status_tracking table (started Dec 22, 2025; 32,840 records for 2026)
-  - Records time an order spent in each status with exact start/end timestamps
-- 2025 stage breakdown: ng_orders milestone dates (crew_assign_date, ng_date_fieldwork,
-  drafter_assign_date, checker_assign_date, ng_date_delivered)
-- Monthly cycle time (both years): ng_orders (ng_date → ng_date_delivered, Delivered orders only)
-- Open orders: ng_orders current status snapshot
+- 2026 status durations: order_status_tracking table (started Dec 22, 2025)
+  - 8,160 completed transitions for Jan 1 – May 6, 2026
+- 2025 Dec sample: order_status_tracking Dec 22–31 only (small sample, directional)
+- 2025 pipeline stages: ng_orders milestone dates (full year, 0–720 hr filter)
+- Monthly cycle time (both years): ng_orders delivered orders
+- Red flags: ng_orders current status snapshot (non-On-Hold, stuck 240+ hrs)
+- Crew data: order_status_tracking for In-Field hrs; ng_orders for go-back counts
 
-KEY FINDINGS
-------------
-BOTTLENECKS (2026 — avg hours in each status):
-  Highest wait: In-Field = 161.8 hrs (6.7 days avg)
-  Checking = 151.9 hrs (6.3 days avg)
-  Quote = 210.2 hrs (8.8 days avg) — significant hold time
-  Delivered → Go Back transition takes 111 hrs avg before go-back is triggered
+KEY FINDINGS — STATUS DURATIONS (2026 avg hrs in each status)
+--------------------------------------------------------------
+Quote:          210.2h (8.8d)  ← LONGEST — significant pre-work hold
+In-Field:       161.8h (6.7d)  ← HIGH
+Checking:       151.9h (6.3d)  ← HIGH
+Delivered:      137.4h (5.7d)
+Assigned:       103.7h (4.3d)
+Drafting Queue: 101.3h (4.2d)
+Drafting:       113.3h (4.7d)
+Pending:         78.1h (3.3d)
+Go Back:         89.5h (3.7d)
 
-PIPELINE STAGE CHANGES (2025 → 2026):
-  Pending → Assigned: 90.7h → 125.9h  (+38.8%, SLOWER)
-  Assigned → In-Field: 26.8h → 50.8h  (+89.6%, SIGNIFICANTLY SLOWER)
-  In-Field → Drafting: 33.7h → 29.0h  (-13.9%, faster)
+PIPELINE STAGE CHANGES (2025 → 2026, avg hours)
+-------------------------------------------------
+Pending → Assigned:  90.7h → 125.9h   +38.8%  SLOWER
+Assigned → In-Field: 26.8h → 50.8h    +89.6%  SIGNIFICANTLY SLOWER
+In-Field → Drafting: 33.7h → 29.0h    -13.9%  faster
+Drafting → Checking: 37.1h → N/A      (2026 milestone not yet populated)
+Checking → Delivered:76.2h → N/A      (2026 milestone not yet populated)
 
-ACTIVE OPEN ORDERS (as of May 6, 2026):
-  On Hold: 545 orders — avg 5,096 hrs (212 days) in status (oldest: 11,710 hrs)
-  Drafting: 81 orders — avg 44.6 hrs in status
-  Checking: 50 orders — avg 18.1 hrs in status
-  Drafting Queue: 33 orders — avg 284.9 hrs (needs attention)
-  Assigned: 35 orders — avg 152.9 hrs (some as long as 1,456 hrs)
+RED FLAGS — STUCK ORDERS (non-On-Hold, as of May 6, 2026)
+----------------------------------------------------------
+CRITICAL (7 orders, 500h+):
+  1000257291 — 1,457h in Assigned (Ex_field) — 9025 SE BRIDGE RD, Martin County
+  1000279412 — 1,312h in Drafting Queue (Ricardot) — 4384 KEMPSON LN, Charlotte County
+  1000270268 — 1,243h in Drafting Queue (Elenam) — 19366 NW 294TH ST, Okeechobee County
+  1000269556 — 790h in Drafting Queue (Ricardot) — 662 FLAMINGO RD, Sarasota County
+  1000266714 — 761h in Drafting Queue (Alije) — 4345 6TH AVE NE, Collier County
+  1000273780 — 622h in Drafting Queue (Johnv) — 2922 SW 68TH LN, Alachua County
+  1000275475 — 619h in Drafting Queue (Andrewy) — 5729 SW 60TH AVE, Miami-Dade County
+HIGH (4 orders, 300-500h):
+  1000264423 — 525h in Drafting Queue (Raul)
+  1000280184 — 524h in Assigned (Byron)
+  1000270875 — 474h in Drafting Queue (Joseph)
+  1000280435 — 454h in Drafting (Unassigned)
+WARN (5 orders, 240-300h): Clollis (In-Field 306h), Tejada (Assigned 306h),
+  Chauncey_w (Assigned 282h), Luis_p (Drafting 285h), Clollis (In-Field 241h)
 
-MONTHLY CYCLE TIME (Order → Delivered):
-  2025 avg: ~22.7 days (best: Nov 12.1d, worst: Apr 30.7d)
-  2026 avg: ~20.6 days (Jan 20.3d, Feb 25.3d, Mar 22.1d, Apr 10.6d)
+CREW REPORT — TOP CONCERNS (2026)
+----------------------------------
+Highest go-back rates (5+ jobs):
+  Diego:   53.3%  (8/15 jobs)
+  Choppa:  51.3%  (39/76 jobs)
+  Rc:      45.2%  (52/115 jobs)
+  Byron:   40.7%  (90/221 jobs)
+  Tejada:  34.0%  (49/144 jobs)
+  Richardp:33.0%  (73/221 jobs)
+
+Longest avg In-Field (2026):
+  Ilya:    337.0h avg (1 job tracked)
+  Elio:    248.8h avg (10 jobs)
+  Diego:   180.4h avg (10 jobs)
+  Alije:   171.8h avg (122 jobs)
+
+ACTIVE OPEN ORDERS (as of May 6, 2026)
+----------------------------------------
+On Hold:       545 orders — avg 5,096h (212d) — CRITICAL BACKLOG
+Drafting:       81 orders — avg 44.6h in status
+Checking:       50 orders — avg 18.1h in status
+Drafting Queue: 33 orders — avg 284.9h — needs urgent attention
+Assigned:       35 orders — avg 152.9h (some as long as 1,456h)
+Quote:          24 orders — avg 526.1h — significant pre-work hold
+
+MONTHLY CYCLE TIME (Order Placed → Delivered)
+----------------------------------------------
+2025 avg: ~22.7 days  |  best: Nov 12.1d  |  worst: Apr 30.7d
+2026 avg: ~19.6 days  |  Jan 20.3d | Feb 25.3d | Mar 22.1d | Apr 10.6d
 
 DASHBOARD TABS
 --------------
-1. Overview — KPI cards, active orders by status (donut), avg hrs in status (bar), monthly cycle line chart
-2. Status Duration — Horizontal bar charts 2026 vs 2025, comparison table
-3. Pipeline Stages — Stage-by-stage 2025 vs 2026 grouped bar + flow breakdown
-4. Transition Matrix — Top transitions by avg wait time (2026)
-5. Monthly Cycle Time — Line chart + table
-6. Open Orders — 300 longest-waiting open orders, searchable/filterable
+1. Summary    — KPI cards, status comparison table (2025 vs 2026), active orders bar, monthly cycle chart
+2. Status Hrs — Bar charts 2026 vs 2025 (all hours), full detail table with severity color coding
+3. Pipeline   — Stage-by-stage hrs comparison + monthly cycle time trend
+4. Red Flags  — CRITICAL/HIGH/WARN stuck order cards + crew go-back flags + backlog table
+5. Crew Rpt   — In-Field hrs chart, go-back rate chart, full sortable crew table with all metrics
+6. Open Orders— 300 longest-waiting open orders, searchable/filterable by status, year, keyword
