@@ -84,9 +84,9 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
   <div class="kpi-grid" id="sum-kpis"></div>
   <div class="grid2">
     <div class="section">
-      <h2>2026 — Avg Hours Spent in Each Status <span class="src">(before transitioning out)</span></h2>
-      <div class="note" style="margin-bottom:10px"><strong>Source:</strong> order_status_tracking Jan 1 – May 6, 2026 (completed transitions only). No comparable 2025 status-tracking data exists — tracking began Dec 22, 2025. Use the <strong>Pipeline tab</strong> for the 2025 vs 2026 Jan–Apr comparison.</div>
-      <table class="cmp-table"><thead><tr><th>Status</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Avg Days</th><th class="yr26">Transitions</th><th class="chg">Severity</th></tr></thead><tbody id="sum-dur-tbody"></tbody></table>
+      <h2>2025 vs 2026 — Avg Hours per Status (Jan–Apr) <span class="src">Change ▲=slower ▼=faster</span></h2>
+      <div class="note" style="margin-bottom:10px"><strong>2026</strong>: order_status_tracking (precise timestamps). <strong>2025</strong>: ng_orders milestone dates (5 core statuses). N/A = no 2025 milestone equivalent for that status.</div>
+      <table class="cmp-table"><thead><tr><th>Status</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="chg">Change ▲▼</th></tr></thead><tbody id="sum-dur-tbody"></tbody></table>
     </div>
     <div class="section">
       <h2>Active Orders — Avg Hours in Current Status <span class="src">(excl. On Hold)</span></h2>
@@ -103,11 +103,14 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
 </div>
 <!-- TAB 2: STATUS HOURS -->
 <div class="tab" id="t-status">
-  <div class="note"><strong>How to read:</strong> Avg hours an order sat in each status before transitioning out (2026 only — Jan 1 to May 6, 2026). <span style="color:#DC2626;font-weight:700">Red ≥200h</span> <span style="color:#D97706;font-weight:700">Amber 80–200h</span> <span style="color:#16A34A;font-weight:700">Green &lt;80h</span>. No 2025 status-tracking data available (tracking began Dec 22, 2025).</div>
-  <div class="section"><h2>2026 — Avg Hours per Status (Jan 1 – May 6, 2026)</h2><div class="chart-wrap" style="height:420px"><canvas id="c-dur26"></canvas></div></div>
+  <div class="note"><strong>How to read:</strong> Avg hours in each status before transitioning. <span style="color:#DC2626;font-weight:700">Red ≥200h</span> <span style="color:#D97706;font-weight:700">Amber 80–200h</span> <span style="color:#16A34A;font-weight:700">Green &lt;80h</span>. <strong>2026</strong>: order_status_tracking Jan–Apr (precise). <strong>2025</strong>: ng_orders milestone dates Jan–Apr (5 core statuses only).</div>
+  <div class="grid2">
+    <div class="section"><h2>2026 — Avg Hours per Status (Jan–Apr 2026)</h2><div class="chart-wrap" style="height:420px"><canvas id="c-dur26"></canvas></div></div>
+    <div class="section"><h2>2025 — Avg Hours per Status (Jan–Apr 2025, milestone-based)</h2><div class="chart-wrap" style="height:420px"><canvas id="c-dur25"></canvas></div></div>
+  </div>
   <div class="section">
-    <h2>2026 Status Duration — Full Detail (hours &amp; days)</h2>
-    <table class="cmp-table"><thead><tr><th>Status</th><th>Avg Hrs</th><th>Avg Days</th><th>Sample Size</th><th>Severity</th></tr></thead><tbody id="dur26-detail-tbody"></tbody></table>
+    <h2>2025 vs 2026 — Full Status Comparison (Jan–Apr, hours &amp; days)</h2>
+    <table class="cmp-table"><thead><tr><th>Status</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr25">2025 Sample</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="yr26">2026 Sample</th><th class="chg">Change ▲▼</th></tr></thead><tbody id="dur26-detail-tbody"></tbody></table>
   </div>
 </div>
 <!-- TAB 3: PIPELINE -->
@@ -171,13 +174,21 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
 </div>
 <script>
 const SD26=[
-  {s:'Pending',code:1,hrs:77.9,n:373},{s:'Assigned',code:2,hrs:103.7,n:242},
-  {s:'In-Field',code:3,hrs:161.8,n:1176},{s:'Drafting Queue',code:4,hrs:101.3,n:675},
-  {s:'Drafting',code:5,hrs:114.5,n:548},{s:'Checking',code:6,hrs:153.2,n:1656},
-  {s:'Complete',code:7,hrs:111.6,n:674},{s:'Delivered',code:8,hrs:137.4,n:448},
+  {s:'Pending',code:1,hrs:78.8,n:368},{s:'Assigned',code:2,hrs:104.1,n:240},
+  {s:'In-Field',code:3,hrs:162.6,n:1168},{s:'Drafting Queue',code:4,hrs:102.7,n:659},
+  {s:'Drafting',code:5,hrs:117.1,n:534},{s:'Checking',code:6,hrs:153.8,n:1647},
+  {s:'Complete',code:7,hrs:111.9,n:672},{s:'Delivered',code:8,hrs:137.6,n:447},
   {s:'On Hold',code:11,hrs:119.4,n:50},{s:'Quote',code:12,hrs:210.2,n:208},
-  {s:'In Progress',code:13,hrs:128.8,n:21},{s:'Go Back',code:14,hrs:89.5,n:105},
+  {s:'In Progress',code:13,hrs:128.8,n:21},{s:'Go Back',code:14,hrs:91.6,n:102},
   {s:'Set Corners',code:15,hrs:52.1,n:6}
+];
+// 2025 Jan–Apr via ng_orders milestone dates (time between milestone fields)
+const SD25=[
+  {s:'Pending',code:1,hrs:88.1,n:5317},
+  {s:'Assigned',code:2,hrs:9.6,n:1681},
+  {s:'In-Field',code:3,hrs:32.8,n:3766},
+  {s:'Drafting',code:5,hrs:35.1,n:2738},
+  {s:'Checking',code:6,hrs:88.4,n:4712}
 ];
 const PIPELINE=[
   {stage:'Pending → Assigned',h25:88.1,h26:128.7,n25:5317,n26:4264},
@@ -579,20 +590,22 @@ const OPEN_ORDERS=[
     {lbl:'Active Open Orders',val:ACTIVE.reduce((a,b)=>a+b.cnt,0),sub:'excl. Canceled/Delivered',cls:'amber'},
     {lbl:'🚨 CRITICAL Flags',val:crit,sub:'Stuck 500+ hrs in active status',cls:'red'},
     {lbl:'🟠 HIGH Flags',val:high,sub:'Stuck 300–500 hrs',cls:'amber'},
-    {lbl:'Pending→Assigned 2025',val:'90.7h',sub:'3.8 days avg wait'},
-    {lbl:'Pending→Assigned 2026',val:'125.9h',sub:'5.2 days avg — +38.8% slower',cls:'amber'},
+    {lbl:'Pending→Assigned 2025',val:'88.1h',sub:'3.7d avg — Jan–Apr 2025'},
+    {lbl:'Pending→Assigned 2026',val:'128.7h',sub:'5.4d avg — +46% slower',cls:'amber'},
   ];
   document.getElementById('sum-kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 
-  // Status duration table — 2026 only (no valid 2025 tracking data)
+  // Status duration table — 2025 vs 2026 Jan–Apr comparison
   const tbody=document.getElementById('sum-dur-tbody');
   tbody.innerHTML=SD26.map(r26=>{
-    const sev=r26.hrs>=200?'<span class="chg-up">CRITICAL</span>':r26.hrs>=80?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;">ELEVATED</span>':'<span class="chg-dn">OK</span>';
+    const r25=SD25.find(x=>x.code===r26.code);
+    const h25=r25?r25.hrs:null;
     return`<tr><td><span class="sb ${SB[r26.code]||''}">${r26.s}</span></td>
+    <td class="${h25?hcls(h25):'hrs-blue'}">${h25?h25+'h':'N/A'}</td>
+    <td>${h25?'('+daysFmt(h25)+')':'—'}</td>
     <td class="${hcls(r26.hrs)}">${r26.hrs}h</td>
     <td>(${daysFmt(r26.hrs)})</td>
-    <td>${r26.n.toLocaleString()}</td>
-    <td>${sev}</td></tr>`;
+    <td>${h25!=null?chgBadge(h25,r26.hrs):'<span class="chg-neu">—</span>'}</td></tr>`;
   }).join('');
 
   // Active orders bar chart (excl On Hold)
@@ -638,13 +651,22 @@ const OPEN_ORDERS=[
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d)`}}},
       scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
   };
-  makeBar('c-dur26',SD26,'2026 Avg Hrs (Jan 1 – May 6, 2026)');
+  makeBar('c-dur26',SD26,'2026 Avg Hrs (Jan–Apr)');
+  makeBar('c-dur25',SD25,'2025 Avg Hrs (Jan–Apr, milestone)');
 
-  document.getElementById('dur26-detail-tbody').innerHTML=SD26.map(r=>{
-    const sev=r.hrs>=200?'<span class="chg-up">CRITICAL</span>':r.hrs>=80?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-weight:700;font-size:.73rem;">ELEVATED</span>':'<span class="chg-dn">OK</span>';
-    return`<tr><td><span class="sb ${SB[r.code]||''}">${r.s}</span></td>
-    <td class="${hcls(r.hrs)}">${r.hrs}h</td><td>(${daysFmt(r.hrs)})</td>
-    <td>${r.n.toLocaleString()} transitions</td><td>${sev}</td></tr>`;
+  // Full comparison table: all 2026 statuses + 2025 where available
+  document.getElementById('dur26-detail-tbody').innerHTML=SD26.map(r26=>{
+    const r25=SD25.find(x=>x.code===r26.code);
+    const h25=r25?r25.hrs:null;
+    const chg=h25!=null?chgBadge(h25,r26.hrs):'<span class="chg-neu">N/A</span>';
+    return`<tr><td><span class="sb ${SB[r26.code]||''}">${r26.s}</span></td>
+    <td class="${h25?hcls(h25):'hrs-blue'}">${h25!=null?h25+'h':'N/A'}</td>
+    <td>${h25!=null?'('+daysFmt(h25)+')':'—'}</td>
+    <td>${h25!=null?r25.n.toLocaleString():'—'}</td>
+    <td class="${hcls(r26.hrs)}">${r26.hrs}h</td>
+    <td>(${daysFmt(r26.hrs)})</td>
+    <td>${r26.n.toLocaleString()}</td>
+    <td>${chg}</td></tr>`;
   }).join('');
 })();
 
