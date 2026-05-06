@@ -610,9 +610,9 @@ const OPEN_ORDERS=[
   ];
   document.getElementById('sum-kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 
-  // Status duration table — 2025 vs 2026 Jan–Apr comparison
+  // Status duration table — only statuses with real 2025 milestone data
   const tbody=document.getElementById('sum-dur-tbody');
-  tbody.innerHTML=SD26.map(r26=>{
+  tbody.innerHTML=SD26.filter(r26=>SD25.some(x=>x.code===r26.code)).map(r26=>{
     const r25=SD25.find(x=>x.code===r26.code);
     const h25=r25?r25.hrs:null;
     return`<tr><td><span class="sb ${SB[r26.code]||''}">${r26.s}</span></td>
@@ -683,7 +683,7 @@ const OPEN_ORDERS=[
   })();
 
   // Full comparison table: all 2026 statuses + 2025 where available
-  document.getElementById('dur26-detail-tbody').innerHTML=SD26.map(r26=>{
+  document.getElementById('dur26-detail-tbody').innerHTML=SD26.filter(r26=>SD25.some(x=>x.code===r26.code)).map(r26=>{
     const r25=SD25.find(x=>x.code===r26.code);
     const h25=r25?r25.hrs:null;
     const chg=h25!=null?chgBadge(h25,r26.hrs):'<span class="chg-neu">N/A</span>';
