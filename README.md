@@ -1,12 +1,47 @@
-# NexGen FTF — AI-Generated Operations Reports
+# NexGen FTF — AI Operations Intelligence System
 
 **NexGen Surveying** | Field-to-Finish Operations Intelligence
 
-AI-generated reports and interactive HTML dashboards for NexGen FTF survey operations. Built by Claude (Sonnet 4.6) via Claude Code + MySQL MCP, pulling live data from the `nexgen_ftf_db` AWS RDS database.
+Enterprise-grade AI-powered operations dashboards for NexGen FTF survey operations. Built by Claude (Sonnet 4.6) via Claude Code + MySQL MCP, pulling live data from the `nexgen_ftf_db` AWS RDS database.
 
 ---
 
-## 📊 Reports Available
+## 🌐 How to Access (URL)
+
+### Option 1 — GitHub Pages (Recommended for public URL)
+Enable GitHub Pages: **Repo Settings → Pages → Branch: `Advance-prompt` → `/root`**
+
+Once enabled, access the AI Intelligence System at:
+```
+https://nexgen-ai-agents.github.io/field-to-finish-ai-generated-reports/Reports/AI-Intelligence-System/FTF_AI_INTELLIGENCE_SYSTEM.html
+```
+
+### Option 2 — Local (Works 100% offline, no internet needed)
+1. Download or clone this repo
+2. Open `Reports/AI-Intelligence-System/FTF_AI_INTELLIGENCE_SYSTEM.html` in any browser
+3. Everything works offline — Chart.js is embedded inside the file
+
+> **All dashboards are fully self-contained** — Chart.js and all data are embedded inline. No internet required, no server required, no software required. Works on any device, anywhere in the world.
+
+---
+
+## 🤖 AI Intelligence System (NEW)
+
+### [FTF AI Operations Intelligence System](Reports/AI-Intelligence-System/FTF_AI_INTELLIGENCE_SYSTEM.html)
+**22-tab enterprise dashboard** covering 2025 full year + 2026 YTD
+
+| Feature | Detail |
+|---|---|
+| Tabs | 22 (Executive, COO, Financial, Crew, Drafters, Coordinators, Go-Backs, Revenue Leakage, Status Aging, Workflow Transitions, Stuck Orders, Clients, Regions, Predictive, Historical, Hidden Patterns, AI Recommendations, Executive Summary, System & Cost) |
+| Charts | 30 interactive Chart.js visualizations |
+| AI Insights | Plain-English AI analysis on every tab |
+| Status Aging | Complete workflow transition intelligence |
+| Token Cost | ~$2.27 to generate this full system |
+| File Size | 369KB fully self-contained |
+
+---
+
+## 📊 Individual Reports Available
 
 ### [Report 2026-05-05 16-49](Reports/Report%202026-05-05%2016-49/) — 2025 Full Year
 - Period: January 1 – December 31, 2025
@@ -28,9 +63,9 @@ AI-generated reports and interactive HTML dashboards for NexGen FTF survey opera
 ## 🌐 Viewing Dashboards
 
 Each HTML dashboard is **fully self-contained** — Chart.js and all data are embedded inline. To view:
-1. Download or receive the `FTF_DASHBOARD_*.html` file
+1. Download just the HTML file (or clone the repo)
 2. Open it directly in any modern browser
-3. No internet, no server, no software, no login required — works completely offline
+3. No internet, no server, no software, no login required — **works completely offline**
 
 ---
 
