@@ -1,0 +1,50 @@
+REPORT: Order Status Timing — 2025 & 2026
+Generated: May 6, 2026
+Source: nexgen_ftf_db (order_status_tracking + ng_orders)
+
+WHAT THIS REPORT SHOWS
+-----------------------
+How long orders sit in each status, and how long it takes to transition between statuses.
+Covers both 2025 (full year, milestone-based) and 2026 YTD (Jan 1 – May 6, precise tracking).
+
+DATA SOURCES
+------------
+- 2026 status durations: order_status_tracking table (started Dec 22, 2025; 32,840 records for 2026)
+  - Records time an order spent in each status with exact start/end timestamps
+- 2025 stage breakdown: ng_orders milestone dates (crew_assign_date, ng_date_fieldwork,
+  drafter_assign_date, checker_assign_date, ng_date_delivered)
+- Monthly cycle time (both years): ng_orders (ng_date → ng_date_delivered, Delivered orders only)
+- Open orders: ng_orders current status snapshot
+
+KEY FINDINGS
+------------
+BOTTLENECKS (2026 — avg hours in each status):
+  Highest wait: In-Field = 161.8 hrs (6.7 days avg)
+  Checking = 151.9 hrs (6.3 days avg)
+  Quote = 210.2 hrs (8.8 days avg) — significant hold time
+  Delivered → Go Back transition takes 111 hrs avg before go-back is triggered
+
+PIPELINE STAGE CHANGES (2025 → 2026):
+  Pending → Assigned: 90.7h → 125.9h  (+38.8%, SLOWER)
+  Assigned → In-Field: 26.8h → 50.8h  (+89.6%, SIGNIFICANTLY SLOWER)
+  In-Field → Drafting: 33.7h → 29.0h  (-13.9%, faster)
+
+ACTIVE OPEN ORDERS (as of May 6, 2026):
+  On Hold: 545 orders — avg 5,096 hrs (212 days) in status (oldest: 11,710 hrs)
+  Drafting: 81 orders — avg 44.6 hrs in status
+  Checking: 50 orders — avg 18.1 hrs in status
+  Drafting Queue: 33 orders — avg 284.9 hrs (needs attention)
+  Assigned: 35 orders — avg 152.9 hrs (some as long as 1,456 hrs)
+
+MONTHLY CYCLE TIME (Order → Delivered):
+  2025 avg: ~22.7 days (best: Nov 12.1d, worst: Apr 30.7d)
+  2026 avg: ~20.6 days (Jan 20.3d, Feb 25.3d, Mar 22.1d, Apr 10.6d)
+
+DASHBOARD TABS
+--------------
+1. Overview — KPI cards, active orders by status (donut), avg hrs in status (bar), monthly cycle line chart
+2. Status Duration — Horizontal bar charts 2026 vs 2025, comparison table
+3. Pipeline Stages — Stage-by-stage 2025 vs 2026 grouped bar + flow breakdown
+4. Transition Matrix — Top transitions by avg wait time (2026)
+5. Monthly Cycle Time — Line chart + table
+6. Open Orders — 300 longest-waiting open orders, searchable/filterable

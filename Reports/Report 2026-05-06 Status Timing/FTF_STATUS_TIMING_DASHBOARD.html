@@ -1,0 +1,862 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexGen FTF — Order Status Timing Dashboard (2025 & 2026)</title>
+<script src="../chart.min.js"></script>
+<style>
+:root{--blue:#1B3A9B;--navy:#0F2468;--gold:#C9A84C;--gold-lt:#F5E6C0;--bg:#F0F4FF;--white:#fff;--gray:#6B7280;--light:#E8EDF8;--red:#DC2626;--green:#16A34A;--amber:#D97706;--red-lt:#FEE2E2;--green-lt:#DCFCE7;--amber-lt:#FEF3C7;--purple:#7C3AED;--indigo:#4F46E5;--teal:#0D9488;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:var(--bg);color:#111;}
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
+header h1{font-size:1.3rem;font-weight:700;}
+header p{font-size:.8rem;opacity:.8;margin-top:2px;}
+.badge{background:var(--gold);color:#000;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:700;}
+nav{background:var(--navy);display:flex;flex-wrap:wrap;gap:2px;padding:0 16px;}
+nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:12px 18px;cursor:pointer;font-size:.8rem;font-weight:600;border-bottom:3px solid transparent;transition:all .2s;}
+nav button.active,nav button:hover{color:#fff;border-bottom-color:var(--gold);}
+.tab{display:none;padding:24px;}
+.tab.active{display:block;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.kpi{background:#fff;border-radius:10px;padding:18px;border-left:4px solid var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.kpi .label{font-size:.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;}
+.kpi .value{font-size:1.7rem;font-weight:700;color:var(--navy);margin:4px 0;}
+.kpi .sub{font-size:.75rem;color:var(--gray);}
+.kpi.warn{border-left-color:var(--red);}
+.kpi.ok{border-left-color:var(--green);}
+.kpi.amber{border-left-color:var(--amber);}
+.section{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.section h2{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:16px;border-bottom:1px solid var(--light);padding-bottom:8px;}
+.chart-wrap{position:relative;width:100%;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{background:var(--navy);color:#fff;padding:8px 10px;text-align:left;font-weight:600;cursor:pointer;white-space:nowrap;}
+th:hover{background:var(--blue);}
+td{padding:7px 10px;border-bottom:1px solid var(--light);}
+tr:hover td{background:#F8FAFF;}
+.badge-status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;}
+.s1{background:#FEF3C7;color:#92400E;}
+.s2{background:#DBEAFE;color:#1E40AF;}
+.s3{background:#DCFCE7;color:#166534;}
+.s4{background:#EDE9FE;color:#5B21B6;}
+.s5{background:#E0E7FF;color:#3730A3;}
+.s6{background:#FFEDD5;color:#9A3412;}
+.s11{background:#FEE2E2;color:#991B1B;}
+.s12{background:#F3F4F6;color:#374151;}
+.s14{background:#FEE2E2;color:#991B1B;}
+.s15{background:#ECFDF5;color:#065F46;}
+.s18{background:#FEF3C7;color:#92400E;}
+.hrs-cell{font-weight:700;}
+.hrs-hi{color:var(--red);}
+.hrs-md{color:var(--amber);}
+.hrs-ok{color:var(--green);}
+input[type=text],select{padding:7px 12px;border:1px solid #D1D5DB;border-radius:6px;font-size:.82rem;outline:none;}
+input[type=text]:focus,select:focus{border-color:var(--blue);}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.filters label{font-size:.78rem;color:var(--gray);font-weight:600;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+.flow-arrow{text-align:center;font-size:1.2rem;color:var(--gray);padding:4px 0;}
+.flow-stage{background:var(--light);border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.flow-stage .name{font-weight:700;font-size:.85rem;color:var(--navy);}
+.flow-stage .hrs25{color:var(--blue);font-size:.85rem;font-weight:600;}
+.flow-stage .hrs26{color:var(--gold);font-size:.85rem;font-weight:600;}
+.flow-stage .diff.up{color:var(--red);}
+.flow-stage .diff.dn{color:var(--green);}
+.info-note{background:var(--gold-lt);border:1px solid var(--gold);border-radius:6px;padding:10px 14px;font-size:.78rem;color:#78500A;margin-bottom:14px;}
+.transition-row-long td{background:#FEF2F2;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>NexGen FTF — Order Status Timing</h1>
+    <p>Time orders spend in each status & transition times | 2025 vs 2026</p>
+  </div>
+  <span class="badge">Live Data</span>
+</header>
+<nav>
+  <button onclick="showTab('t-overview')" class="active">Overview</button>
+  <button onclick="showTab('t-status-dur')">Status Duration</button>
+  <button onclick="showTab('t-stages')">Pipeline Stages</button>
+  <button onclick="showTab('t-transitions')">Transition Matrix</button>
+  <button onclick="showTab('t-cycle')">Monthly Cycle Time</button>
+  <button onclick="showTab('t-orders')">Open Orders</button>
+</nav>
+
+<!-- DATA -->
+<script>
+const STATUS_DUR_2025=[
+  {s:'Pending',hrs:67.4,n:27},
+  {s:'Assigned',hrs:136.7,n:15},
+  {s:'In-Field',hrs:241.5,n:56},
+  {s:'Drafting Queue',hrs:300.8,n:39},
+  {s:'Drafting',hrs:204.0,n:38},
+  {s:'Checking',hrs:280.0,n:176},
+  {s:'Complete',hrs:86.9,n:14},
+  {s:'Delivered',hrs:144.7,n:42},
+  {s:'On Hold',hrs:32.1,n:2},
+  {s:'Quote',hrs:344.1,n:17},
+  {s:'Go Back',hrs:133.0,n:11}
+];
+const STATUS_DUR_2026=[
+  {s:'Pending',hrs:78.1,n:372},
+  {s:'Assigned',hrs:103.7,n:242},
+  {s:'In-Field',hrs:161.8,n:1176},
+  {s:'Drafting Queue',hrs:101.3,n:675},
+  {s:'Drafting',hrs:113.3,n:545},
+  {s:'Checking',hrs:151.9,n:1655},
+  {s:'Complete',hrs:111.6,n:674},
+  {s:'Delivered',hrs:137.4,n:448},
+  {s:'On Hold',hrs:119.4,n:50},
+  {s:'Quote',hrs:210.2,n:208},
+  {s:'Go Back',hrs:89.5,n:105}
+];
+const STAGES_2025=[
+  {stage:'Pending → Assigned',hrs25:90.7,hrs26:125.9,n25:14274,n26:4447},
+  {stage:'Assigned → In-Field',hrs25:26.8,hrs26:50.8,n25:4038,n26:1815},
+  {stage:'In-Field → Drafting',hrs25:33.7,hrs26:29.0,n25:9582,n26:2494},
+  {stage:'Drafting → Checking',hrs25:37.1,hrs26:null,n25:7621,n26:0},
+  {stage:'Checking → Delivered',hrs25:76.2,hrs26:null,n25:10228,n26:0}
+];
+const TRANSITIONS=[
+  {from:'In-Field',to:'Drafting Queue',cnt:1119,hrs:145.0},
+  {from:'Quote',to:'Pending',cnt:151,hrs:145.0},
+  {from:'Checking',to:'Set Corners',cnt:10,hrs:130.4},
+  {from:'In Progress',to:'Go Back',cnt:22,hrs:122.4},
+  {from:'On Hold',to:'Checking',cnt:10,hrs:120.3},
+  {from:'Assigned',to:'Drafting Queue',cnt:94,hrs:116.8},
+  {from:'Checking',to:'Go Back',cnt:120,hrs:113.6},
+  {from:'Delivered',to:'Go Back',cnt:142,hrs:111.1},
+  {from:'Complete',to:'Go Back',cnt:584,hrs:110.3},
+  {from:'Delivered',to:'Complete',cnt:18,hrs:100.3},
+  {from:'Drafting',to:'Go Back',cnt:53,hrs:94.3},
+  {from:'On Hold',to:'Pending',cnt:19,hrs:91.7},
+  {from:'Go Back',to:'Drafting Queue',cnt:53,hrs:84.1},
+  {from:'Assigned',to:'Checking',cnt:13,hrs:80.5},
+  {from:'Pending',to:'Assigned',cnt:122,hrs:80.1},
+  {from:'Pending',to:'Quote',cnt:223,hrs:62.7},
+  {from:'Drafting Queue',to:'Drafting',cnt:632,hrs:56.0},
+  {from:'Drafting Queue',to:'Go Back',cnt:71,hrs:55.4},
+  {from:'Assigned',to:'Pending',cnt:16,hrs:49.3},
+  {from:'Checking',to:'Complete',cnt:1800,hrs:76.9},
+  {from:'Drafting',to:'Checking',cnt:375,hrs:75.5}
+];
+const MONTHLY_CYCLE=[
+  {yr:2025,mo:1,days:23.1,orders:53},
+  {yr:2025,mo:2,days:27.1,orders:21},
+  {yr:2025,mo:3,days:22.7,orders:30},
+  {yr:2025,mo:4,days:30.7,orders:21},
+  {yr:2025,mo:5,days:24.5,orders:36},
+  {yr:2025,mo:6,days:21.6,orders:38},
+  {yr:2025,mo:7,days:28.2,orders:38},
+  {yr:2025,mo:8,days:24.7,orders:35},
+  {yr:2025,mo:9,days:19.6,orders:40},
+  {yr:2025,mo:10,days:19.7,orders:46},
+  {yr:2025,mo:11,days:12.1,orders:36},
+  {yr:2025,mo:12,days:22.7,orders:31},
+  {yr:2026,mo:1,days:20.3,orders:33},
+  {yr:2026,mo:2,days:25.3,orders:24},
+  {yr:2026,mo:3,days:22.1,orders:38},
+  {yr:2026,mo:4,days:10.6,orders:18}
+];
+const ACTIVE_STATUS=[
+  {s:'Pending',code:1,cnt:5,avg_hrs:75.6,max_hrs:165},
+  {s:'Assigned',code:2,cnt:35,avg_hrs:152.9,max_hrs:1456},
+  {s:'In-Field',code:3,cnt:14,avg_hrs:133.7,max_hrs:305},
+  {s:'Drafting Queue',code:4,cnt:33,avg_hrs:284.9,max_hrs:1312},
+  {s:'Drafting',code:5,cnt:81,avg_hrs:44.6,max_hrs:453},
+  {s:'Checking',code:6,cnt:50,avg_hrs:18.1,max_hrs:198},
+  {s:'On Hold',code:11,cnt:545,avg_hrs:5096.4,max_hrs:11710},
+  {s:'Quote',code:12,cnt:24,avg_hrs:526.1,max_hrs:1368},
+  {s:'Go Back',code:14,cnt:1,avg_hrs:17.0,max_hrs:17}
+];
+const OPEN_ORDERS = [
+['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11,'On Hold','2025-01-03','2025-01-03 11:44',11711,11710],
+['1000256283','461 SE EVANS AVE','St. Lucie County','Vaughn','',11,'On Hold','2025-01-02','2025-01-03 16:03',11730,11706],
+['1000256384','19943 PINETREE DR','PALM BEACH COUNTY','','',11,'On Hold','2025-01-06','2025-01-06 09:08',11641,11641],
+['1000256657','8200 BUTLER GREENWOOD DR','PALM BEACH COUNTY','','',11,'On Hold','2025-01-08','2025-01-08 15:24',11586,11586],
+['1000256787','3321 SW 59TH ST','BROWARD COUNTY','','',11,'On Hold','2025-01-10','2025-01-10 11:26',11542,11542],
+['1000256818','1314 AVOCADO ISLE','BROWARD COUNTY','','',11,'On Hold','2025-01-10','2025-01-10 16:24',11537,11537],
+['1000256854','3672 WHIMSICAL CIR','Brevard County','','',11,'On Hold','2025-01-13','2025-01-13 12:34',11469,11469],
+['1000256875','1716 LAURIE LN','PINELLAS COUNTY','Alije','',11,'On Hold','2025-01-14','2025-01-15 08:09',11447,11426],
+['1000256933','2908 W ALLINE AVE','HILLSBOROUGH COUNTY','Alije','',11,'On Hold','2025-01-14','2025-01-15 10:54',11446,11423],
+['1000256521','13196 BRECHNER ST','Hernando County','Ray','Glenn',11,'On Hold','2025-01-07','2025-01-20 08:43',11614,11305],
+['1000257250','10370 VIA BALESTRI DR','Lee County','Raul','',11,'On Hold','2025-01-20','2025-01-20 15:48',11298,11298],
+['1000257411','2270 HONEYDEW DR','Hernando County','','',11,'On Hold','2025-01-22','2025-01-22 14:59',11253,11251],
+['1000256155','1700 COUNTY ROAD 833','HENDRY COUNTY','','',11,'On Hold','2025-01-25','2025-01-25 00:04',11194,11194],
+['1000257604','18634 MURCOTT BLVD','Palm Beach County','Chauncey_w','',11,'On Hold','2025-01-24','2025-01-27 09:03',11202,11137],
+['1000257758','107 NE ROYCE AVE','ST. LUCIE COUNTY','','',11,'On Hold','2025-01-28','2025-01-28 12:39',11109,11109],
+['1000257582','87TH LANE N','PALM BEACH COUNTY','Chauncey_w','',11,'On Hold','2025-01-24','2025-01-29 11:25',11205,11086],
+['1000258059','5487 CIMMERON CT.','SANTA ROSA COUNTY','','',11,'On Hold','2025-02-03','2025-02-03 15:52',10964,10962],
+['1000258060','5468 CIMMERON COURT','SANTA ROSA COUNTY','','',11,'On Hold','2025-02-03','2025-02-03 15:53',10964,10962],
+['1000258190','18730 NE 19TH AVE','Miami-Dade County','','',11,'On Hold','2025-02-04','2025-02-04 09:38',10944,10944],
+['1000258182','1667 N DIXIE HWY','Broward County','','',11,'On Hold','2025-02-04','2025-02-04 10:39',10943,10943],
+['1000258091','4824 HUNTINGTON STREET NE','PINELLAS COUNTY','Alije','',11,'On Hold','2025-02-03','2025-02-04 15:15',10967,10938],
+['1000258009','46 CHAPEL CT','Palm Beach County','','',11,'On Hold','2025-02-04','2025-02-04 23:48',10930,10930],
+['1000258181','11759 RIVERCHASE RUN','Palm Beach County','','',11,'On Hold','2025-02-05','2025-02-05 08:46',10921,10921],
+['1000258273','679 6TH AVE','Collier County','','',11,'On Hold','2025-02-05','2025-02-05 09:45',10920,10920],
+['1000258061','506 NW 8TH CT','PALM BEACH COUNTY','Juans','Oleg',11,'On Hold','2025-01-31','2025-02-06 10:35',11032,10895],
+['1000258325','26824 US-441','OKEECHOBEE COUNTY','Clollis','',11,'On Hold','2025-02-07','2025-02-09 22:11',10871,10812],
+['1000258547','12938 OLD KINGS RD','DUVAL COUNTY','','',11,'On Hold','2025-02-10','2025-02-10 10:56',10799,10799],
+['1000258575','7775 TALAVERA PL','Palm Beach County','','',11,'On Hold','2025-02-10','2025-02-10 12:51',10797,10797],
+['1000258469','4211 - 4215 N FEDERAL HIGHWAY','Broward County','','Kevin',11,'On Hold','2025-02-07','2025-02-11 16:53',10871,10769],
+['1000258683','1505 SOUTHEAST 43RD TERRACE','LEE COUNTY','Mabel','',11,'On Hold','2025-02-11','2025-02-13 09:40',10773,10728],
+['1000258855','3414 S GARDENIA AVE','Hillsborough County','','',11,'On Hold','2025-02-13','2025-02-13 11:24',10726,10726],
+['1000258897','2019 MONICA AVE','Hernando County','','',11,'On Hold','2025-02-13','2025-02-13 14:22',10724,10723],
+['1000258856','8963 ROSE HILL DR N','DUVAL COUNTY','','',11,'On Hold','2025-02-13','2025-02-13 15:37',10728,10722],
+['1000259000','6325 ALFRED BLVD AND 6309 ALFRED BOULEVARD','Charlotte County','','',11,'On Hold','2025-02-14','2025-02-14 16:51',10697,10697],
+['1000258948','1334 ALHAMBRA CIR','Miami-Dade County','','',11,'On Hold','2025-02-16','2025-02-16 04:05',10662,10662],
+['1000259173','2034 PRINCE DR','Collier County','','',11,'On Hold','2025-02-19','2025-02-19 10:07',10584,10584],
+['1000259205','6735 CASA GRANDE WAY','Palm Beach County','','',11,'On Hold','2025-02-19','2025-02-19 12:43',10581,10581],
+['1000259287','914 EUCLID AVE','Lee County','','',11,'On Hold','2025-02-20','2025-02-20 11:24',10558,10558],
+['1000259418','13906 SEAFORTH MANOR WAY','Hillsborough County','','',11,'On Hold','2025-02-21','2025-02-21 15:40',10530,10530],
+['1000259424','2991 SW 21ST CT','Broward County','','',11,'On Hold','2025-02-21','2025-02-21 16:17',10529,10529],
+['1000259527','246 S PARK AVE','Orange County','','',11,'On Hold','2025-02-24','2025-02-24 16:16',10457,10457],
+['1000257858','1209 COLUMBUS AVE','Lee County','Raul','Anogueira',11,'On Hold','2025-01-29','2025-02-24 17:34',11083,10456],
+['1000259556','821 15TH ST SW','Collier County','','',11,'On Hold','2025-02-25','2025-02-25 10:42',10439,10439],
+['1000259563','1608 80TH ST NW','Manatee County','Alije','',11,'On Hold','2025-02-25','2025-02-25 12:55',10438,10437],
+['1000257177','1728 NW 11TH TER','LEE COUNTY','','',11,'On Hold','2025-01-16','2025-02-25 14:44',11393,10435],
+['1000259818','1 KENMORE LN','Palm Beach County','','',11,'On Hold','2025-02-28','2025-02-28 09:10',10369,10369],
+['1000259935','7991 JOHNSON ST','Broward County','','',11,'On Hold','2025-03-03','2025-03-03 11:56',10294,10294],
+['1000260370','12411 AVILES CIR','Palm Beach County','Ivan','Oleg',11,'On Hold','2025-03-07','2025-03-10 10:10',10197,10128],
+['1000260546','924 AUGUSTA POINTE DR','Palm Beach County','','',11,'On Hold','2025-03-11','2025-03-11 10:08',10104,10104],
+['1000260671','1132 CROQUET ST E','Lee County','','',11,'On Hold','2025-03-12','2025-03-12 10:41',10079,10079],
+['1000260674','516 MCARTHUR BLVD','Lee County','','',11,'On Hold','2025-03-12','2025-03-12 10:45',10079,10079],
+['1000259358','14927 OLD POINTE RD','Hillsborough County','Alije','',11,'On Hold','2025-02-20','2025-03-12 16:16',10552,10073],
+['1000260799','888 SE 3RD AVE # 500','BROWARD COUNTY','','',11,'On Hold','2025-03-13','2025-03-13 13:13',10053,10053],
+['1000260872','2572 NE 26TH ST','Broward County','','',11,'On Hold','2025-03-14','2025-03-14 10:35',10031,10031],
+['1000260891','7117 ROBINDALE RD','Hillsborough County','','',11,'On Hold','2025-03-14','2025-03-14 12:55',10029,10029],
+['1000256832','000 THOMAS AVE','LAKE COUNTY','','Oleg',11,'On Hold','2025-01-13','2025-03-17 09:50',11472,9960],
+['1000260999','3362 RANDALL BLVD','Collier County','','',11,'On Hold','2025-03-17','2025-03-17 13:50',9956,9956],
+['1000261043','2705 & 2708 N. 18TH ST.','HILLSBOROUGH COUNTY','','',11,'On Hold','2025-03-18','2025-03-18 08:53',9937,9937],
+['1000260452','2020 ESTANCIA CIRCLE','OSCEOLA COUNTY','Alije','Oleg',11,'On Hold','2025-03-10','2025-03-18 16:22',10126,9929],
+['1000259378','5864 VINTAGE OAKS CIR','PALM BEACH COUNTY','','',11,'On Hold','2025-03-18','2025-03-18 22:12',9924,9924],
+['1000261147','8454 92ND TER','Pinellas County','','',11,'On Hold','2025-03-19','2025-03-19 09:40',9912,9912],
+['1000261247','300 E COCONUT PALM RD','Palm Beach County','','',11,'On Hold','2025-03-20','2025-03-20 08:56',9889,9889],
+['1000261338','809 W SAUNDERS ST','Hillsborough County','Alije','',11,'On Hold','2025-03-21','2025-03-21 14:40',9865,9859],
+['1000261610','3224 SOUTHWEST 53RD COURT','BROWARD COUNTY','Byron','',11,'On Hold','2025-03-25','2025-03-26 11:29',9761,9742],
+['1000261508','5701 SOUTHWEST 39TH STREET','Broward County','Tejada','Oleg',11,'On Hold','2025-03-24','2025-03-27 13:09',9785,9717],
+['1000261778','6491 CEDARWOOD AVE','Lee County','','',11,'On Hold','2025-03-27','2025-03-27 15:28',9714,9714],
+['1000261801','2009 NE 2ND ST','Broward County','','',11,'On Hold','2025-03-28','2025-03-28 09:07',9697,9697],
+['1000261813','3818 SW 68TH AVE','BROWARD COUNTY','','',11,'On Hold','2025-03-28','2025-03-28 12:27',9694,9693],
+['1000261260','9413 STONEWALL LN','PASCO COUNTY','Ray','',11,'On Hold','2025-03-27','2025-03-28 15:48',9721,9690],
+['1000261635','717 S PALMWAY','PALM BEACH COUNTY','','',11,'On Hold','2025-04-02','2025-04-02 01:37',9584,9584],
+['1000262056','3561 NW 5TH AVE','BROWARD COUNTY','','',11,'On Hold','2025-04-02','2025-04-02 10:10',9576,9576],
+['1000261882','4531 CALUMET DR','OSCEOLA COUNTY','Alije','',11,'On Hold','2025-03-31','2025-04-03 09:22',9623,9552],
+['1000261893','7669 TAMARAC ISLAND CIR','BROWARD COUNTY','Juans','',11,'On Hold','2025-04-02','2025-04-03 10:43',9572,9551],
+['1000262012','5581 HONEYSUCKLE DR','PALM BEACH COUNTY','','',11,'On Hold','2025-04-06','2025-04-06 21:34',9468,9468],
+['1000262602','229 FAREHAM DR','SARASOTA COUNTY','','',11,'On Hold','2025-04-10','2025-04-10 12:14',9382,9382],
+['1000262722','10250 TRAILWOOD CIR','Palm Beach County','','',11,'On Hold','2025-04-11','2025-04-11 14:27',9355,9355],
+['1000262711','3723 HATCHERY WAY','Manatee County','Diegor','',11,'On Hold','2025-04-11','2025-04-11 15:41',9357,9354],
+['1000262774','12736 POINSETTIA AVE','Pinellas County','','',11,'On Hold','2025-04-14','2025-04-14 10:38',9287,9287],
+['1000262859','1279 SW 15TH ST','Palm Beach County','','',11,'On Hold','2025-04-15','2025-04-15 11:03',9263,9263],
+['1000257251','3733/3735 SW 9TH AVE','LEE COUNTY','','',11,'On Hold','2025-04-15','2025-04-15 12:35',9261,9261],
+['1000262884','9814 NW 28TH PL','BROWARD COUNTY','Juans','',11,'On Hold','2025-04-15','2025-04-16 09:51',9257,9240],
+['1000262992','1414 NE 18TH AVE','Lee County','Mabel','',11,'On Hold','2025-04-16','2025-04-17 09:46',9234,9216],
+['1000263017','1771 SERPENTINE DR S','Pinellas County','','',11,'On Hold','2025-04-17','2025-04-17 09:55',9216,9216],
+['1000263200','1556 SE BALLANTRAE CT','ST LUCIE COUNTY','','',11,'On Hold','2025-04-21','2025-04-21 14:00',9116,9116],
+['1000262880','00 RICHBARN ROAD ','HERNANDO COUNTY','','',11,'On Hold','2025-04-23','2025-04-23 16:32',9065,9065],
+['1000263413','999 NW 5TH AVE','PALM BEACH COUNTY','','',11,'On Hold','2025-04-24','2025-04-24 09:34',9049,9048],
+['1000263414',' 5897 URDEA RD','Palm Beach County','','',11,'On Hold','2025-04-24','2025-04-24 09:24',9048,9048],
+['1000263418','904 MAGNOLIA ST','Volusia County','','',11,'On Hold','2025-04-24','2025-04-24 09:46',9048,9048],
+['1000263422','4361 45TH ST N','Pinellas County','','',11,'On Hold','2025-04-24','2025-04-24 10:09',9048,9048],
+['1000263426','7942 17TH PL','Hendry County','','',11,'On Hold','2025-04-25','2025-04-25 15:59',9018,9018],
+['1000263486','3715 WOOD CIR','Brevard County','Johnv','',11,'On Hold','2025-04-24','2025-04-25 16:55',9040,9017],
+['1000260462','27396 ALOHA DRIVE','Charlotte County','Ricardot','Oleg',11,'On Hold','2025-03-10','2025-04-28 15:19',10126,8946],
+['1000263305','631 30TH STREET','Palm Beach County','Juans','Oleg',11,'On Hold','2025-04-22','2025-04-28 16:14',9091,8946],
+['1000263635','2365 BAHIA VISTA ST','Sarasota County','Diegor','',11,'On Hold','2025-04-28','2025-04-29 07:54',8946,8930],
+['1000263654','1690 DELAWARE AVE NE','Pinellas County','','',11,'On Hold','2025-04-29','2025-04-29 08:57',8929,8929],
+['1000263272','6232 PLUMOSA AVE','LEE COUNTY','Raul','Oleg',11,'On Hold','2025-04-22','2025-04-29 12:01',9094,8926],
+['1000263710','7882 NW 62ND TER','Broward County','','',11,'On Hold','2025-04-29','2025-04-29 13:24',8924,8924],
+['1000263659','222 NEW HAVEN BLVD','Palm Beach County','Ivan','',11,'On Hold','2025-04-29','2025-04-29 15:59',8929,8922],
+['1000263761','1753 22ND AVE N','Palm Beach County','','',11,'On Hold','2025-04-30','2025-04-30 11:28',8903,8902],
+['1000259660','13820 LE HAVRE DR','PALM BEACH COUNTY','Ivan','Oleg',11,'On Hold','2025-02-26','2025-05-01 08:51',10414,8881],
+['1000263946','1313 EAST COAST DR','DUVAL COUNTY','Johnv','',11,'On Hold','2025-05-02','2025-05-05 16:36',8851,8777],
+['1000264182','1155 MILLBROOK CIR','Manatee County','Diegor','',11,'On Hold','2025-05-07','2025-05-07 13:03',8734,8733],
+['1000264194','1161 N TAMIAMI TRL','Sarasota County','','',11,'On Hold','2025-05-07','2025-05-07 14:47',8733,8731],
+['1000262197','10102 CEDAR DUNE DRIVE','Hillsborough County','Ray','Oleg',11,'On Hold','2025-04-07','2025-05-07 15:16',9451,8730],
+['1000263834','19160 SE REACH ISLAND LN','MARTIN COUNTY','Ivan','Oleg',11,'On Hold','2025-04-30','2025-05-07 15:45',8898,8730],
+['1000264273','15 LA VISTA DR','ST JOHNS County','','',11,'On Hold','2025-05-08','2025-05-08 13:23',8708,8708],
+['1000264293','463 & 471 OAKMON RD','Brevard County','','',11,'On Hold','2025-05-08','2025-05-08 16:40',8708,8705],
+['1000264308','4148 SW 130TH AVE','Broward County','','',11,'On Hold','2025-05-09','2025-05-09 12:45',8685,8685],
+['1000264360','511 NORTON ST','Manatee County','','',11,'On Hold','2025-05-11','2025-05-11 08:57',8641,8641],
+['1000264455','2802 SW 5TH ST','PALM BEACH COUNTY','','',11,'On Hold','2025-05-12','2025-05-12 15:03',8611,8611],
+['1000264649','201 W SAN MARINO DR','MIAMI-DADE COUNTY','','',11,'On Hold','2025-05-14','2025-05-14 16:21',8561,8561],
+['1000264704','1239 GROVELAND AVE','SARASOTA COUNTY','','',11,'On Hold','2025-05-15','2025-05-15 14:22',8539,8539],
+['1000264707','501 VILABELLA AVE','Miami-Dade County','','',11,'On Hold','2025-05-15','2025-05-15 14:39',8539,8539],
+['1000264774','125 BANYAN ISLE DR','PALM BEACH COUNTY','','',11,'On Hold','2025-05-16','2025-05-16 14:03',8516,8516],
+['1000264835','904 SE 5TH AVE','Palm Beach County','','',11,'On Hold','2025-05-19','2025-05-19 13:43',8444,8444],
+['1000263065','5725 SHORE BLVD S','PINELLAS COUNTY','','',11,'On Hold','2025-04-17','2025-05-19 17:32',9211,8440],
+['1000264668','305 17TH AVE','INDIAN RIVER COUNTY','Elenam','Oleg',11,'On Hold','2025-05-15','2025-05-20 12:23',8541,8421],
+['1000263574','2290 CLEMATIS ST','Sarasota County','Ricardot','Glenn',11,'On Hold','2025-04-27','2025-05-20 13:19',8973,8420],
+['1000263575','2141 CLEMATIS ST','Sarasota County','Ricardot','Oleg',11,'On Hold','2025-04-27','2025-05-20 13:20',8973,8420],
+['1000264975','117 OXFORD RD','Highlands County','','',11,'On Hold','2025-05-21','2025-05-21 14:25',8395,8395],
+['1000264046','1717 ROYAL FOREST CT','PALM BEACH COUNTY','Diego','Oleg',11,'On Hold','2025-05-05','2025-05-21 17:25',8779,8392],
+['1000264928','1553 MACKERAL AVE','Sarasota County','Diegor','',11,'On Hold','2025-05-20','2025-05-22 12:58',8421,8373],
+['1000265181','7107 58TH TER E','MANATEE COUNTY','','',11,'On Hold','2025-05-25','2025-05-27 09:03',8292,8257],
+['1000265124','6149 GARRETT ST','Palm Beach County','Ivan','',11,'On Hold','2025-05-23','2025-05-27 15:13',8353,8251],
+['1000265289','12609 S INDIAN RIVER DR','St. Lucie County','','',11,'On Hold','2025-05-28','2025-05-28 10:17',8231,8231],
+['1000265300','13475 150TH CT N','PALM BEACH COUNTY','','',11,'On Hold','2025-05-28','2025-05-28 11:05',8231,8231],
+['1000263848','8518 SPRING FOREST LN','PASCO COUNTY','','',11,'On Hold','2025-05-28','2025-05-28 21:35',8220,8220],
+['1000264205','5203 86TH STREET CT W','MANATEE COUNTY','','',11,'On Hold','2025-05-28','2025-05-28 21:23',8220,8220],
+['1000265545','5201 VILLAGE BLVD','PALM BEACH COUNTY','','',11,'On Hold','2025-06-02','2025-06-02 10:46',8111,8111],
+['1000265550','780 HARBOUR ISLE PL','PALM BEACH COUNTY','','',11,'On Hold','2025-06-02','2025-06-02 11:09',8111,8111],
+['1000265557','3801 COCO GROVE AVE','MIAMI-DADE COUNTY','','',11,'On Hold','2025-06-02','2025-06-02 11:32',8110,8110],
+['1000265646','6650 NW 84TH AVE','BROWARD COUNTY','','',11,'On Hold','2025-06-03','2025-06-03 11:28',8086,8086],
+['1000265696','1941 48TH STREET SOUTH','Pinellas County','Alije','',11,'On Hold','2025-06-03','2025-06-04 10:04',8082,8064],
+['1000264564','4240 SW 23RD ST','BROWARD COUNTY','Tejada','',11,'On Hold','2025-06-04','2025-06-05 09:37',8058,8040],
+['1000265855','2801 NW 27TH AVE','PALM BEACH COUNTY','','',11,'On Hold','2025-06-05','2025-06-05 15:24',8034,8034],
+['1000265699','305 59TH ST','MANATEE COUNTY','Diegor','',11,'On Hold','2025-06-04','2025-06-06 11:53',8060,8014],
+['1000265620','1885 MISSISSIPPI AVE NE','PINELLAS COUNTY','','',11,'On Hold','2025-06-08','2025-06-08 11:28',7966,7966],
+['1000266008','4916 CARLYLE RD','HILLSBOROUGH COUNTY','Alije','',11,'On Hold','2025-06-09','2025-06-09 16:34',7939,7937],
+['1000265610','1555 SE 14TH COURT','BROWARD COUNTY','Rose','',11,'On Hold','2025-06-04','2025-06-10 10:30',8065,7919],
+['1000266082','12500 5TH ST E','PINELLAS COUNTY','','',11,'On Hold','2025-06-10','2025-06-10 14:22',7915,7915],
+['1000265969','503 SANDTREE DRIVE','PALM BEACH COUNTY','Rc','Oleg',11,'On Hold','2025-06-09','2025-06-10 16:40',7942,7913],
+['1000266383','2650 SHELTINGHAM DR','Palm Beach County','','',11,'On Hold','2025-06-16','2025-06-16 11:02',7775,7775],
+['1000266301','1828 SOUTHEAST 28TH STREET','LEE COUNTY','Raul','',11,'On Hold','2025-06-13','2025-06-16 14:27',7847,7771],
+['1000266457','1956 NW 183RD ST','MIAMI-DADE COUNTY','','',11,'On Hold','2025-06-17','2025-06-17 10:32',7751,7751],
+['1000266475','2316 KENT PL','PINELLAS COUNTY','','',11,'On Hold','2025-06-17','2025-06-17 11:52',7750,7750],
+['1000265971','1742 S OCEAN BLVD','PALM BEACH COUNTY','Chauncey_w','',11,'On Hold','2025-06-10','2025-06-18 14:08',7913,7724],
+['1000265332','3835 LORA STREET','LEE COUNTY','Raul','Oleg',11,'On Hold','2025-05-28','2025-06-20 15:18',8228,7674],
+['1000266719','8608 N 13TH ST','Hillsborough County','','',11,'On Hold','2025-06-20','2025-06-20 15:39',7674,7674],
+['1000266764','757 LIGHTHOUSE DR','Palm Beach County','','',11,'On Hold','2025-06-23','2025-06-23 11:36',7606,7606],
+['1000266769','3401 NW 7TH ST','Broward County','Rose','',11,'On Hold','2025-06-23','2025-06-24 09:50',7606,7584],
+['1000266847','5810 MAGGIORE ST','Miami-Dade County','','',11,'On Hold','2025-06-24','2025-06-24 10:11',7584,7584],
+['1000267049','511 CRYSTAL DR','Pinellas County','','',11,'On Hold','2025-06-26','2025-06-26 11:40',7534,7534],
+['1000264715','10340 NORTHWEST 29TH AVENUE','MIAMI-DADE COUNTY','Byron','Oleg',11,'On Hold','2025-05-15','2025-06-30 09:57',8538,7440],
+['1000267001','329 EAGLE DR','Palm Beach County','','',11,'On Hold','2025-06-25','2025-07-01 13:59',7554,7412],
+['1000267369','3091 52ND ST SW','Collier County','','',11,'On Hold','2025-07-02','2025-07-02 10:37',7395,7391],
+['1000267487','154 4TH AVE N','COLLIER COUNTY','Alije','',11,'On Hold','2025-07-07','2025-07-08 08:26',7272,7249],
+['1000267661','5630 VINTAGE OAKS CIR','Palm Beach County','','',11,'On Hold','2025-07-08','2025-07-08 12:46',7245,7245],
+['1000267713','101 BASE AVE E 101 & 103','Sarasota County','Ricardot','',11,'On Hold','2025-07-09','2025-07-09 11:19',7224,7222],
+['1000267342','17508 ISBELL LN','Hillsborough County','Alije','Oleg',11,'On Hold','2025-07-01','2025-07-10 12:07',7410,7198],
+['1000266615','3845 BLANDING BLVD','DUVAL COUNTY','','',11,'On Hold','2025-06-19','2025-07-10 13:19',7704,7196],
+['1000267703','14515 ANDALUSIA TRL','FLAGLER COUNTY','','',11,'On Hold','2025-07-08','2025-07-10 16:14',7241,7194],
+['1000267907','17026 FL-54','Pasco County','','',11,'On Hold','2025-07-11','2025-07-11 10:22',7175,7175],
+['1000267922','15&17 PALMETTO WAY','Palm Beach County','','',11,'On Hold','2025-07-11','2025-07-11 11:34',7174,7174],
+['1000267983','3737 NW 4TH AVE','Palm Beach County','','',11,'On Hold','2025-07-14','2025-07-14 10:39',7103,7103],
+['1000267960','1104 S. SHANNON AVENUE','Brevard County','Elenam','',11,'On Hold','2025-07-11','2025-07-15 09:38',7167,7080],
+['1000268167','916 NE 4TH ST','BROWARD COUNTY','','',11,'On Hold','2025-07-16','2025-07-16 12:13',7054,7054],
+['1000268398','VERMONT ST','Orange County','','',11,'On Hold','2025-07-21','2025-07-21 13:14',6933,6933],
+['1000268354','930 NE 74TH ST','MIAMI-DADE COUNTY','','',11,'On Hold','2025-07-21','2025-07-21 14:04',6932,6932],
+['1000268401','136 SAN SALVADOR ST','Collier County','','',11,'On Hold','2025-07-21','2025-07-21 14:00',6932,6932],
+['1000263457','946 NE 126TH ST','MIAMI-DADE COUNTY','','',11,'On Hold','2025-07-21','2025-07-21 15:10',6931,6931],
+['1000268436','999 ELDERBERRY WAY','Palm Beach County','','',11,'On Hold','2025-07-22','2025-07-22 09:45',6912,6912],
+['1000268445','6020 LE LAC RD','Palm Beach County','','',11,'On Hold','2025-07-22','2025-07-22 10:36',6911,6911],
+['1000268468','304 NW 4TH AVE','Lee County','','',11,'On Hold','2025-07-22','2025-07-22 12:13',6910,6910],
+['1000265312','2404 NORTHWEST 24TH TERRACE','Lee County','Mabel','Oleg',11,'On Hold','2025-05-28','2025-07-23 10:56',8230,6887],
+['1000264265','2015 POE STREET','Polk County','Alije','Oleg',11,'On Hold','2025-05-08','2025-07-23 13:28',8710,6884],
+['1000268040','1919 RIDGE ROAD','Palm Beach County','Ivan','Caitlyn',11,'On Hold','2025-07-14','2025-07-23 15:46',7098,6882],
+['1000268573','2206 ARISTA LN','Hernando County','','',11,'On Hold','2025-07-23','2025-07-23 15:55',6882,6882],
+['1000268532','5131 WILLOW LEAF DR','Sarasota County','Ricardot','Oleg',11,'On Hold','2025-07-23','2025-07-24 15:06',6888,6859],
+['1000268701','3790 NE 25TH AVE','BROWARD COUNTY','','',11,'On Hold','2025-07-25','2025-07-25 09:57',6840,6840],
+['1000267995','11960 SE FEDERAL HWY','MARTIN COUNTY','Chauncey_w','',11,'On Hold','2025-07-14','2025-07-25 11:02',7102,6839],
+['1000268713','15 CENTER LN','Monroe County','','',11,'On Hold','2025-07-25','2025-07-25 11:15',6838,6838],
+['1000268673','108 W KEYES AVE','Hillsborough County','','',11,'On Hold','2025-07-25','2025-07-25 13:46',6841,6836],
+['1000268627','7660 BOCILLA LN','LEE COUNTY','','',11,'On Hold','2025-07-29','2025-07-29 16:40',6737,6737],
+['1000268948','403 W RIVERSIDE DR','PALM BEACH COUNTY','','',11,'On Hold','2025-07-30','2025-07-30 13:29',6716,6716],
+['1000268731','1825 MAIN ST','BROWARD COUNTY','','',11,'On Hold','2025-07-31','2025-07-31 10:37',6695,6695],
+['1000269017','149 HERCULES DR','CHARLOTTE COUNTY','Ricardot','',11,'On Hold','2025-07-31','2025-07-31 12:06',6694,6694],
+['1000269033','8922 RAVEN ROCK CT','Palm Beach County','','',11,'On Hold','2025-07-31','2025-07-31 14:14',6692,6691],
+['1000268885','59 CITRUS RIDGE DRIVE','Polk County','Alije','Oleg',11,'On Hold','2025-07-29','2025-08-04 15:26',6739,6594],
+['1000269135','2528 N.W. 7TH STREET','LEE COUNTY','Ricardot','Oleg',11,'On Hold','2025-08-04','2025-08-05 10:19',6601,6575],
+['1000269237','1400 NE 22ND ST','BROWARD COUNTY','','',11,'On Hold','2025-08-05','2025-08-05 11:47',6575,6574],
+['1000268762','815 FOSTER ROAD, 1 & 2','Broward County','Tejada','Oleg',11,'On Hold','2025-07-28','2025-08-05 13:04',6768,6573],
+['1000267401','14173 HARBOR LANE','Palm Beach County','Ivan','Oleg',11,'On Hold','2025-07-02','2025-08-05 13:36',7389,6572],
+['1000269301','611 SW 15TH ST','Palm Beach County','','',11,'On Hold','2025-08-05','2025-08-05 15:45',6570,6570],
+['1000268929','2311 EL DORADO BLVD N','LEE COUNTY','Mabel','',11,'On Hold','2025-07-30','2025-08-06 09:12',6719,6553],
+['1000269291','1403 NW 17TH ST.,','LEE COUNTY','Raul','',11,'On Hold','2025-08-05','2025-08-06 12:25',6571,6549],
+['1000269367','260 N WOODS RD','PALM BEACH COUNTY','','',11,'On Hold','2025-08-06','2025-08-06 14:03',6548,6548],
+['1000268375','OAK HARBOUR DR, SLIP D-21','PALM BEACH COUNTY','','',11,'On Hold','2025-08-06','2025-08-06 18:28',6543,6543],
+['1000269304','15826 95TH AVE N','Palm Beach County','Ivan','',11,'On Hold','2025-08-05','2025-08-07 08:17',6570,6529],
+['1000269487','12510 SW 72ND TER','MIAMI-DADE COUNTY','','',11,'On Hold','2025-08-08','2025-08-08 11:10',6503,6503],
+['1000261336','18727 REA WAY','Lake County','Clollis','Oleg',11,'On Hold','2025-03-21','2025-08-11 09:13',9865,6433],
+['1000269192','5125 SE MANATEE TER','MARTIN COUNTY','','',11,'On Hold','2025-08-12','2025-08-12 10:02',6408,6408],
+['1000269589','551 SE 12TH CT','BROWARD COUNTY','Rose','',11,'On Hold','2025-08-11','2025-08-12 11:26',6429,6406],
+['1000269567','20988 SOLANO WAY','PALM BEACH COUNTY','','',11,'On Hold','2025-08-12','2025-08-12 16:27',6401,6401],
+['1000269725','18931 NW 44TH AVE','Miami-Dade County','Tejada','',11,'On Hold','2025-08-12','2025-08-13 15:39',6402,6378],
+['1000269738','0 SORRELLS CT','DUVAL COUNTY','Joseph','',11,'On Hold','2025-08-13','2025-08-13 16:53',6382,6377],
+['1000269843','2250 LORRAINE RD','SARASOTA COUNTY','','',11,'On Hold','2025-08-14','2025-08-14 11:11',6359,6359],
+['1000269850','1883 MICHIGAN AVE NE','Pinellas County','','',11,'On Hold','2025-08-14','2025-08-14 11:42',6358,6358],
+['1000269865','1251 SW 15TH AVE','PALM BEACH COUNTY','','',11,'On Hold','2025-08-14','2025-08-14 17:20',6352,6352],
+['1000269158','4182 OLD DIXIE HIGHWAY','Indian River County','Elenam','Oleg',11,'On Hold','2025-08-04','2025-08-15 10:20',6598,6335],
+['1000269922','329 REGATTA DR','Palm Beach County','','',11,'On Hold','2025-08-15','2025-08-15 11:11',6335,6335],
+['1000213814','2198 MAYPORT RD','DUVAL COUNTY','','',11,'On Hold','2025-08-18','2025-08-18 11:12',6263,6263],
+['1000270001','2198 MAYPORT RD','Duval County','','',11,'On Hold','2025-08-18','2025-08-18 11:13',6263,6263],
+['1000269485','2332 ACHILLES STREET','Charlotte County','Mabel','',11,'On Hold','2025-08-08','2025-08-18 13:05',6503,6261],
+['1000270101','2460 TRADE WINDS DR','Pinellas County','','',11,'On Hold','2025-08-19','2025-08-19 11:42',6238,6238],
+['1000270068','2612 NE 22ND AVE','Lee County','Raul','Oleg',11,'On Hold','2025-08-18','2025-08-19 15:53',6257,6234],
+['1000270324','1260 99TH ST','Miami-Dade County','','',11,'On Hold','2025-08-22','2025-08-22 10:54',6167,6167],
+['1000270408','517 SW AVENUE B PL','Palm Beach County','','',11,'On Hold','2025-08-25','2025-08-25 12:11',6094,6094],
+['1000269410','620 N LAKE WAY','PALM BEACH COUNTY','Chauncey_w','',11,'On Hold','2025-08-21','2025-08-26 10:40',6192,6071],
+['1000268491','10544 CYPRESS LAKES PRESERVE DR','PALM BEACH COUNTY','Ivan','',11,'On Hold','2025-07-30','2025-08-26 12:55',6715,6069],
+['1000269182','2156 NE 61ST CT','BROWARD COUNTY','','',11,'On Hold','2025-08-26','2025-08-26 13:49',6068,6068],
+['1000270650','11360 SALIX CT','Lee County','Mabel','Oleg',11,'On Hold','2025-08-28','2025-09-02 12:49',6020,5901],
+['1000260287','2770-2778 NORTHWEST 58TH TERRACE','Broward County','Juans','',11,'On Hold','2025-03-06','2025-09-03 12:10',10222,5878],
+['1000270141','6409 AUBURN AVE','Manatee County','Kurt','Oleg',11,'On Hold','2025-08-19','2025-09-04 08:31',6235,5857],
+['1000270735','616 NE 16TH TER','BROWARD COUNTY','','',11,'On Hold','2025-08-29','2025-09-04 10:53',5994,5855],
+['1000270635','32 TROPICANA PKWY E','LEE COUNTY','','',11,'On Hold','2025-09-04','2025-09-04 15:11',5851,5851],
+['1000270636','6015 STRATTON RD','LEE COUNTY','','',11,'On Hold','2025-09-04','2025-09-04 15:11',5851,5851],
+['1000270637','UNASSIGNED','PUTNAM COUNTY','','',11,'On Hold','2025-09-04','2025-09-04 15:11',5851,5851],
+['1000271199','7110 LONGBOAT DR E','Manatee County','','',11,'On Hold','2025-09-09','2025-09-09 11:42',5734,5734],
+['1000270756','2035 FINS LANE','BREVARD COUNTY','','',11,'On Hold','2025-09-10','2025-09-10 11:44',5710,5710],
+['1000271330','2004 EMBASSY DR','PALM BEACH COUNTY','','',11,'On Hold','2025-09-11','2025-09-11 10:35',5687,5687],
+['1000271334','9820 ORANGE PARK TRAIL','PALM BEACH COUNTY','','',11,'On Hold','2025-09-11','2025-09-11 11:55',5687,5686],
+['1000271282','235 SW 3RD CT','Broward County','Rose','Oleg',11,'On Hold','2025-09-10','2025-09-15 12:07',5709,5590],
+['1000270793','397 CASTAWAYS ST','COLLIER COUNTY','','',11,'On Hold','2025-09-16','2025-09-16 08:21',5569,5569],
+['1000271564','212/224 COMMERCIAL WAY','Highlands County','','',11,'On Hold','2025-09-16','2025-09-16 10:12',5568,5568],
+['1000271439','123 PEPPER LN','St. Lucie County','','',11,'On Hold','2025-09-16','2025-09-16 11:05',5567,5567],
+['1000271510','18618 NW 276TH ST','OKEECHOBEE COUNTY','','',11,'On Hold','2025-09-16','2025-09-16 11:27',5566,5566],
+['1000271577','43710 S ISLAND DR','LAKE COUNTY','','',11,'On Hold','2025-09-16','2025-09-16 12:40',5565,5565],
+['1000271505','3544 SHADOWOOD DR','Hillsborough County','Ricardot','',11,'On Hold','2025-09-15','2025-09-16 15:56',5588,5562],
+['1000271468','2514 YACHT CLUB BLVD','BROWARD COUNTY','Juans','Oleg',11,'On Hold','2025-09-15','2025-09-18 10:31',5592,5519],
+['1000270072','619 MACYS STREET','PALM BEACH COUNTY','Ivan','Fred_draft',11,'On Hold','2025-08-18','2025-09-18 19:30',6257,5510],
+['1000271481','15590 ORANGE BLVD','PALM BEACH COUNTY','','',11,'On Hold','2025-09-24','2025-09-24 12:30',5373,5373],
+['1000271685','5479 SE PARAMOUNT DR','MARTIN COUNTY','','',11,'On Hold','2025-09-24','2025-09-24 13:47',5372,5372],
+['1000271854','950 YORK ST','PALM BEACH COUNTY','','',11,'On Hold','2025-09-25','2025-09-25 09:26',5352,5352],
+['1000271861','9040 NW 26TH PL','Broward County','Rose','Oleg',11,'On Hold','2025-09-22','2025-09-25 09:54',5421,5352],
+['1000272053','3826 10TH AVE N','PALM BEACH COUNTY','','',11,'On Hold','2025-09-25','2025-09-25 11:03',5351,5351],
+['1000271924','3725 NORTH OLD DIXIE HIGHWAY','St. Lucie County','','',11,'On Hold','2025-09-30','2025-09-30 11:34',5230,5230],
+['1000272305','316 AMANDA LN','Lake County','','',11,'On Hold','2025-09-30','2025-09-30 17:00',5225,5225],
+['1000272333','6263 RIVERWALK LN','Palm Beach County','Ivan','',11,'On Hold','2025-10-01','2025-10-01 11:08',5209,5207],
+['1000271882','8126 EVERHART DR','LEE COUNTY','','',11,'On Hold','2025-10-02','2025-10-02 13:59',5180,5180],
+['1000272382','1250 SOUTHWINDS DR','PALM BEACH COUNTY','','',11,'On Hold','2025-10-02','2025-10-02 17:08',5177,5177],
+['1000272499','3708 PLUMOSA TERRACE','Manatee County','','',11,'On Hold','2025-10-03','2025-10-03 11:42',5158,5158],
+['1000272488','12007 FLICKER WAY','Broward County','Andrewy','',11,'On Hold','2025-10-03','2025-10-03 15:39',5160,5154],
+['1000272478','5221 PINE ST','Hillsborough County','Alije','',11,'On Hold','2025-10-03','2025-10-06 09:51',5161,5088],
+['1000271352','2423 EDGEWATER DRIVE','Palm Beach County','','',11,'On Hold','2025-10-07','2025-10-07 09:59',5064,5064],
+['1000272649','3801 COCO GROVE AVE','MIAMI-DADE COUNTY','','',11,'On Hold','2025-10-07','2025-10-07 17:20',5056,5056],
+['1000272565','17033 POLO TRL','Manatee County','Ricardot','Oleg',11,'On Hold','2025-10-06','2025-10-08 17:38',5087,5032],
+['1000272801','56048 BLUE CREEK RD','LAKE COUNTY','','',11,'On Hold','2025-10-09','2025-10-09 11:35',5014,5014],
+['1000271833','17 BAY HARBOR RD','PALM BEACH COUNTY','','',11,'On Hold','2025-10-10','2025-10-10 10:46',4991,4991],
+['1000271965','17844 HAYNIE LN','PALM BEACH COUNTY','','',11,'On Hold','2025-10-10','2025-10-10 10:59',4991,4991],
+['1000272102','5615 SHANNON DR','St. Lucie County','','',11,'On Hold','2025-10-10','2025-10-10 12:17',4989,4989],
+['1000272853','13707 53RD CT N','PALM BEACH COUNTY','','',11,'On Hold','2025-10-10','2025-10-10 15:33',4986,4986],
+['1000272874','12081 DUBARRY AVE','CHARLOTTE COUNTY','','',11,'On Hold','2025-10-10','2025-10-10 15:26',4986,4986],
+['1000269953','3548 SHADY BROOKE DR W','Polk County','Alije','Oleg',11,'On Hold','2025-08-15','2025-10-13 10:20',6331,4919],
+['1000272822','5641 SIMMS STREET','Broward County','Tejada','',11,'On Hold','2025-10-09','2025-10-13 13:29',5012,4916],
+['1000271931','11289 ALLIGATOR TRL','PALM BEACH COUNTY','','',11,'On Hold','2025-10-13','2025-10-13 14:47',4915,4915],
+['1000271933','5760 GOLDEN OAKS LN','COLLIER COUNTY','','',11,'On Hold','2025-10-13','2025-10-13 14:49',4915,4915],
+['1000271988','1005 NE 9TH AVENUE','Palm Beach County','','',11,'On Hold','2025-10-13','2025-10-13 15:04',4915,4915],
+['1000271911','1630 NE 34TH CT','BROWARD COUNTY','','',11,'On Hold','2025-10-15','2025-10-15 10:14',4872,4872],
+['1000272550','110 JACARANDA CT','PALM BEACH COUNTY','Chauncey_w','',11,'On Hold','2025-10-06','2025-10-15 15:00',5083,4867],
+['1000272870','8167 WESTMONT TERRACE DR','POLK COUNTY','','',11,'On Hold','2025-10-15','2025-10-15 15:43',4866,4866],
+['1000273091','753 NE 79TH ST','MIAMI-DADE COUNTY','','',11,'On Hold','2025-10-16','2025-10-16 18:23',4839,4839],
+['1000273161','624 SELKIRK ST','PALM BEACH COUNTY','','',11,'On Hold','2025-10-16','2025-10-16 18:29',4839,4839],
+['1000273134','5837 NW 21ST AVE','PALM BEACH COUNTY','Chauncey_w','',11,'On Hold','2025-10-16','2025-10-20 14:06',4847,4748],
+['1000273298','3437 DORA ST','Lee County','Raul','',11,'On Hold','2025-10-20','2025-10-21 09:47',4748,4728],
+['1000273307','6540 SW 8TH ST','Broward County','Rose','',11,'On Hold','2025-10-20','2025-10-21 09:39',4747,4728],
+['1000273319','5211 SW 57TH ST','Broward County','Tejada','',11,'On Hold','2025-10-20','2025-10-21 09:39',4746,4728],
+['1000273343','152 WOODBRIDGE CIR','Volusia County','','',11,'On Hold','2025-10-21','2025-10-21 11:11',4727,4727],
+['1000273392','8424 31ST STREET CT E','MANATEE COUNTY','','',11,'On Hold','2025-10-21','2025-10-21 17:16',4720,4720],
+['1000272186','4610 SELVITZ RD','ST. LUCIE COUNTY','','',11,'On Hold','2025-10-23','2025-10-23 11:47',4678,4678],
+['1000273465','32 HAMPSHIRE LN','PALM BEACH COUNTY','','',11,'On Hold','2025-10-23','2025-10-23 17:32',4672,4672],
+['1000272585','2630 TORTUGAS LN','BROWARD COUNTY','','',11,'On Hold','2025-10-24','2025-10-24 12:05',4654,4654],
+['1000272610','5367 US-27','HIGHLANDS COUNTY','','',11,'On Hold','2025-10-24','2025-10-24 12:36',4653,4653],
+['1000272944','1160 W 23RD ST ','PALM BEACH COUNTY','','',11,'On Hold','2025-10-24','2025-10-24 16:51',4649,4649],
+['1000272987','35135 PINEGATE TRAIL','LAKE COUNTY','','',11,'On Hold','2025-10-27','2025-10-27 10:11',4584,4584],
+['1000266335','1359 TYLER ST','BROWARD COUNTY','Andrewy','',11,'On Hold','2025-10-27','2025-10-27 10:54',4583,4583],
+['1000273608','35135 PINEGATE TRAIL','Lake County','','',11,'On Hold','2025-10-27','2025-10-27 10:26',4583,4583],
+['1000272627','1462 9TH ST','PALM BEACH COUNTY','','',11,'On Hold','2025-10-27','2025-10-27 15:36',4578,4578],
+['1000273107','ACME RD','PALM BEACH COUNTY','','',11,'On Hold','2025-10-27','2025-10-27 16:18',4577,4577],
+['1000270923','5837 NW 21ST AVE','PALM BEACH COUNTY','Andrewy','Oleg',11,'On Hold','2025-09-04','2025-10-29 17:24',5857,4528],
+['1000273817','1211 FL-436','Seminole County','','',11,'On Hold','2025-10-30','2025-10-30 09:41',4512,4512],
+['1000273827','1607 LAKE DOWNEY DR #25','ORANGE COUNTY','','',11,'On Hold','2025-10-30','2025-10-30 11:30',4510,4510],
+['1000273870','465 SAVOIE DR','Palm Beach County','','',11,'On Hold','2025-10-31','2025-10-31 09:14',4489,4488],
+['1000271901','18031 PATTERSON RD','HILLSBOROUGH COUNTY','','',11,'On Hold','2025-10-31','2025-10-31 11:37',4486,4486],
+['1000273762','7916 9TH AVE NW','MANATEE COUNTY','','',11,'On Hold','2025-10-31','2025-10-31 12:01',4486,4486],
+['1000273113','9984 NANDINA ST','BROWARD COUNTY','','',11,'On Hold','2025-10-31','2025-10-31 13:15',4484,4484],
+['1000273967','1198 INDIAN RIVER DR','Brevard County','','',11,'On Hold','2025-11-03','2025-11-03 15:48',4410,4410],
+['1000273975','2855 CORAL SPRINGS DR','BROWARD COUNTY','','',11,'On Hold','2025-11-03','2025-11-03 15:30',4410,4410],
+['1000273335','1480 PEACH PLACE','COLLIER COUNTY','','',11,'On Hold','2025-11-04','2025-11-04 10:29',4391,4391],
+['1000274109','510 RIVIERA DR','BROWARD COUNTY','','',11,'On Hold','2025-11-05','2025-11-05 10:43',4367,4367],
+['1000274044','603 24TH AVE W','Manatee County','Kurt','',11,'On Hold','2025-11-04','2025-11-05 12:17',4388,4365]
+
+];</script>
+<script>
+</script>
+
+<!-- TAB 1: OVERVIEW -->
+<div class="tab active" id="t-overview">
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="grid2">
+    <div class="section">
+      <h2>Active Orders by Status (Open Today)</h2>
+      <div class="chart-wrap" style="height:320px"><canvas id="c-active-donut"></canvas></div>
+    </div>
+    <div class="section">
+      <h2>Avg Hours in Current Status</h2>
+      <div class="chart-wrap" style="height:320px"><canvas id="c-active-bar"></canvas></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>Monthly Avg Cycle Time: Order → Delivered (Days)</h2>
+    <div class="chart-wrap" style="height:260px"><canvas id="c-cycle-overview"></canvas></div>
+  </div>
+</div>
+
+<!-- TAB 2: STATUS DURATION -->
+<div class="tab" id="t-status-dur">
+  <div class="info-note">⚑ 2026 data from <strong>order_status_tracking</strong> (Jan 1 – May 6, 2026 | completed transitions). 2025 data from Dec 22–31 sample (tracking table started Dec 22, 2025).</div>
+  <div class="grid2">
+    <div class="section">
+      <h2>2026 — Avg Hours Spent in Each Status</h2>
+      <div class="chart-wrap" style="height:400px"><canvas id="c-dur-2026"></canvas></div>
+    </div>
+    <div class="section">
+      <h2>2025 (Dec 22–31) — Avg Hours Spent in Each Status</h2>
+      <div class="chart-wrap" style="height:400px"><canvas id="c-dur-2025"></canvas></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>2025 vs 2026 — Status Duration Comparison Table</h2>
+    <table id="tbl-dur">
+      <thead><tr><th onclick="sortTbl('tbl-dur',0)">Status</th><th onclick="sortTbl('tbl-dur',1)">2025 Avg Hrs</th><th onclick="sortTbl('tbl-dur',2)">2026 Avg Hrs</th><th onclick="sortTbl('tbl-dur',3)">Change</th><th onclick="sortTbl('tbl-dur',4)">2025 Transitions</th><th onclick="sortTbl('tbl-dur',5)">2026 Transitions</th></tr></thead>
+      <tbody id="dur-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: PIPELINE STAGES -->
+<div class="tab" id="t-stages">
+  <div class="info-note">⚑ Based on milestone dates from <code>ng_orders</code>: order date → crew assign → fieldwork → drafter assign → checker assign → delivered. Orders with negative durations (data entry sequencing) excluded.</div>
+  <div class="section">
+    <h2>Stage-by-Stage Pipeline: Avg Hours per Transition (2025 vs 2026)</h2>
+    <div class="chart-wrap" style="height:340px"><canvas id="c-stages-bar"></canvas></div>
+  </div>
+  <div class="section">
+    <h2>Stage Breakdown Detail</h2>
+    <div id="flow-stages"></div>
+  </div>
+  <div class="section">
+    <h2>2025 Full-Year Avg Total Cycle Time</h2>
+    <div class="kpi-grid" id="cycle-kpis"></div>
+  </div>
+</div>
+
+<!-- TAB 4: TRANSITION MATRIX -->
+<div class="tab" id="t-transitions">
+  <div class="info-note">⚑ 2026 data only (Jan 1 – May 6). Shows avg hours an order spent in the FROM status before moving to the TO status. Source: <code>order_status_tracking</code>.</div>
+  <div class="section">
+    <h2>Top Transitions by Avg Wait Time (hrs)</h2>
+    <div class="chart-wrap" style="height:520px"><canvas id="c-transitions"></canvas></div>
+  </div>
+  <div class="section">
+    <h2>Full Transition Table</h2>
+    <table id="tbl-trans">
+      <thead><tr><th onclick="sortTbl('tbl-trans',0)">From Status</th><th onclick="sortTbl('tbl-trans',1)">To Status</th><th onclick="sortTbl('tbl-trans',2)">Count</th><th onclick="sortTbl('tbl-trans',3)">Avg Hrs in From-Status</th></tr></thead>
+      <tbody id="trans-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 5: MONTHLY CYCLE TIME -->
+<div class="tab" id="t-cycle">
+  <div class="section">
+    <h2>Monthly Avg Cycle Time: Order Placed → Delivered (Days) — 2025 Full Year vs 2026 YTD</h2>
+    <div class="chart-wrap" style="height:360px"><canvas id="c-cycle-main"></canvas></div>
+  </div>
+  <div class="section">
+    <h2>Monthly Data Table</h2>
+    <table id="tbl-cycle">
+      <thead><tr><th onclick="sortTbl('tbl-cycle',0)">Year</th><th onclick="sortTbl('tbl-cycle',1)">Month</th><th onclick="sortTbl('tbl-cycle',2)">Delivered Orders</th><th onclick="sortTbl('tbl-cycle',3)">Avg Cycle Days</th></tr></thead>
+      <tbody id="cycle-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: OPEN ORDERS -->
+<div class="tab" id="t-orders">
+  <div class="info-note">⚑ 300 longest-waiting open orders (status ≠ Canceled/Complete/Delivered). Sorted by hours in current status descending. Data as of May 6, 2026.</div>
+  <div class="filters">
+    <label>Search:</label>
+    <input type="text" id="orders-search" placeholder="Order #, address, county, crew…" oninput="filterOrders()" style="width:240px">
+    <label>Status:</label>
+    <select id="orders-status" onchange="filterOrders()">
+      <option value="">All Statuses</option>
+      <option value="Pending">Pending</option>
+      <option value="Assigned">Assigned</option>
+      <option value="In-Field">In-Field</option>
+      <option value="Drafting Queue">Drafting Queue</option>
+      <option value="Drafting">Drafting</option>
+      <option value="Checking">Checking</option>
+      <option value="On Hold">On Hold</option>
+      <option value="Quote">Quote</option>
+      <option value="Go Back">Go Back</option>
+    </select>
+    <label>Year:</label>
+    <select id="orders-year" onchange="filterOrders()">
+      <option value="">2025 & 2026</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+    </select>
+    <span id="orders-count" style="font-size:.78rem;color:var(--gray);"></span>
+  </div>
+  <table id="tbl-orders">
+    <thead>
+      <tr>
+        <th onclick="sortOrders(0)">Order #</th>
+        <th onclick="sortOrders(1)">Address</th>
+        <th onclick="sortOrders(2)">County</th>
+        <th onclick="sortOrders(3)">Crew</th>
+        <th onclick="sortOrders(4)">Drafter</th>
+        <th onclick="sortOrders(5)">Status</th>
+        <th onclick="sortOrders(6)">Order Date</th>
+        <th onclick="sortOrders(7)">In Status Since</th>
+        <th onclick="sortOrders(8)">Total Age (hrs)</th>
+        <th onclick="sortOrders(9)">Hrs in Status</th>
+      </tr>
+    </thead>
+    <tbody id="orders-tbody"></tbody>
+  </table>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.classList.toggle('active',(b.getAttribute('onclick')||'').includes("'"+id+"'"));
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+const MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const STATUS_COLORS={1:'#FCD34D',2:'#60A5FA',3:'#34D399',4:'#A78BFA',5:'#818CF8',6:'#F97316',7:'#2DD4BF',8:'#22C55E',11:'#F87171',12:'#9CA3AF',14:'#EF4444',15:'#10B981',18:'#FBBF24'};
+const S_BADGE={1:'s1',2:'s2',3:'s3',4:'s4',5:'s5',6:'s6',11:'s11',12:'s12',14:'s14',15:'s15',18:'s18'};
+
+function hrsColor(h){return h>200?'hrs-hi':h>80?'hrs-md':'hrs-ok';}
+function hrsBar(h,max){const pct=Math.min(100,h/max*100);const c=h>200?'var(--red)':h>80?'var(--amber)':'var(--green)';return `<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;background:#eee;border-radius:4px;height:8px"><div style="width:${pct}%;background:${c};border-radius:4px;height:8px"></div></div><span style="font-size:.75rem;font-weight:700;min-width:36px">${h}h</span></div>`;}
+
+// KPIs
+(function(){
+  const totalActive=ACTIVE_STATUS.filter(a=>a.code!==11).reduce((s,a)=>s+a.cnt,0);
+  const onHold=ACTIVE_STATUS.find(a=>a.code===11);
+  const avgCycle25=MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((s,m)=>s+m.days*m.orders,0)/MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((s,m)=>s+m.orders,0);
+  const avgCycle26=MONTHLY_CYCLE.filter(m=>m.yr===2026).reduce((s,m)=>s+m.days*m.orders,0)/MONTHLY_CYCLE.filter(m=>m.yr===2026).reduce((s,m)=>s+m.orders,0);
+  const kpis=[
+    {label:'Active Orders (excl On Hold)',value:totalActive,sub:'Currently in pipeline',cls:''},
+    {label:'On Hold Orders',value:onHold?onHold.cnt:0,sub:'Avg '+Math.round((onHold?onHold.avg_hrs:0)/24)+' days on hold',cls:'warn'},
+    {label:'2025 Avg Cycle Time',value:avgCycle25.toFixed(1)+'d',sub:'Order → Delivered',cls:''},
+    {label:'2026 Avg Cycle Time',value:avgCycle26.toFixed(1)+'d',sub:'Order → Delivered',cls:avgCycle26>avgCycle25?'warn':'ok'},
+    {label:'Longest Active Wait',value:'48.8 days',sub:'On Hold (max 11,710 hrs)',cls:'warn'},
+    {label:'2026 In-Field Avg Wait',value:'161.8 hrs',sub:'6.7 days avg in In-Field',cls:'amber'},
+    {label:'2026 Checking Avg Wait',value:'151.9 hrs',sub:'6.3 days avg in Checking',cls:'amber'},
+    {label:'Pipeline Bottleneck',value:'In-Field',sub:'161.8 hrs avg (highest)',cls:'warn'}
+  ];
+  const g=document.getElementById('kpi-grid');
+  kpis.forEach(k=>{g.innerHTML+=`<div class="kpi ${k.cls}"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>`;});
+})();
+
+// Active donut
+new Chart(document.getElementById('c-active-donut'),{
+  type:'doughnut',
+  data:{
+    labels:ACTIVE_STATUS.map(a=>a.s),
+    datasets:[{data:ACTIVE_STATUS.map(a=>a.cnt),backgroundColor:ACTIVE_STATUS.map(a=>STATUS_COLORS[a.code]||'#999'),borderWidth:2}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}
+});
+
+// Active bar - avg hrs in status
+(function(){
+  const filtered=ACTIVE_STATUS.filter(a=>a.code!==11);
+  const ctx=document.getElementById('c-active-bar');
+  ctx.parentElement.style.height='320px';
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:filtered.map(a=>a.s),
+      datasets:[{label:'Avg Hrs in Status',data:filtered.map(a=>a.avg_hrs),backgroundColor:filtered.map(a=>STATUS_COLORS[a.code]||'#999')}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Hours'}}}}
+  });
+})();
+
+// Overview cycle chart
+(function(){
+  const months=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>MONTHS[m.mo]);
+  const d25=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>m.days);
+  const d26months=MONTHLY_CYCLE.filter(m=>m.yr===2026).map(m=>m.days);
+  const d26=[...d26months,...Array(12-d26months.length).fill(null)];
+  new Chart(document.getElementById('c-cycle-overview'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'2025',data:d25,borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.1)',tension:.3,fill:true},
+      {label:'2026 (YTD)',data:d26,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.1)',tension:.3,fill:true,borderDash:[5,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'Days'}}}}
+  });
+})();
+
+// Status duration charts
+(function(){
+  const labels=STATUS_DUR_2026.map(d=>d.s);
+  const ctx26=document.getElementById('c-dur-2026');
+  ctx26.parentElement.style.height='400px';
+  new Chart(ctx26,{
+    type:'bar',data:{labels,datasets:[{label:'Avg Hrs (2026)',data:STATUS_DUR_2026.map(d=>d.hrs),backgroundColor:'#1B3A9B'}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
+  });
+  const labels25=STATUS_DUR_2025.map(d=>d.s);
+  const ctx25=document.getElementById('c-dur-2025');
+  ctx25.parentElement.style.height='400px';
+  new Chart(ctx25,{
+    type:'bar',data:{labels:labels25,datasets:[{label:'Avg Hrs (2025)',data:STATUS_DUR_2025.map(d=>d.hrs),backgroundColor:'#C9A84C'}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
+  });
+
+  // Comparison table
+  const map25={};STATUS_DUR_2025.forEach(d=>map25[d.s]=d);
+  const tbody=document.getElementById('dur-tbody');
+  STATUS_DUR_2026.forEach(d=>{
+    const d25=map25[d.s];
+    const diff=d25?(d.hrs-d25.hrs).toFixed(1):'-';
+    const diffStr=d25?(d.hrs>d25.hrs?`<span style="color:var(--red)">▲${diff}</span>`:`<span style="color:var(--green)">▼${Math.abs(diff)}</span>`):'–';
+    tbody.innerHTML+=`<tr><td>${d.s}</td><td data-v="${d25?d25.hrs:0}">${d25?d25.hrs+'h':'–'}</td><td data-v="${d.hrs}">${d.hrs}h</td><td>${diffStr}</td><td>${d25?d25.n:'–'}</td><td>${d.n}</td></tr>`;
+  });
+})();
+
+// Pipeline stages
+(function(){
+  const stagesWithData=STAGES_2025.filter(s=>s.hrs25!==null);
+  const ctx=document.getElementById('c-stages-bar');
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:STAGES_2025.map(s=>s.stage),
+      datasets:[
+        {label:'2025 (milestone avg hrs)',data:STAGES_2025.map(s=>s.hrs25),backgroundColor:'rgba(27,58,155,.8)'},
+        {label:'2026 (milestone avg hrs)',data:STAGES_2025.map(s=>s.hrs26),backgroundColor:'rgba(201,168,76,.8)'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'Hours'}}}}
+  });
+
+  const div=document.getElementById('flow-stages');
+  STAGES_2025.forEach(s=>{
+    const diff26=s.hrs26!==null?(s.hrs26-s.hrs25).toFixed(1):null;
+    const diffHtml=diff26!==null?(parseFloat(diff26)>0?`<span class="diff up">▲${diff26}h</span>`:`<span class="diff dn">▼${Math.abs(diff26)}h</span>`):`<span style="color:var(--gray);font-size:.75rem">N/A (2026)</span>`;
+    div.innerHTML+=`<div class="flow-stage"><span class="name">${s.stage}</span><span class="hrs25">2025: ${s.hrs25}h <small>(${s.n25.toLocaleString()} orders)</small></span><span class="hrs26">2026: ${s.hrs26!==null?s.hrs26+'h':'–'} ${s.n26>0?`<small>(${s.n26.toLocaleString()} orders)</small>`:''}</span>${diffHtml}</div>`;
+  });
+
+  const ck=document.getElementById('cycle-kpis');
+  const totDelivered=MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((a,m)=>a+m.orders,0);
+  const avgDays=(MONTHLY_CYCLE.filter(m=>m.yr===2025).reduce((a,m)=>a+m.days*m.orders,0)/totDelivered).toFixed(1);
+  ck.innerHTML=`
+    <div class="kpi"><div class="label">Delivered Orders (2025)</div><div class="value">${totDelivered}</div><div class="sub">Orders with full cycle tracked</div></div>
+    <div class="kpi"><div class="label">2025 Avg Cycle Time</div><div class="value">${avgDays} days</div><div class="sub">${(avgDays*24).toFixed(0)} hours order→delivered</div></div>
+    <div class="kpi amber"><div class="label">Fastest Month 2025</div><div class="value">12.1 days</div><div class="sub">November 2025</div></div>
+    <div class="kpi warn"><div class="label">Slowest Month 2025</div><div class="value">30.7 days</div><div class="sub">April 2025</div></div>`;
+})();
+
+// Transition chart
+(function(){
+  const top15=TRANSITIONS.slice().sort((a,b)=>b.hrs-a.hrs).slice(0,15);
+  const ctx=document.getElementById('c-transitions');
+  ctx.parentElement.style.height='520px';
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:top15.map(t=>t.from+' → '+t.to),
+      datasets:[{label:'Avg Hrs in From-Status Before Transition',data:top15.map(t=>t.hrs),backgroundColor:'rgba(27,58,155,.8)'}]
+    },
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hours'}}}}
+  });
+
+  const tbody=document.getElementById('trans-tbody');
+  TRANSITIONS.slice().sort((a,b)=>b.hrs-a.hrs).forEach(t=>{
+    const cls=t.hrs>120?'transition-row-long':'';
+    tbody.innerHTML+=`<tr class="${cls}"><td>${t.from}</td><td>${t.to}</td><td>${t.cnt.toLocaleString()}</td><td class="hrs-cell ${hrsColor(t.hrs)}">${t.hrs}h</td></tr>`;
+  });
+})();
+
+// Monthly cycle main chart
+(function(){
+  const months=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>MONTHS[m.mo]);
+  const d25=MONTHLY_CYCLE.filter(m=>m.yr===2025).map(m=>m.days);
+  const d26months=MONTHLY_CYCLE.filter(m=>m.yr===2026).map(m=>m.days);
+  const d26=[...d26months,...Array(12-d26months.length).fill(null)];
+  new Chart(document.getElementById('c-cycle-main'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'2025 Avg Days',data:d25,borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.15)',tension:.3,fill:true,pointRadius:5},
+      {label:'2026 Avg Days (YTD)',data:d26,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.15)',tension:.3,fill:true,borderDash:[6,3],pointRadius:5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{min:0,title:{display:true,text:'Days'}}}}
+  });
+
+  const tbody=document.getElementById('cycle-tbody');
+  MONTHLY_CYCLE.forEach(m=>{
+    tbody.innerHTML+=`<tr><td>${m.yr}</td><td>${MONTHS[m.mo]}</td><td>${m.orders}</td><td data-v="${m.days}" class="hrs-cell ${m.days>28?'hrs-hi':m.days<18?'hrs-ok':''}">${m.days}d</td></tr>`;
+  });
+})();
+
+// Open orders table
+let ordersSort={col:9,dir:-1};
+let ordersFiltered=[...OPEN_ORDERS];
+
+function renderOrders(){
+  const tbody=document.getElementById('orders-tbody');
+  tbody.innerHTML='';
+  document.getElementById('orders-count').textContent=`Showing ${ordersFiltered.length} orders`;
+  ordersFiltered.forEach(r=>{
+    const sc=S_BADGE[r[5]]||'s12';
+    const hc=hrsColor(r[10]);
+    const thc=hrsColor(r[9]/24);
+    tbody.innerHTML+=`<tr>
+      <td><strong>${r[0]}</strong></td>
+      <td>${r[1]||''}</td>
+      <td>${r[2]||''}</td>
+      <td>${r[3]||'–'}</td>
+      <td>${r[4]||'–'}</td>
+      <td><span class="badge-status ${sc}">${r[6]}</span></td>
+      <td>${r[7]}</td>
+      <td>${r[8]}</td>
+      <td class="hrs-cell ${thc}">${r[9]}</td>
+      <td class="hrs-cell ${hc}">${r[10]}</td>
+    </tr>`;
+  });
+}
+
+function filterOrders(){
+  const q=(document.getElementById('orders-search').value||'').toLowerCase();
+  const st=(document.getElementById('orders-status').value||'').toLowerCase();
+  const yr=(document.getElementById('orders-year').value||'');
+  ordersFiltered=OPEN_ORDERS.filter(r=>{
+    const matchQ=!q||(r[0]+r[1]+r[2]+r[3]+r[4]).toLowerCase().includes(q);
+    const matchSt=!st||r[6].toLowerCase()===st;
+    const matchYr=!yr||r[7].startsWith(yr);
+    return matchQ&&matchSt&&matchYr;
+  });
+  ordersFiltered.sort((a,b)=>(b[10]-a[10]));
+  renderOrders();
+}
+
+function sortOrders(col){
+  if(ordersSort.col===col){ordersSort.dir*=-1;}else{ordersSort={col,dir:col>=9?-1:1};}
+  ordersFiltered.sort((a,b)=>{
+    const av=a[col]||'';const bv=b[col]||'';
+    return typeof av==='number'?(av-bv)*ordersSort.dir:(String(av).localeCompare(String(bv)))*ordersSort.dir;
+  });
+  renderOrders();
+}
+
+function sortTbl(id,col){
+  const tbl=document.getElementById(id);
+  const rows=Array.from(tbl.querySelectorAll('tbody tr'));
+  const dir=tbl.dataset.sort==col?-1*(tbl.dataset.dir||1):1;
+  tbl.dataset.sort=col;tbl.dataset.dir=dir;
+  rows.sort((a,b)=>{
+    const av=a.cells[col].dataset.v||a.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').replace(/[▲▼]/g,'').trim();
+    const bv=b.cells[col].dataset.v||b.cells[col].textContent.replace(/[%,+]/g,'').replace('pts','').replace(/[▲▼]/g,'').trim();
+    const an=parseFloat(av),bn=parseFloat(bv);
+    return (isNaN(an)||isNaN(bn)?av.localeCompare(bv):(an-bn))*dir;
+  });
+  rows.forEach(r=>tbl.querySelector('tbody').appendChild(r));
+}
+
+filterOrders();
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+REPORT PROMPT — Order Status Timing Dashboard
+To regenerate this report, connect Claude Code to nexgen_ftf_db via MySQL MCP and run:
+
+"Generate an order status timing dashboard for 2025 and 2026 showing how long orders sit in each status
+and how long transitions between statuses take. Include: avg hours per status from order_status_tracking
+(2026), milestone-based stage breakdown from ng_orders (both years), monthly cycle time, active open
+orders, and a transition matrix. Output as a self-contained HTML dashboard."
+
+--- SQL QUERIES USED ---
+
+-- 1. Status durations (2026) from order_status_tracking
+SELECT old_status, s.ng_status_desc, COUNT(*) AS transitions,
+  ROUND(AVG(TIMESTAMPDIFF(MINUTE, started_at, end_at))/60, 1) AS avg_hrs,
+  ROUND(MIN(TIMESTAMPDIFF(MINUTE, started_at, end_at))/60, 1) AS min_hrs,
+  ROUND(MAX(TIMESTAMPDIFF(MINUTE, started_at, end_at))/60, 1) AS max_hrs
+FROM order_status_tracking ost
+LEFT JOIN ng_statuses s ON s.ng_status = ost.old_status
+WHERE YEAR(started_at) = 2026 AND end_at IS NOT NULL
+  AND TIMESTAMPDIFF(MINUTE, started_at, end_at) > 0
+GROUP BY old_status, s.ng_status_desc
+ORDER BY CAST(old_status AS UNSIGNED);
+
+-- 2. Stage breakdown 2025 (milestone-based, filter 0–720 hrs to exclude outliers)
+SELECT 'Pending→Assigned' AS stage,
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, ng_date, crew_assign_date)), 1) AS avg_hrs, COUNT(*) AS orders
+FROM ng_orders
+WHERE YEAR(ng_date) = 2025 AND ng_date IS NOT NULL AND crew_assign_date IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, ng_date, crew_assign_date) BETWEEN 0 AND 720
+UNION ALL
+SELECT 'Assigned→In-Field',
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, crew_assign_date, ng_date_fieldwork)), 1), COUNT(*)
+FROM ng_orders
+WHERE YEAR(ng_date) = 2025 AND crew_assign_date IS NOT NULL AND ng_date_fieldwork IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, crew_assign_date, ng_date_fieldwork) BETWEEN 0 AND 720
+UNION ALL
+SELECT 'In-Field→Drafting',
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, ng_date_fieldwork, drafter_assign_date)), 1), COUNT(*)
+FROM ng_orders
+WHERE YEAR(ng_date) = 2025 AND ng_date_fieldwork IS NOT NULL AND drafter_assign_date IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, ng_date_fieldwork, drafter_assign_date) BETWEEN 0 AND 720
+UNION ALL
+SELECT 'Drafting→Checking',
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, drafter_assign_date, checker_assign_date)), 1), COUNT(*)
+FROM ng_orders
+WHERE YEAR(ng_date) = 2025 AND drafter_assign_date IS NOT NULL AND checker_assign_date IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, drafter_assign_date, checker_assign_date) BETWEEN 0 AND 720
+UNION ALL
+SELECT 'Checking→Delivered',
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, checker_assign_date, ng_date_delivered)), 1), COUNT(*)
+FROM ng_orders
+WHERE YEAR(ng_date) = 2025 AND checker_assign_date IS NOT NULL AND ng_date_delivered IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, checker_assign_date, ng_date_delivered) BETWEEN 0 AND 720;
+
+-- 3. Monthly cycle time
+SELECT YEAR(ng_date) AS yr, MONTH(ng_date) AS mo, COUNT(*) AS delivered_orders,
+  ROUND(AVG(TIMESTAMPDIFF(HOUR, ng_date, ng_date_delivered))/24, 1) AS avg_cycle_days
+FROM ng_orders
+WHERE ng_status_desc = 'Delivered' AND ng_date IS NOT NULL AND ng_date_delivered IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, ng_date, ng_date_delivered) BETWEEN 0 AND 2000
+  AND YEAR(ng_date) IN (2025, 2026)
+GROUP BY YEAR(ng_date), MONTH(ng_date) ORDER BY yr, mo;
+
+-- 4. Active open orders
+SELECT o.ng_order, o.ng_property_address, o.ng_property_county, o.ng_crew, o.ng_drafter,
+  o.ng_status, s.ng_status_desc,
+  DATE_FORMAT(o.ng_date,'%Y-%m-%d') AS order_date,
+  DATE_FORMAT(o.ng_status_changed,'%Y-%m-%d %H:%i') AS status_since,
+  ROUND(TIMESTAMPDIFF(HOUR, o.ng_date, NOW()), 1) AS total_age_hrs,
+  ROUND(TIMESTAMPDIFF(HOUR, o.ng_status_changed, NOW()), 1) AS hrs_in_status
+FROM ng_orders o LEFT JOIN ng_statuses s ON s.ng_status = CAST(o.ng_status AS CHAR)
+WHERE o.ng_status NOT IN (0,7,8) AND o.ng_date >= '2025-01-01' AND o.ng_status_changed IS NOT NULL
+ORDER BY hrs_in_status DESC LIMIT 500;
+
+-- 5. Transition matrix (2026)
+SELECT ost.old_status, s1.ng_status_desc AS from_status, ost.new_status, s2.ng_status_desc AS to_status,
+  COUNT(*) AS cnt, ROUND(AVG(TIMESTAMPDIFF(HOUR, started_at, end_at)), 1) AS avg_hrs
+FROM order_status_tracking ost
+LEFT JOIN ng_statuses s1 ON CAST(s1.ng_status AS CHAR) = CAST(ost.old_status AS CHAR)
+LEFT JOIN ng_statuses s2 ON CAST(s2.ng_status AS CHAR) = CAST(ost.new_status AS CHAR)
+WHERE YEAR(started_at) = 2026 AND end_at IS NOT NULL
+  AND TIMESTAMPDIFF(HOUR, started_at, end_at) BETWEEN 0 AND 720
+  AND ost.old_status != ost.new_status
+GROUP BY ost.old_status, s1.ng_status_desc, ost.new_status, s2.ng_status_desc
+HAVING cnt >= 10 ORDER BY avg_hrs DESC;

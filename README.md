@@ -23,6 +23,11 @@ AI-generated reports and interactive HTML dashboards for NexGen FTF survey opera
 - Go-back rate tripled: 5.4% → 15.5% (+10.1 pts)
 - **[Open Dashboard →](Reports/Report%202026-05-05%2017-08/FTF_DASHBOARD_COMPARISON.html)**
 
+### [Report 2026-05-06 Status Timing](Reports/Report%202026-05-06%20Status%20Timing/) — Order Status Timing
+- Period: 2025 Full Year + 2026 YTD (Jan 1 – May 6, 2026)
+- Avg time per status | Pipeline stage durations | Transition matrix | 300 open orders drilldown
+- **[Open Dashboard →](Reports/Report%202026-05-06%20Status%20Timing/FTF_STATUS_TIMING_DASHBOARD.html)**
+
 ---
 
 ## 🌐 Viewing Dashboards
@@ -32,7 +37,7 @@ Each report folder contains a self-contained HTML dashboard. To view:
 2. Open any `FTF_DASHBOARD_*.html` file directly in your browser
 3. No server, no software, no login required
 
-> Charts require an internet connection (Chart.js loads from CDN). All data is embedded in the HTML.
+> Chart.js is bundled locally (`Reports/chart.min.js`) — charts work offline and through any proxy. All data is embedded in the HTML.
 
 ---
 
@@ -58,6 +63,11 @@ Reports/
     FTF_DASHBOARD_COMPARISON.html   ← Interactive dashboard (6 tabs)
     FTF_COMPARISON_2025_vs_2026_Jan-Apr.xlsx
     FTF_COMPARISON_2025_vs_2026_Jan-Apr_SUMMARY.pdf
+    REPORT_BRIEF.txt
+    REPORT_PROMPT.txt
+
+  Report 2026-05-06 Status Timing/ ← Order Status Timing
+    FTF_STATUS_TIMING_DASHBOARD.html ← Interactive dashboard (6 tabs)
     REPORT_BRIEF.txt
     REPORT_PROMPT.txt
 ```
