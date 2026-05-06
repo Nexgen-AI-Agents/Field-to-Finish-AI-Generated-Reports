@@ -1,0 +1,255 @@
+==============================================================================
+  PRODUCT REQUIREMENTS DOCUMENT
+  FTF Status Timing Dashboard — FTF_STATUS_TIMING_DASHBOARD.html
+  NexGen Surveying | Generated: May 6, 2026
+==============================================================================
+
+PURPOSE
+-------
+The FTF Status Timing Dashboard answers one central question: "Where are orders
+getting stuck, how long have they been stuck, and who is responsible?" It
+provides real-time visibility into order pipeline performance by tracking how
+long orders spend in each status, comparing 2025 vs 2026, flagging stuck orders,
+and reporting on crew performance.
+
+This report was built for operational management to identify bottlenecks,
+escalate stuck orders, and monitor year-over-year pipeline improvements.
+
+
+DATA SOURCES
+------------
+All data comes from the nexgen_ftf_db MySQL database on AWS RDS.
+
+1. order_status_tracking table
+   - Tracks every status transition for every order.
+   - Fields: ng_order, old_status, new_status, started_at, end_at, duration_seconds
+   - Coverage: Dec 22, 2025 onward (table started Dec 22, 2025)
+   - Used for: 2026 status duration averages (SD26), Red Flag timestamps,
+               Active Order "in status since" times
+
+2. ng_orders table (milestone date fields)
+   - ng_date:              Order placed date
+   - crew_assign_date:     When crew was assigned (Pending → Assigned stage)
+   - ng_date_fieldwork:    When fieldwork was completed (Assigned → In-Field stage)
+   - drafter_assign_date:  When drafter was assigned
+   - checker_assign_date:  When checker was assigned
+   - ng_date_delivered:    Final delivery date
+   - is_go_back:           1 if order required a crew go-back visit
+   - ng_status / ng_status_desc: Current status code and label
+   - ng_crew / ng_drafter: Assigned crew and drafter names
+   - ng_property_address, ng_property_county: Property location
+
+   Used for: 2025 status duration approximations (milestone deltas),
+             Pipeline stage timings, Monthly cycle time, Crew go-back rates,
+             Crew cycle time and in-field duration, Red Flag order details,
+             Open Orders list
+
+
+TABS AND WHAT THEY SHOW
+------------------------
+
+TAB 1 — SUMMARY
+  Purpose: High-level health check at a glance.
+
+  KPI Cards (top row):
+  - 2026 Avg In-Field: 161.8h — average hours an order spends in In-Field status
+  - 2026 Avg Checking: 151.9h — average hours in Checking status
+  - 2026 Avg Quote Hold: 210.2h — average hours in Quote (longest status)
+  - Active Open Orders: total count of non-delivered, non-canceled active orders
+  - CRITICAL Flags: count of orders stuck 500+ hours (non-On Hold)
+  - HIGH Flags: count of orders stuck 300–499 hours
+  - Pending→Assigned 2025/2026: pipeline speed comparison
+
+  Status Comparison Table:
+  - Shows 2025 vs 2026 average hours in each status, with ▲▼ change badges
+  - 2025 data comes from ng_orders milestone dates (5 core statuses: Pending,
+    Assigned, In-Field, Drafting, Checking)
+  - 2026 data comes from order_status_tracking (all statuses)
+  - Statuses without 2025 milestone data show "—" in the 2025 columns
+
+  Active Orders Bar Chart:
+  - Horizontal bar chart showing avg hours currently in status for each open
+    status (On Hold excluded from chart but shown in table)
+  - Hover tooltip shows: avg hours, days equivalent, and current order count
+  - Color: Red ≥200h | Amber 80–200h | Green <80h
+
+  Monthly Cycle Time (Jan–Apr Comparison):
+  - Line chart + table comparing Jan–Apr cycle time both years
+  - "Cycle time" = total days from order placed to survey delivered
+  - This is the end-to-end turnaround, not time in a single status
+  - Source: ng_orders delivered orders (ng_date → ng_date_delivered)
+  - Lower is better; April 2026 (10.6d) is the best month on record
+
+
+TAB 2 — STATUS HOURS
+  Purpose: Deep dive into how long orders sit in each status.
+
+  How to read the charts:
+  - Each bar = average hours an order spent in that status BEFORE transitioning
+    to the next status (not current time — completed transitions only)
+  - 2026 chart: order_status_tracking, Jan–Apr 2026 (accurate, large sample)
+  - 2025 chart: ng_orders milestone dates, Jan–Apr 2025 (5 statuses only;
+    gray bars = no 2025 milestone data available for that status)
+
+  Color coding: Red ≥200h | Amber 80–200h | Green <80h
+
+  Full Detail Table:
+  - Shows both years side by side for all 2026 statuses
+  - Includes sample sizes (n=) for statistical context
+  - Change badge shows absolute and % change year-over-year
+  - "—" in 2025 column = no equivalent 2025 milestone data
+
+
+TAB 3 — PIPELINE
+  Purpose: Stage-by-stage throughput analysis.
+
+  Pipeline stages (and how they are measured):
+  - Pending → Assigned:    ng_date to crew_assign_date (time waiting for crew)
+  - Assigned → In-Field:   crew_assign_date to ng_date_fieldwork (time to mobilize)
+  - In-Field → Drafting:   ng_date_fieldwork to drafter_assign_date
+  - Drafting → Checking:   drafter_assign_date to checker_assign_date
+                           (2026 N/A — checker milestone not yet populated)
+  - Checking → Delivered:  checker_assign_date to ng_date_delivered
+                           (2026 N/A — checker milestone not yet populated)
+
+  Data filter: Only orders where milestone delta is between 0 and 720 hours
+  (filters out data entry errors and outliers). Jan–Apr only, same window both
+  years for apples-to-apples comparison.
+
+  Bar chart tooltip shows: avg hours, days equivalent, order count per stage.
+
+  Monthly Cycle Time Trend:
+  - Same data as Summary tab cycle time chart — full order-to-delivery days
+  - Shown here for trend analysis alongside pipeline context
+  - Feb 2026 (25.3d) is an outlier to watch
+
+
+TAB 4 — RED FLAGS
+  Purpose: Identify the most urgent stuck orders requiring immediate action.
+
+  Severity tiers (non-On-Hold orders only):
+  - CRITICAL: ≥500 hours (20+ days) in current active status
+  - HIGH:     300–499 hours (12–20 days) in current active status
+  - WARN:     240–299 hours (10–12 days) in current active status
+
+  "In status since" and "hours in status" are calculated using
+  order_status_tracking — the most recent time the order entered its current
+  status, measured against the report generation time (May 6, 2026).
+
+  On Hold orders are excluded — being On Hold is intentional; the flags are for
+  orders that SHOULD be moving but aren't.
+
+  As of May 6, 2026: 18 CRITICAL, 10 HIGH, 2 WARN = 30 flagged orders total.
+  Notable: 10 of the 18 CRITICAL orders are in Quote status (not yet assigned)
+  — representing a significant intake pipeline failure.
+
+  Crew Go-Back Flags Table:
+  - Crews with go-back rate >25% (2026 Jan–Apr delivered orders)
+  - Source: is_go_back field in ng_orders
+
+  Open Order Backlog Table:
+  - Current snapshot of all open orders by status
+  - On Hold avg = ~5,098h (212 days) — these are intentionally parked
+
+
+TAB 5 — CREW REPORT
+  Purpose: Evaluate field crew performance on in-field duration and rework rate.
+
+  In-Field Hours (avg_if):
+  - Calculated as: crew_assign_date → ng_date_fieldwork (hours)
+  - This measures how long from assignment until fieldwork is complete
+  - Filtered to 0–720h range to exclude outliers
+  - "0.0h" means fieldwork milestone wasn't populated for those orders
+    (Kurt, Ray, Ilya, Ex_field — field data incomplete)
+
+  Go-Back Rate (gb_pct):
+  - Percentage of delivered jobs where is_go_back = 1
+  - A go-back means the crew had to return to site (rework, missed monuments, etc.)
+  - High go-back rate = crew quality or difficulty issue
+
+  Avg Pending (avg_p):
+  - Average hours from order placed to crew being assigned
+  - High value = crew scheduling backlog or delayed dispatch
+
+  Avg Cycle (avg_c):
+  - Average total hours from order placed to delivered
+  - Highest concern: Clollis 562.1h, Chauncey_w 428.2h, Diego 417.5h
+
+  Color thresholds:
+  - In-Field: Red ≥200h | Amber 80–200h | Green <80h
+  - Go-Back %: Red ≥40% | Amber 25–40% | Green <25%
+
+  Top concerns as of May 6, 2026:
+  - Highest go-back: Diego 56.3%, Choppa 53.4%, Rc 51.0%, Byron 46.1%
+  - Highest avg in-field: Clollis 107.7h, Luis_p 88.9h, Elio 79.5h
+  - Longest cycle time: Clollis 562.1h, Chauncey_w 428.2h
+
+
+TAB 6 — OPEN ORDERS
+  Purpose: Browse and filter all currently open orders by wait time.
+
+  Data: 300 longest-waiting non-delivered, non-canceled, non-completed orders.
+  Sorted by "Hrs in Status" (descending) by default.
+
+  Default filter: Year = 2026. This hides the On Hold backlog from 2025 (which
+  have legitimate 11,000h+ values — orders placed Jan 2025 intentionally parked).
+
+  Columns:
+  - Order #: CRM order identifier
+  - Address / County: Property location
+  - Crew / Drafter: Assigned personnel
+  - Status: Current workflow status
+  - Order Date: When the order was placed in the system
+  - In Status Since: Timestamp when order last entered current status
+                     (from order_status_tracking; Quote orders use order date)
+  - Total Age (hrs): Hours since order was placed
+  - Hrs in Status: Hours in CURRENT status only (the key wait time metric)
+  - Days in Status: Hrs / 24 (for readability)
+
+  Flag indicators in "Hrs in Status" column:
+  🔴 = 500h+ (CRITICAL), 🟠 = 300–499h (HIGH), 🟡 = 240–299h (WARN)
+
+  Filters: Search by order#/address/county/crew, filter by status, filter by year.
+
+
+KNOWN LIMITATIONS
+-----------------
+1. 2025 status duration data (Dec 22–31 in tracking table) was too small to use.
+   The report uses ng_orders milestone dates as a 2025 proxy for 5 core statuses.
+   These are approximations — not from the same tracking system as 2026.
+
+2. Drafting→Checking and Checking→Delivered stages show N/A for 2026 because
+   checker_assign_date is not being populated for 2026 orders.
+
+3. In-Field hours for some crews (Ray, Kurt, Ilya, Ex_field) show 0h because
+   their ng_date_fieldwork milestone is not being populated, suggesting their
+   fieldwork completion is not being logged in the CRM.
+
+4. Open Orders "In Status Since" for Quote orders uses the order date (ng_date)
+   rather than the tracking table, because Quote is set at order entry.
+
+5. Monthly cycle time data for 2025 (Jan–Apr) is from a small sample of fully
+   delivered orders placed Jan–Apr 2025.
+
+
+REFRESH INSTRUCTIONS
+--------------------
+To regenerate this dashboard with fresh data:
+1. See REPORT_PROMPT.txt for the full SQL queries used
+2. Update the JS data arrays in the HTML file (SD26, SD25, PIPELINE, MONTHLY,
+   ACTIVE, RED_FLAGS, CREWS_RAW, OPEN_ORDERS)
+3. Push to GitHub: git push ftf-org main
+4. Live URL: https://htmlpreview.github.io/?https://github.com/
+   Nexgen-AI-Agents/Field-to-Finish-AI-Generated-Reports/blob/main/
+   Reports/Report%202026-05-06%20Status%20Timing/FTF_STATUS_TIMING_DASHBOARD.html
+
+
+FILES IN THIS REPORT FOLDER
+----------------------------
+- FTF_STATUS_TIMING_DASHBOARD.html    — Interactive browser dashboard (6 tabs)
+- FTF_FLAGGED_ORDERS_2026-05-06.xlsx  — Excel: all 30 flagged orders (4 sheets)
+- PRD_STATUS_TIMING_DASHBOARD.txt     — This document
+- REPORT_BRIEF.txt                    — Plain-English executive summary
+- REPORT_PROMPT.txt                   — Full SQL + regeneration instructions
+
+==============================================================================
