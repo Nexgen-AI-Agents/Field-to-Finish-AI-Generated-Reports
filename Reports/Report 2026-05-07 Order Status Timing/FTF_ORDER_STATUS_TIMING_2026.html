@@ -82,9 +82,9 @@ footer{text-align:center;padding:16px;font-size:.75rem;color:#aaa;background:#ff
 <div id="summary" class="tab active">
   <div class="kpi-row">
     <div class="kpi danger"><div class="val">120</div><div class="lbl">&#128308; Critical Flags (500h+)</div><div class="sub">All non-On-Hold stuck orders</div></div>
-    <div class="kpi warn"><div class="val">568</div><div class="lbl">Active Open Orders</div><div class="sub">Excl. Delivered &amp; Canceled</div></div>
+    <div class="kpi warn"><div class="val">565</div><div class="lbl">Active Open Orders</div><div class="sub">Excl. Delivered &amp; Canceled</div></div>
     <div class="kpi warn"><div class="val">1,133h</div><div class="lbl">Avg Hrs: Drafting (active)</div><div class="sub">47.2d avg &mdash; 52 orders</div></div>
-    <div class="kpi warn"><div class="val">568h</div><div class="lbl">Avg Hrs: Checking (active)</div><div class="sub">23.7d avg &mdash; 115 orders</div></div>
+    <div class="kpi warn"><div class="val">557h</div><div class="lbl">Avg Hrs: Checking (active)</div><div class="sub">23.2d avg &mdash; 115 orders</div></div>
     <div class="kpi gold"><div class="val">186.5h</div><div class="lbl">Avg Pending Duration</div><div class="sub">Before crew assigned (n=222)</div></div>
     <div class="kpi"><div class="val">89.2h</div><div class="lbl">Avg Drafting &rarr; Checking</div><div class="sub">Most common transition (n=317)</div></div>
   </div>
@@ -196,8 +196,16 @@ footer{text-align:center;padding:16px;font-size:.75rem;color:#aaa;background:#ff
     <h2>Full Crew Performance Table <span class="badge">2026 Delivered Orders</span></h2>
     <table id="crew-tbl">
       <thead><tr>
-        <th>Crew Name</th><th>Jobs Delivered</th><th>Avg In-Field Hrs</th><th>In-Field Days</th>
-        <th>Avg Cycle Hrs</th><th>Cycle Days</th><th>Avg Pending Hrs</th><th>Go-Back %</th><th>Go-Back Count</th><th>Rating</th>
+        <th onclick="sortCrew('name')" style="cursor:pointer">Crew Name ⇅</th>
+        <th onclick="sortCrew('jobs')" style="cursor:pointer">Jobs Delivered ⇅</th>
+        <th onclick="sortCrew('if_hrs')" style="cursor:pointer">Avg In-Field Hrs ⇅</th>
+        <th>In-Field Days</th>
+        <th onclick="sortCrew('cycle_hrs')" style="cursor:pointer">Avg Cycle Hrs ⇅</th>
+        <th>Cycle Days</th>
+        <th onclick="sortCrew('pend_hrs')" style="cursor:pointer">Avg Pending Hrs ⇅</th>
+        <th onclick="sortCrew('gb_pct')" style="cursor:pointer">Go-Back % ⇅</th>
+        <th onclick="sortCrew('gb_n')" style="cursor:pointer">Go-Back Count ⇅</th>
+        <th>Rating</th>
       </tr></thead><tbody id="crew-tbody"></tbody>
     </table>
   </div>
@@ -796,6 +804,31 @@ function initCrew(){
       scales:{y:{title:{display:true,text:'Go-Back Rate (%)'}}}}
   });
   const tb=document.getElementById('crew-tbody');
+  tb.innerHTML=s.map(r=>{
+    const c1=hc(r.if_hrs),c2=gc(r.gb_pct);
+    const rat=(r.if_hrs<=40&&r.gb_pct<25)?'<span class="tag ok">GOOD</span>':(r.if_hrs>=100||r.gb_pct>=40)?'<span class="tag crit">CONCERN</span>':'<span class="tag warn2">WATCH</span>';
+    return `<tr>
+      <td><strong>${r.name}</strong></td><td>${r.jobs}</td>
+      <td><span style="font-weight:800;color:${c1}">${r.if_hrs.toFixed(1)}h</span></td>
+      <td style="color:${c1}">${fd(r.if_hrs)}</td>
+      <td>${r.cycle_hrs.toFixed(1)}h</td><td style="color:#888">${fd(r.cycle_hrs)}</td>
+      <td>${r.pend_hrs.toFixed(1)}h</td>
+      <td><span style="font-weight:800;color:${c2}">${r.gb_pct.toFixed(1)}%</span></td>
+      <td>${r.gb_n}</td><td>${rat}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CREW SORT ─────────────────────────────────────────────────────────────────
+let _crewSortCol='if_hrs', _crewSortAsc=false;
+function sortCrew(col){
+  if(_crewSortCol===col) _crewSortAsc=!_crewSortAsc; else {_crewSortCol=col;_crewSortAsc=col==='name';}
+  const tb=document.getElementById('crew-tbody');
+  const s=[...CREWS].sort((a,b)=>{
+    const av=a[col], bv=b[col];
+    if(typeof av==='string') return _crewSortAsc?(av.localeCompare(bv)):(bv.localeCompare(av));
+    return _crewSortAsc?(av-bv):(bv-av);
+  });
   tb.innerHTML=s.map(r=>{
     const c1=hc(r.if_hrs),c2=gc(r.gb_pct);
     const rat=(r.if_hrs<=40&&r.gb_pct<25)?'<span class="tag ok">GOOD</span>':(r.if_hrs>=100||r.gb_pct>=40)?'<span class="tag crit">CONCERN</span>':'<span class="tag warn2">WATCH</span>';
