@@ -27,12 +27,10 @@ AI-generated reports and interactive HTML dashboards for NexGen FTF survey opera
 
 ## 🌐 Viewing Dashboards
 
-Each report folder contains a self-contained HTML dashboard. To view:
-1. **Clone or download** this repo
-2. Open any `FTF_DASHBOARD_*.html` file directly in your browser
-3. No server, no software, no login required
-
-> Charts require an internet connection (Chart.js loads from CDN). All data is embedded in the HTML.
+Each HTML dashboard is **fully self-contained** — Chart.js and all data are embedded inline. To view:
+1. Download or receive the `FTF_DASHBOARD_*.html` file
+2. Open it directly in any modern browser
+3. No internet, no server, no software, no login required — works completely offline
 
 ---
 
