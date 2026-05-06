@@ -94,7 +94,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
     </div>
   </div>
   <div class="section">
-    <h2>Monthly Avg Cycle Time: Order Placed → Delivered <span class="src">(days | hrs in tooltip)</span></h2>
+    <h2>Monthly Cycle Time — Jan–Apr Comparison <span class="src">(same window both years | days, hrs in tooltip)</span></h2>
     <div class="grid2">
       <div class="chart-wrap" style="height:230px"><canvas id="c-monthly-sum"></canvas></div>
       <table class="cmp-table"><thead><tr><th>Month</th><th class="yr25">2025 Days (hrs)</th><th class="yr26">2026 Days (hrs)</th><th class="chg">YoY</th></tr></thead><tbody id="monthly-cmp-tbody"></tbody></table>
@@ -121,7 +121,7 @@ input[type=text]:focus,select:focus{border-color:var(--blue);outline:none;}
     <h2>Detailed Stage Comparison — All in Hours (days in parentheses)</h2>
     <table class="cmp-table"><thead><tr><th>Pipeline Stage</th><th class="yr25">2025 Avg Hrs</th><th class="yr25">2025 Days</th><th class="yr25">2025 Orders</th><th class="yr26">2026 Avg Hrs</th><th class="yr26">2026 Days</th><th class="yr26">2026 Orders</th><th class="chg">Change (hrs)</th><th class="chg">Change %</th></tr></thead><tbody id="pipeline-tbody"></tbody></table>
   </div>
-  <div class="section"><h2>Monthly Cycle Time Trend (days)</h2><div class="chart-wrap" style="height:280px"><canvas id="c-monthly-main"></canvas></div></div>
+  <div class="section"><h2>Monthly Cycle Time — Jan–Apr 2025 vs 2026 (days)</h2><div class="chart-wrap" style="height:280px"><canvas id="c-monthly-main"></canvas></div></div>
 </div>
 <!-- TAB 4: RED FLAGS -->
 <div class="tab" id="t-flags">
@@ -618,8 +618,8 @@ const OPEN_ORDERS=[['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11
       backgroundColor:actEx.map(a=>a.avg>=200?'#DC2626':a.avg>=80?'#D97706':'#16A34A')}]
   },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}h (${(c.raw/24).toFixed(1)}d)`}}},scales:{x:{title:{display:true,text:'Avg Hours in Status'}}}}});
 
-  // Monthly comparison table
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Monthly comparison table — Jan–Apr only (same window both years)
+  const months=['Jan','Feb','Mar','Apr'];
   const m25=Object.fromEntries(MONTHLY.filter(m=>m.yr===2025).map(m=>[m.mo,m]));
   const m26=Object.fromEntries(MONTHLY.filter(m=>m.yr===2026).map(m=>[m.mo,m]));
   document.getElementById('monthly-cmp-tbody').innerHTML=months.map(mo=>{
@@ -632,16 +632,14 @@ const OPEN_ORDERS=[['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11
     <td>${(a&&b)?chgBadge(a.days,b.days):'<span class="chg-neu">N/A</span>'}</td></tr>`;
   }).join('');
 
-  // Monthly mini chart
-  const labels25=MONTHLY.filter(m=>m.yr===2025).map(m=>m.mo);
-  const labels26=MONTHLY.filter(m=>m.yr===2026).map(m=>m.mo);
+  // Monthly mini chart — Jan–Apr comparison only
   new Chart(document.getElementById('c-monthly-sum'),{type:'line',data:{
-    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    labels:months,
     datasets:[
-      {label:'2025 (days)',data:months.map(mo=>{const m=m25[mo];return m?m.days:null;}),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.1)',pointRadius:3,tension:.3,spanGaps:false},
-      {label:'2026 (days)',data:months.map(mo=>{const m=m26[mo];return m?m.days:null;}),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.1)',pointRadius:3,tension:.3,spanGaps:false}
+      {label:'2025 (days)',data:months.map(mo=>{const m=m25[mo];return m?m.days:null;}),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.1)',pointRadius:5,tension:.3,spanGaps:false},
+      {label:'2026 (days)',data:months.map(mo=>{const m=m26[mo];return m?m.days:null;}),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.1)',pointRadius:5,tension:.3,spanGaps:false}
     ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d (${+(c.raw*24).toFixed(0)}h)`}}}}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d (${+(c.raw*24).toFixed(0)}h)`}}},scales:{y:{title:{display:true,text:'Cycle Days'}}}}});
 })();
 
 // ── Status Hours Tab ──────────────────────────────────────────────────────────
@@ -690,16 +688,16 @@ const OPEN_ORDERS=[['1000256303','4240 OLD EAGLE LAKE RD','POLK COUNTY','','',11
     <td>${chg}</td><td>${p.h26!=null?d:'—'}</td></tr>`;
   }).join('');
 
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const cmpMonths=['Jan','Feb','Mar','Apr'];
   const m25=Object.fromEntries(MONTHLY.filter(m=>m.yr===2025).map(m=>[m.mo,m]));
   const m26=Object.fromEntries(MONTHLY.filter(m=>m.yr===2026).map(m=>[m.mo,m]));
   new Chart(document.getElementById('c-monthly-main'),{type:'line',data:{
-    labels:months,
+    labels:cmpMonths,
     datasets:[
-      {label:'2025 Cycle Days',data:months.map(mo=>m25[mo]?m25[mo].days:null),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.08)',pointRadius:4,tension:.3,spanGaps:false},
-      {label:'2026 Cycle Days',data:months.map(mo=>m26[mo]?m26[mo].days:null),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.08)',pointRadius:4,tension:.3,spanGaps:false}
+      {label:'2025 Cycle Days',data:cmpMonths.map(mo=>m25[mo]?m25[mo].days:null),borderColor:'#1B3A9B',backgroundColor:'rgba(27,58,155,.08)',pointRadius:5,tension:.3,spanGaps:false},
+      {label:'2026 Cycle Days',data:cmpMonths.map(mo=>m26[mo]?m26[mo].days:null),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.08)',pointRadius:5,tension:.3,spanGaps:false}
     ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d`}}},scales:{y:{title:{display:true,text:'Cycle Days'}}}}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}d (${+(c.raw*24).toFixed(0)}h)`}}},scales:{y:{title:{display:true,text:'Cycle Days'}}}}});
 })();
 
 // ── Red Flags Tab ─────────────────────────────────────────────────────────────
