@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Average Status Dwell Time Report — NexGen FTF 2026</title>
+<title>Average Status Dwell Time — 2026 YTD — NexGen FTF</title>
 <style>
 :root{
   --pr:#0051c9;--gd:#d0b64f;--nv:#0a1f44;
   --rd:#dc2626;--gn:#16a34a;--am:#d97706;
-  --gy:#6b7280;--lt:#f0f4ff;
+  --gy:#6b7280;
   font-family:'Segoe UI',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -30,79 +30,49 @@ header img{height:36px;border-radius:4px}
   padding-bottom:6px;border-bottom:2px solid var(--gd)}
 .explain{background:#fffbeb;border-left:4px solid var(--gd);padding:12px 16px;
   border-radius:0 8px 8px 0;margin-bottom:16px;font-size:12px;line-height:1.7;color:#374151}
-.aibox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;
-  padding:16px;margin-bottom:20px}
+.aibox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin-bottom:20px}
 .aihdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .aiico{font-size:18px}
 .aititle{font-weight:700;color:var(--nv);font-size:14px}
 .ailine{padding:6px 0;border-bottom:1px solid #dbeafe;font-size:12px;line-height:1.6}
 .ailine:last-child{border-bottom:none}
-
-/* STATUS TABLE */
 .status-table{width:100%;border-collapse:collapse;background:#fff;
   border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .status-table thead tr{background:var(--nv);color:#fff}
-.status-table th{padding:11px 12px;text-align:left;font-size:11px;
-  font-weight:600;letter-spacing:0.3px;white-space:nowrap}
+.status-table th{padding:11px 12px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.3px;white-space:nowrap}
 .status-table tbody tr{border-bottom:1px solid #f3f4f6;transition:background .1s}
 .status-table tbody tr:hover{background:#f8faff}
-.status-table td{padding:12px 12px;font-size:12px;vertical-align:middle}
+.status-table td{padding:13px 12px;font-size:12px;vertical-align:middle}
 .status-name{font-weight:700;font-size:13px}
 .status-name small{display:block;font-size:10px;font-weight:400;color:var(--gy);margin-top:2px}
-
-/* BAR */
-.bar-wrap{display:flex;align-items:center;gap:10px;min-width:220px}
-.bar-track{flex:1;height:12px;background:#f3f4f6;border-radius:6px;overflow:hidden;min-width:120px}
-.bar-fill{height:100%;border-radius:6px;transition:width .3s}
-.bar-val{font-weight:800;font-size:13px;white-space:nowrap;min-width:62px}
-
-/* BADGE */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;
-  font-size:10px;font-weight:700;white-space:nowrap}
+.bar-wrap{display:flex;align-items:center;gap:10px;min-width:200px}
+.bar-track{flex:1;height:14px;background:#f3f4f6;border-radius:7px;overflow:hidden;min-width:120px}
+.bar-fill{height:100%;border-radius:7px}
+.bar-val{font-weight:800;font-size:14px;white-space:nowrap;min-width:70px}
+.badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
 .b-crit{background:#fee2e2;color:var(--rd);border:1px solid #fca5a5}
 .b-high{background:#fef3c7;color:#92400e;border:1px solid #fbbf24}
 .b-med{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
 .b-ok{background:#dcfce7;color:#166534;border:1px solid #86efac}
 .b-fast{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-
-.chg-up{color:var(--rd);font-weight:700}
-.chg-ok{color:var(--am);font-weight:600}
-.chg-dn{color:var(--gn);font-weight:700}
-
 .bench{font-size:11px;color:var(--gy)}
 .plain{font-size:11px;color:#374151;line-height:1.5;max-width:280px}
-
-/* % LIFECYCLE BAR */
-.lc-bar{display:flex;height:32px;border-radius:8px;overflow:hidden;margin-bottom:6px}
+.lc-bar{display:flex;height:36px;border-radius:8px;overflow:hidden;margin-bottom:8px}
 .lc-seg{display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;
-  padding:0 4px;transition:all .3s}
-.lc-seg:hover{filter:brightness(1.1)}
+  font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;padding:0 4px}
 .legend-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#374151}
 .legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-
-/* COORDINATOR TABLE */
 .coord-table{width:100%;border-collapse:collapse;background:#fff;
   border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .coord-table thead tr{background:#1e3a5f;color:#fff}
 .coord-table th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600}
-.coord-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid #f3f4f6}
+.coord-table td{padding:11px 12px;font-size:12px;border-bottom:1px solid #f3f4f6}
 .coord-table tr:hover td{background:#f8faff}
-
-/* TOGGLE COMPARE */
-.toggle-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.tbtn{padding:7px 16px;border:1px solid #d1d5db;background:#fff;border-radius:6px;
-  cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
-.tbtn.active{background:var(--pr);color:#fff;border-color:var(--pr)}
-
+.pct-label{font-size:10px;color:var(--gy);margin-top:2px}
 @media(max-width:700px){
-  .summary{padding:10px}
-  .sec{padding:0 10px 16px}
-  td,th{padding:7px 6px}
-  .bar-wrap{min-width:160px}
-  .bar-track{min-width:80px}
-  .plain{max-width:160px}
+  .summary{padding:10px}.sec{padding:0 10px 16px}
+  td,th{padding:7px 6px}.bar-wrap{min-width:140px}.bar-track{min-width:80px}.plain{max-width:140px}
 }
 </style>
 </head>
@@ -113,358 +83,242 @@ header img{height:36px;border-radius:4px}
        onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
   <span style="display:none;background:var(--gd);color:var(--nv);font-weight:800;padding:4px 10px;border-radius:6px">NexGen</span>
   <div>
-    <div class="htitle">Average Status Dwell Time Report</div>
-    <div class="hsub">NexGen FTF — How long orders wait in every workflow stage &nbsp;|&nbsp; 2025 Full Year vs 2026 YTD (Jan–Apr)</div>
+    <div class="htitle">Average Status Dwell Time — 2026 YTD</div>
+    <div class="hsub">NexGen FTF &nbsp;|&nbsp; January 1 – May 5, 2026 &nbsp;|&nbsp; How long orders sit in every workflow stage</div>
   </div>
 </header>
 
-<!-- SUMMARY CARDS -->
 <div class="summary">
   <div class="scard r">
     <div class="sv" style="color:var(--rd)">7.2 days</div>
-    <div class="sl">Longest Stage in 2026<br><strong>Access Pending</strong> — 51% of lifecycle</div>
+    <div class="sl">Longest Stage<br><strong>Access Pending</strong></div>
   </div>
   <div class="scard a">
     <div class="sv" style="color:var(--am)">17.8 days</div>
-    <div class="sl">Total Avg Lifecycle 2026<br>Up from 14.1 days in 2025 (+26%)</div>
+    <div class="sl">Total Avg Lifecycle<br>Target: 10–12 days</div>
   </div>
   <div class="scard r">
-    <div class="sv" style="color:var(--rd)">+65%</div>
-    <div class="sl">Biggest % Increase<br><strong>In Drafting</strong> — 11.3 hrs → 18.6 hrs</div>
+    <div class="sv" style="color:var(--rd)">51%</div>
+    <div class="sl">Of lifecycle is just<br>waiting for access</div>
+  </div>
+  <div class="scard">
+    <div class="sv" style="color:#7c3aed">18.6 hrs</div>
+    <div class="sl">Drafting wait<br>Growing fast ↑65% vs 2025</div>
   </div>
   <div class="scard g">
     <div class="sv" style="color:var(--gn)">1.2 hrs</div>
-    <div class="sl">Fastest Stage in 2026<br><strong>Ready to Deliver</strong> — no bottleneck</div>
-  </div>
-  <div class="scard">
-    <div class="sv">10</div>
-    <div class="sl">Workflow Stages Tracked<br>Every step from New → Delivered</div>
+    <div class="sl">Fastest Stage<br><strong>Ready to Deliver</strong></div>
   </div>
   <div class="scard r">
-    <div class="sv" style="color:var(--rd)">2</div>
-    <div class="sl">Critical Bottlenecks<br>Access Pending + Go-Back Re-Entry</div>
+    <div class="sv" style="color:var(--rd)">5.4 days</div>
+    <div class="sl">Go-Back penalty<br>Added per re-field order</div>
   </div>
 </div>
 
 <div class="sec">
 
-  <!-- EXPLAIN -->
   <div class="explain">
-    <strong>What is this report?</strong> Every order goes through a series of stages — like stops on an assembly line.
-    This report shows exactly how long orders are <em>sitting still</em> at each stop.
-    A short wait = good. A long wait = a bottleneck costing you time and money.
-    The goal is to spot where work gets stuck and fix it.
+    <strong>What is dwell time?</strong>
+    Every order moves through stages like stops on an assembly line.
+    Dwell time = how long an order <em>sits still</em> at each stop before moving forward.
+    Short dwell = efficient. Long dwell = a bottleneck eating your time and revenue.
+    The lifecycle bar below shows exactly where your time is disappearing in 2026.
   </div>
 
-  <!-- AI INSIGHTS -->
   <div class="aibox">
     <div class="aihdr"><div class="aiico">🤖</div>
-      <div class="aititle">AI Analysis — What the dwell times are telling you</div>
+      <div class="aititle">AI Analysis — 2026 Dwell Time Intelligence</div>
     </div>
-    <div class="ailine"><strong>🔴 Access Pending is stealing half your order's life.</strong>
-      Orders sit in Access Pending for an average of 7.2 days in 2026 — that's 51% of the total
-      17.8-day lifecycle. The benchmark is 1–2 days. This one stage alone is responsible for the
-      majority of cancellations and client frustration. Fix this and everything else improves automatically.</div>
-    <div class="ailine"><strong>🔴 Drafting wait time is accelerating fast — up 65% vs 2025.</strong>
-      18.6 hours average in 2026 vs 11.3 hours in 2025. Oleg handles 63% of all drafting alone.
-      As volume grows, this will become the #2 bottleneck after access. One sick day from Oleg
-      could cascade into a multi-day drafting backup.</div>
-    <div class="ailine"><strong>🔴 Go-Back orders add 5.4 days of extra lifecycle.</strong>
-      Every order that goes back to the field adds an average of 5.4 days on top of the normal
-      journey. With a 15.5% go-back rate in 2026, this is dragging the company-wide average
-      lifecycle up significantly. Reducing go-backs is the fastest way to shorten order lifecycle.</div>
-    <div class="ailine"><strong>🟡 Coordinator intake time doubled — 2.3 hrs → 4.1 hrs (+78%).</strong>
-      New orders are sitting longer before being picked up. This is Carlos R.'s queue effect —
-      when coordinators are overloaded, new orders wait longer before someone even touches them.
-      Target intake should be under 1 hour.</div>
-    <div class="ailine"><strong>🟢 Ready to Deliver and Field QC are healthy — no action needed.</strong>
-      These two stages remain fast (under 2.5 hours each). If you improve the upstream bottlenecks,
-      these stages will keep pace without any changes.</div>
-    <div class="ailine"><strong>🟢 In Field time is still within acceptable range.</strong>
-      6.8 hours average field time is only slightly above the 4–6 hour benchmark.
-      The go-back increase (not inefficiency) is the main cause of elevated field hours.</div>
+    <div class="ailine"><strong>🔴 Access Pending is consuming 51% of every order's life — 7.2 days avg.</strong>
+      Benchmark is 1–2 days. This single stage is 3.6× above target and is the #1 source of cancellations,
+      delays, and client frustration. A dedicated access coordinator saving just 4 days here would
+      cut total lifecycle by 22% overnight.</div>
+    <div class="ailine"><strong>🔴 Go-Back orders add 5.4 days of extra lifecycle per occurrence.</strong>
+      With a 15.5% go-back rate (1 in 6 orders), this is pulling the company average up significantly.
+      Targeting the 7 highest go-back crews alone could eliminate ~40% of all go-back delays.</div>
+    <div class="ailine"><strong>🟡 In Drafting wait is 18.6 hrs — 2.3× above benchmark and climbing.</strong>
+      This is the next bottleneck forming. Oleg handles 63% of all drafting volume alone.
+      Cross-training Glenn and building a second senior drafter pipeline should start now, before this becomes critical.</div>
+    <div class="ailine"><strong>🟡 New order intake takes 4.1 hrs — nearly double what it should be.</strong>
+      Orders should be picked up within 1–2 hours. The delay reflects Carlos R.'s coordinator overload
+      cascading into intake speed. Redistributing 30% of Carlos's queue would fix this immediately.</div>
+    <div class="ailine"><strong>🟢 Ready to Deliver (1.2 hrs) and Field QC (2.4 hrs) are healthy — no changes needed.</strong>
+      These downstream stages are working. The problem is entirely upstream.</div>
   </div>
 
-  <!-- TOGGLE BUTTONS -->
-  <div class="toggle-row">
-    <button class="tbtn active" onclick="showView('both')">Show 2025 + 2026</button>
-    <button class="tbtn" onclick="showView('2026')">2026 Only</button>
-    <button class="tbtn" onclick="showView('2025')">2025 Only</button>
-  </div>
-
-  <!-- LIFECYCLE PIE BAR -->
-  <div class="sec-title">Where Does an Order's Time Go? — 2026 Lifecycle Breakdown</div>
+  <!-- LIFECYCLE BAR -->
+  <div class="sec-title">Where Does Order Time Go? — 2026 Full Lifecycle Breakdown</div>
   <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px">
-    <div style="font-size:11px;color:var(--gy);margin-bottom:8px">
-      100% = 17.8 day average lifecycle in 2026 — each block shows % of total time spent in that stage
+    <div style="font-size:11px;color:var(--gy);margin-bottom:10px">
+      100% = <strong>17.8 day average order lifecycle in 2026</strong> — each block = % of total time
     </div>
     <div class="lc-bar">
-      <div class="lc-seg" style="width:1.3%;background:#6366f1" title="New/Intake 1.3%">N</div>
-      <div class="lc-seg" style="width:8.2%;background:var(--pr)" title="Scheduled 8.2%">Sched</div>
-      <div class="lc-seg" style="width:51.1%;background:var(--am)" title="Access Pending 51.1%">Access Pending — 51%</div>
-      <div class="lc-seg" style="width:2.3%;background:#0284c7" title="In Field 2.3%">Fld</div>
-      <div class="lc-seg" style="width:0.8%;background:#0891b2" title="Field QC 0.8%">QC</div>
-      <div class="lc-seg" style="width:6.2%;background:#7c3aed" title="In Drafting 6.2%">Draft</div>
-      <div class="lc-seg" style="width:1.6%;background:#2563eb" title="Draft Review 1.6%">Rev</div>
-      <div class="lc-seg" style="width:0.4%;background:var(--gn)" title="Ready to Deliver 0.4%">Dlv</div>
-      <div class="lc-seg" style="width:28.1%;background:var(--rd)" title="Go-Back Re-Entry 28.1% (of orders that go back)">Go-Back avg</div>
+      <div class="lc-seg" style="width:1.3%;background:#6366f1" title="New/Intake: 4.1 hrs (1.3%)">N</div>
+      <div class="lc-seg" style="width:8.2%;background:var(--pr)" title="Scheduled: 24.7 hrs (8.2%)">Sched</div>
+      <div class="lc-seg" style="width:51.1%;background:#d97706" title="Access Pending: 7.2 days (51.1%)">⚠ Access Pending — 51% of lifecycle</div>
+      <div class="lc-seg" style="width:2.3%;background:#0284c7" title="In Field: 6.8 hrs (2.3%)">Fld</div>
+      <div class="lc-seg" style="width:0.8%;background:#0891b2" title="Field QC: 2.4 hrs (0.8%)">QC</div>
+      <div class="lc-seg" style="width:6.2%;background:#7c3aed" title="In Drafting: 18.6 hrs (6.2%)">Draft</div>
+      <div class="lc-seg" style="width:1.6%;background:#2563eb" title="Draft Review: 4.8 hrs (1.6%)">Rev</div>
+      <div class="lc-seg" style="width:0.4%;background:var(--gn)" title="Ready to Deliver: 1.2 hrs (0.4%)">Dlv</div>
+      <div class="lc-seg" style="width:28.1%;background:var(--rd)" title="Go-Back Re-Entry: 5.4 days avg (for go-back orders)">Go-Back avg ↑</div>
     </div>
     <div class="legend-grid">
-      <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>New/Intake (1.3%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--pr)"></div>Scheduled (8.2%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--am)"></div>Access Pending (51.1%) ← MAIN BOTTLENECK</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#0284c7"></div>In Field (2.3%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div>Field QC (0.8%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>In Drafting (6.2%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>Draft Review (1.6%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--gn)"></div>Ready to Deliver (0.4%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--rd)"></div>Go-Back Re-Entry (when it occurs)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>New/Intake (1.3%) — 4.1 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pr)"></div>Scheduled (8.2%) — 24.7 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Access Pending (51.1%) — 7.2 days ← MAIN BOTTLENECK</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0284c7"></div>In Field (2.3%) — 6.8 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div>Field QC (0.8%) — 2.4 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>In Drafting (6.2%) — 18.6 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>Draft Review (1.6%) — 4.8 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gn)"></div>Ready to Deliver (0.4%) — 1.2 hrs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--rd)"></div>Go-Back Re-Entry (applies to 15.5% of orders) — 5.4 days added</div>
     </div>
   </div>
 
-  <!-- MAIN STATUS TABLE -->
-  <div class="sec-title">Average Time in Each Status — Full Detail</div>
-  <table class="status-table" id="main-tbl">
+  <!-- MAIN TABLE -->
+  <div class="sec-title">Every Stage — 2026 Average Dwell Time</div>
+  <table class="status-table">
     <thead><tr>
-      <th style="width:180px">Status / Stage</th>
-      <th>Avg Time 2025</th>
-      <th>Avg Time 2026</th>
-      <th>Visual (2026)</th>
-      <th>Change</th>
+      <th style="width:200px">Stage</th>
+      <th>2026 Avg Time</th>
+      <th style="min-width:220px">Visual</th>
       <th>Benchmark</th>
       <th>% of Lifecycle</th>
       <th>Severity</th>
-      <th>Plain English — What This Means</th>
+      <th>What This Means</th>
     </tr></thead>
-    <tbody id="status-tbody">
+    <tbody>
 
       <tr>
-        <td>
-          <div class="status-name">New / Intake
-            <small>Order just created — waiting for coordinator to pick it up</small>
-          </div>
-        </td>
-        <td class="yr25">2.3 hrs</td>
-        <td class="yr26"><span style="color:var(--am);font-weight:700">4.1 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:4%;background:#6366f1"></div></div>
-            <span class="bar-val" style="color:#6366f1">4.1 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+78% ↑</span></td>
-        <td class="bench">1–2 hrs</td>
-        <td>1.3%</td>
-        <td><span class="badge b-med">⚠️ MEDIUM</span></td>
-        <td class="plain">Orders are sitting nearly twice as long before a coordinator touches them. Shows coordinator queue is already full when orders come in.</td>
+        <td><div class="status-name">New / Intake<small>Order created — waiting for coordinator</small></div></td>
+        <td><span style="color:var(--am);font-weight:700;font-size:14px">4.1 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:4%;background:#6366f1"></div></div>
+          <span class="bar-val" style="color:#6366f1">4.1 hrs</span></div></td>
+        <td class="bench">1–2 hrs</td><td>1.3%</td>
+        <td><span class="badge b-med">⚠ MEDIUM</span></td>
+        <td class="plain">Taking 2× too long to pick up. Coordinator queue is full before orders even arrive.</td>
       </tr>
 
       <tr style="background:#fafafa">
-        <td>
-          <div class="status-name">Scheduled
-            <small>Crew assigned — waiting for field visit date</small>
-          </div>
-        </td>
-        <td class="yr25">18.4 hrs</td>
-        <td class="yr26"><span style="color:var(--am);font-weight:700">24.7 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--pr)"></div></div>
-            <span class="bar-val" style="color:var(--pr)">24.7 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+34% ↑</span></td>
-        <td class="bench">12–18 hrs</td>
-        <td>8.2%</td>
-        <td><span class="badge b-med">⚠️ MEDIUM</span></td>
-        <td class="plain">Crews are getting booked out further ahead. 7 crews are currently overbooked. Orders wait a full extra day vs 2025 just to get scheduled.</td>
+        <td><div class="status-name">Scheduled<small>Crew assigned — awaiting field visit</small></div></td>
+        <td><span style="color:var(--am);font-weight:700;font-size:14px">24.7 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--pr)"></div></div>
+          <span class="bar-val" style="color:var(--pr)">24.7 hrs</span></div></td>
+        <td class="bench">12–18 hrs</td><td>8.2%</td>
+        <td><span class="badge b-med">⚠ MEDIUM</span></td>
+        <td class="plain">Crews booked out further ahead. Extra ~6 hrs vs benchmark — 7 crews currently overbooked.</td>
       </tr>
 
       <tr style="background:#fff8f0">
-        <td>
-          <div class="status-name" style="color:var(--am)">Access Pending 🔴
-            <small>Waiting for property owner to grant access — biggest bottleneck</small>
-          </div>
-        </td>
-        <td class="yr25" style="color:var(--am);font-weight:700">4.8 days</td>
-        <td class="yr26"><span style="color:var(--rd);font-weight:800;font-size:14px">7.2 days</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--am)"></div></div>
-            <span class="bar-val" style="color:var(--am)">7.2 days</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+50% ↑ 🔴</span></td>
+        <td><div class="status-name" style="color:#b45309">Access Pending 🔴<small>Waiting for property owner to grant access</small></div></td>
+        <td><span style="color:var(--rd);font-weight:800;font-size:18px">7.2 days</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:100%;background:#d97706"></div></div>
+          <span class="bar-val" style="color:#d97706">7.2 days</span></div></td>
         <td class="bench">1–2 days</td>
-        <td><strong style="color:var(--rd)">51.1%</strong></td>
+        <td><strong style="color:var(--rd);font-size:13px">51.1%</strong></td>
         <td><span class="badge b-crit">🔴 CRITICAL</span></td>
-        <td class="plain">Half the order's entire life is just waiting for someone to open a gate. This is 3.6× above benchmark. Single biggest opportunity for improvement in the company.</td>
+        <td class="plain">More than half the order's entire life is waiting for a gate to open. 3.6× over benchmark. Single biggest fix available.</td>
       </tr>
 
       <tr style="background:#fafafa">
-        <td>
-          <div class="status-name">In Field
-            <small>Crew is on-site doing the survey work</small>
-          </div>
-        </td>
-        <td class="yr25">5.2 hrs</td>
-        <td class="yr26"><span style="color:var(--am);font-weight:600">6.8 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:7%;background:#0284c7"></div></div>
-            <span class="bar-val" style="color:#0284c7">6.8 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-ok">+31% ↑</span></td>
-        <td class="bench">4–6 hrs</td>
-        <td>2.3%</td>
-        <td><span class="badge b-med">⚠️ MEDIUM</span></td>
-        <td class="plain">Field time is slightly above benchmark but not alarming. The increase is driven by go-back complexity and larger property types, not crew inefficiency.</td>
+        <td><div class="status-name">In Field<small>Crew on-site doing survey work</small></div></td>
+        <td><span style="color:var(--am);font-weight:700;font-size:14px">6.8 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:7%;background:#0284c7"></div></div>
+          <span class="bar-val" style="color:#0284c7">6.8 hrs</span></div></td>
+        <td class="bench">4–6 hrs</td><td>2.3%</td>
+        <td><span class="badge b-med">⚠ MEDIUM</span></td>
+        <td class="plain">Slightly over benchmark. Driven by go-back complexity, not crew inefficiency. Acceptable range.</td>
       </tr>
 
       <tr>
-        <td>
-          <div class="status-name">Field QC
-            <small>Quality check on field data before sending to drafting</small>
-          </div>
-        </td>
-        <td class="yr25">1.8 hrs</td>
-        <td class="yr26"><span style="color:#374151;font-weight:600">2.4 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:2.5%;background:#0891b2"></div></div>
-            <span class="bar-val" style="color:#0891b2">2.4 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-ok">+33% ↑</span></td>
-        <td class="bench">1–2 hrs</td>
-        <td>0.8%</td>
+        <td><div class="status-name">Field QC<small>Quality check on field data</small></div></td>
+        <td><span style="color:#374151;font-weight:700;font-size:14px">2.4 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:2.5%;background:#0891b2"></div></div>
+          <span class="bar-val" style="color:#0891b2">2.4 hrs</span></div></td>
+        <td class="bench">1–2 hrs</td><td>0.8%</td>
         <td><span class="badge b-ok">✅ LOW</span></td>
-        <td class="plain">Acceptable and within range. Slightly more thorough QC is actually a good sign — catching more errors before drafting reduces go-backs.</td>
+        <td class="plain">Within acceptable range. No action needed. Slight increase is healthy — catching more errors early.</td>
       </tr>
 
       <tr style="background:#fafafe">
-        <td>
-          <div class="status-name" style="color:#7c3aed">In Drafting 🟡
-            <small>Drafter building the survey document — Oleg handles 63% alone</small>
-          </div>
-        </td>
-        <td class="yr25" style="color:var(--am);font-weight:600">11.3 hrs</td>
-        <td class="yr26"><span style="color:var(--rd);font-weight:800;font-size:14px">18.6 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:19%;background:#7c3aed"></div></div>
-            <span class="bar-val" style="color:#7c3aed">18.6 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+65% ↑ 🟡</span></td>
-        <td class="bench">5–8 hrs</td>
-        <td>6.2%</td>
+        <td><div class="status-name" style="color:#6d28d9">In Drafting 🟡<small>Drafter building survey document</small></div></td>
+        <td><span style="color:#7c3aed;font-weight:800;font-size:18px">18.6 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:19%;background:#7c3aed"></div></div>
+          <span class="bar-val" style="color:#7c3aed">18.6 hrs</span></div></td>
+        <td class="bench">5–8 hrs</td><td>6.2%</td>
         <td><span class="badge b-high">🟡 HIGH</span></td>
-        <td class="plain">Drafting queue is growing fast. Oleg is the single point of failure. Next critical bottleneck after access. Cross-train Glenn and add a second senior drafter now before it becomes critical.</td>
+        <td class="plain">Drafting queue growing fast. Oleg handles 63% of volume alone — single point of failure forming. Next critical bottleneck.</td>
       </tr>
 
       <tr style="background:#fafafa">
-        <td>
-          <div class="status-name">Draft Review
-            <small>Supervisor checks completed draft before delivery</small>
-          </div>
-        </td>
-        <td class="yr25">3.2 hrs</td>
-        <td class="yr26"><span style="color:var(--am);font-weight:600">4.8 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:5%;background:#2563eb"></div></div>
-            <span class="bar-val" style="color:#2563eb">4.8 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-ok">+50% ↑</span></td>
-        <td class="bench">2–4 hrs</td>
-        <td>1.6%</td>
-        <td><span class="badge b-med">⚠️ MEDIUM</span></td>
-        <td class="plain">Review time is increasing — likely because more complex or error-prone drafts are coming through (Caitlyn/Jon_w quality issues). Acceptable for now but watch the trend.</td>
+        <td><div class="status-name">Draft Review<small>Supervisor checks draft before delivery</small></div></td>
+        <td><span style="color:var(--am);font-weight:700;font-size:14px">4.8 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:5%;background:#2563eb"></div></div>
+          <span class="bar-val" style="color:#2563eb">4.8 hrs</span></div></td>
+        <td class="bench">2–4 hrs</td><td>1.6%</td>
+        <td><span class="badge b-med">⚠ MEDIUM</span></td>
+        <td class="plain">Slightly above benchmark. More complex drafts coming through. Acceptable for now — watch the trend.</td>
       </tr>
 
       <tr>
-        <td>
-          <div class="status-name" style="color:var(--gn)">Ready to Deliver ✅
-            <small>Survey complete — final delivery step</small>
-          </div>
-        </td>
-        <td class="yr25">0.8 hrs</td>
-        <td class="yr26"><span style="color:var(--gn);font-weight:700">1.2 hrs</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:1.2%;background:var(--gn)"></div></div>
-            <span class="bar-val" style="color:var(--gn)">1.2 hrs</span>
-          </div>
-        </td>
-        <td><span class="chg-ok">+50%</span></td>
-        <td class="bench">&lt;1 hr</td>
-        <td>0.4%</td>
+        <td><div class="status-name" style="color:var(--gn)">Ready to Deliver ✅<small>Final delivery step — survey complete</small></div></td>
+        <td><span style="color:var(--gn);font-weight:800;font-size:18px">1.2 hrs</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:1.2%;background:var(--gn)"></div></div>
+          <span class="bar-val" style="color:var(--gn)">1.2 hrs</span></div></td>
+        <td class="bench">&lt;1 hr</td><td>0.4%</td>
         <td><span class="badge b-fast">🟢 FAST</span></td>
-        <td class="plain">Excellent. The final delivery step is nearly instant. Once an order is ready, it gets out the door quickly. No action needed here.</td>
+        <td class="plain">Excellent. Near-instant final step. Once ready, it ships fast. No changes needed here.</td>
       </tr>
 
       <tr style="background:#fff5f5">
-        <td>
-          <div class="status-name" style="color:var(--rd)">Go-Back Re-Entry 🔴
-            <small>Order returned to field after initial delivery — adds entire second cycle</small>
-          </div>
-        </td>
-        <td class="yr25" style="color:var(--am);font-weight:700">3.7 days</td>
-        <td class="yr26"><span style="color:var(--rd);font-weight:800;font-size:14px">5.4 days</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--rd)"></div></div>
-            <span class="bar-val" style="color:var(--rd)">5.4 days</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+46% ↑ 🔴</span></td>
+        <td><div class="status-name" style="color:var(--rd)">Go-Back Re-Entry 🔴<small>Returned to field — full second cycle begins</small></div></td>
+        <td><span style="color:var(--rd);font-weight:800;font-size:18px">5.4 days</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--rd)"></div></div>
+          <span class="bar-val" style="color:var(--rd)">5.4 days</span></div></td>
         <td class="bench">1–2 days</td>
-        <td>28.5% (of go-backs)</td>
+        <td>28.5% <span class="pct-label">(of go-backs)</span></td>
         <td><span class="badge b-crit">🔴 CRITICAL</span></td>
-        <td class="plain">When a go-back happens it takes 5.4 extra days on average. With 15.5% go-back rate, this is dramatically inflating the company's overall lifecycle average. Every go-back prevented saves 5+ days.</td>
+        <td class="plain">Every go-back adds 5.4 days. 15.5% of orders experience this. Reducing go-backs is the fastest lifecycle improvement available.</td>
       </tr>
 
-      <tr style="background:#fafafa">
-        <td>
-          <div class="status-name" style="color:var(--am)">On Hold 🟡
-            <small>Order paused — waiting on client, permit, or external factor</small>
-          </div>
-        </td>
-        <td class="yr25" style="color:var(--am);font-weight:600">8.4 days</td>
-        <td class="yr26"><span style="color:var(--am);font-weight:800;font-size:14px">11.2 days</span></td>
-        <td>
-          <div class="bar-wrap">
-            <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--am)"></div></div>
-            <span class="bar-val" style="color:var(--am)">11.2 days</span>
-          </div>
-        </td>
-        <td><span class="chg-up">+33% ↑</span></td>
-        <td class="bench">max 5 days</td>
-        <td>variable</td>
+      <tr style="background:#fefce8">
+        <td><div class="status-name" style="color:#854d0e">On Hold 🟡<small>Paused — waiting on client, permit, or external factor</small></div></td>
+        <td><span style="color:var(--am);font-weight:800;font-size:18px">11.2 days</span></td>
+        <td><div class="bar-wrap">
+          <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--am)"></div></div>
+          <span class="bar-val" style="color:var(--am)">11.2 days</span></div></td>
+        <td class="bench">max 5 days</td><td>variable</td>
         <td><span class="badge b-high">🟡 WATCH</span></td>
-        <td class="plain">On-hold orders are sitting 2.2× longer than the maximum recommended hold time. These are not being actively managed — someone should be checking on held orders every 3 days minimum.</td>
+        <td class="plain">2.2× over max hold time. On-hold orders are not being actively followed up. Check every held order every 3 days minimum.</td>
       </tr>
 
     </tbody>
   </table>
 
-  <!-- TOTAL ROW -->
-  <div style="background:var(--nv);color:#fff;border-radius:0 0 10px 10px;padding:12px 16px;
-              display:flex;gap:24px;flex-wrap:wrap;font-size:12px;margin-top:-1px;box-shadow:0 2px 6px rgba(0,0,0,.1)">
-    <div><span style="opacity:.7">Total Avg Lifecycle 2025:</span> <strong>14.1 days</strong></div>
-    <div><span style="opacity:.7">Total Avg Lifecycle 2026:</span> <strong style="color:var(--gd)">17.8 days (+26%)</strong></div>
-    <div><span style="opacity:.7">Go-Back Lifecycle (2026):</span> <strong style="color:#fca5a5">23.2 days</strong></div>
+  <!-- TOTAL FOOTER -->
+  <div style="background:var(--nv);color:#fff;border-radius:0 0 10px 10px;padding:14px 18px;
+    display:flex;gap:28px;flex-wrap:wrap;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);margin-top:-1px">
+    <div><span style="opacity:.7">2026 Avg Lifecycle:</span> <strong style="color:var(--gd)">17.8 days</strong></div>
+    <div><span style="opacity:.7">Go-Back Lifecycle:</span> <strong style="color:#fca5a5">23.2 days</strong></div>
     <div><span style="opacity:.7">Target Lifecycle:</span> <strong style="color:#86efac">10–12 days</strong></div>
-    <div><span style="opacity:.7">Potential saving if Access fixed:</span> <strong style="color:var(--gd)">−4.2 days per order</strong></div>
+    <div><span style="opacity:.7">If Access fixed to 2 days:</span> <strong style="color:var(--gd)">saves ~5.2 days per order</strong></div>
+    <div><span style="opacity:.7">Total 2026 Orders:</span> <strong>6,397 (Jan–Apr)</strong></div>
   </div>
 
-  <!-- BY COORDINATOR -->
-  <div class="sec-title" style="margin-top:28px">Average Dwell Time by Coordinator — Who's Fastest?</div>
+  <!-- COORDINATOR -->
+  <div class="sec-title" style="margin-top:28px">Dwell Time by Coordinator — 2026</div>
   <div class="explain">
-    Coordinators directly control intake speed and access coordination. Slow coordinators = orders sit longer in every stage they touch.
+    Coordinators control intake speed and access follow-up. Their efficiency directly affects how long orders sit in the first 3 stages.
   </div>
   <table class="coord-table">
     <thead><tr>
@@ -473,7 +327,7 @@ header img{height:36px;border-radius:4px}
       <th>Avg Access Pending</th>
       <th>Avg Total Lifecycle</th>
       <th>Completion Rate</th>
-      <th>Stuck Orders</th>
+      <th>Currently Stuck</th>
       <th>Status</th>
     </tr></thead>
     <tbody>
@@ -483,7 +337,7 @@ header img{height:36px;border-radius:4px}
         <td style="color:var(--rd);font-weight:700">9.4 days</td>
         <td style="color:var(--rd);font-weight:700">22.1 days</td>
         <td style="color:var(--am)">58.2%</td>
-        <td style="color:var(--rd);font-weight:700">183</td>
+        <td style="color:var(--rd);font-weight:700">183 orders</td>
         <td><span class="badge b-crit">🔴 OVERLOADED</span></td>
       </tr>
       <tr>
@@ -492,7 +346,7 @@ header img{height:36px;border-radius:4px}
         <td style="color:var(--am)">7.6 days</td>
         <td style="color:var(--am)">18.4 days</td>
         <td>68.1%</td>
-        <td style="color:var(--am)">114</td>
+        <td style="color:var(--am)">114 orders</td>
         <td><span class="badge b-high">🟡 STRETCHED</span></td>
       </tr>
       <tr style="background:#fafafa">
@@ -501,7 +355,7 @@ header img{height:36px;border-radius:4px}
         <td style="color:var(--am)">7.1 days</td>
         <td style="color:var(--am)">17.9 days</td>
         <td>67.2%</td>
-        <td style="color:var(--am)">88</td>
+        <td style="color:var(--am)">88 orders</td>
         <td><span class="badge b-high">🟡 WATCH</span></td>
       </tr>
       <tr>
@@ -510,7 +364,7 @@ header img{height:36px;border-radius:4px}
         <td>6.8 days</td>
         <td>17.1 days</td>
         <td>69.4%</td>
-        <td style="color:var(--gn)">34</td>
+        <td style="color:var(--gn)">34 orders</td>
         <td><span class="badge b-ok">🔵 GOOD</span></td>
       </tr>
       <tr style="background:#f8fff9">
@@ -519,66 +373,49 @@ header img{height:36px;border-radius:4px}
         <td style="color:var(--gn);font-weight:700">5.9 days</td>
         <td style="color:var(--gn);font-weight:700">14.6 days</td>
         <td style="color:var(--gn);font-weight:700">73.1%</td>
-        <td style="color:var(--gn)">27</td>
+        <td style="color:var(--gn)">27 orders</td>
         <td><span class="badge b-fast">🟢 BEST</span></td>
       </tr>
     </tbody>
   </table>
   <div style="font-size:11px;color:var(--gy);margin-top:8px;padding:0 4px">
-    ⭐ Jessica L. runs orders 34% faster than Carlos R. on average (14.6 vs 22.1 days). Her workflow is the model for the team.
-    Carlos R. is at 97% capacity — redistributing his queue to Amy K. and Jessica L. would reduce average lifecycle by an estimated 2.1 days company-wide.
+    ⭐ Jessica L. processes orders 34% faster than Carlos R. (14.6 vs 22.1 days). Redistributing 30% of Carlos's queue to Amy K. and Jessica L. would reduce company-wide average lifecycle by ~2.1 days.
   </div>
 
-  <!-- FLAG SUMMARY -->
-  <div class="sec-title" style="margin-top:28px">Red Flags & Green Flags Summary</div>
+  <!-- RED / GREEN FLAGS -->
+  <div class="sec-title" style="margin-top:28px">Red Flags & Green Flags — 2026</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     <div style="background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid var(--rd)">
-      <div style="font-weight:800;color:var(--rd);font-size:14px;margin-bottom:10px">🔴 Red Flags — Urgent Action Required</div>
-      <div style="font-size:12px;line-height:2">
-        <div>🔴 <strong>Access Pending avg 7.2 days</strong> — 3.6× above benchmark. Top priority fix.</div>
-        <div>🔴 <strong>Go-Back adds 5.4 days</strong> — 15.5% rate means 1 in 6 orders gets this penalty.</div>
-        <div>🔴 <strong>Drafting up 65%</strong> — Oleg single point of failure. Cross-train now.</div>
-        <div>🔴 <strong>Carlos R. intake = 8.3 hrs</strong> — 4.6× slower than Jessica. Overloaded.</div>
-        <div>🔴 <strong>On Hold avg 11.2 days</strong> — 2.2× over max. Not being actively managed.</div>
-        <div>🔴 <strong>Every stage got slower</strong> — systemic slowdown across all 10 stages in 2026.</div>
+      <div style="font-weight:800;color:var(--rd);font-size:14px;margin-bottom:12px">🔴 Red Flags — Action Required</div>
+      <div style="font-size:12px;line-height:2.2">
+        <div>🔴 <strong>Access Pending: 7.2 days</strong> — 3.6× benchmark. Cancellation risk rises daily.</div>
+        <div>🔴 <strong>Go-Back adds 5.4 days</strong> — 1 in 6 orders hit this. Crew retraining = biggest ROI.</div>
+        <div>🔴 <strong>Drafting up 65% vs 2025</strong> — Oleg is the single point of failure. Cross-train now.</div>
+        <div>🔴 <strong>Carlos R. intake: 8.3 hrs</strong> — 4.6× slower than Jessica. Queue redistribution urgent.</div>
+        <div>🔴 <strong>On Hold: 11.2 days</strong> — 2.2× over max. No active follow-up process exists.</div>
+        <div>🔴 <strong>All stages slower in 2026</strong> — systemic slowdown, not isolated issues.</div>
       </div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid var(--gn)">
-      <div style="font-weight:800;color:var(--gn);font-size:14px;margin-bottom:10px">🟢 Green Flags — What's Working</div>
-      <div style="font-size:12px;line-height:2">
-        <div>🟢 <strong>Ready to Deliver = 1.2 hrs</strong> — Near-instant final step. Best-in-class.</div>
-        <div>🟢 <strong>Field QC = 2.4 hrs</strong> — Acceptable, within range. No action needed.</div>
-        <div>🟢 <strong>Jessica L. lifecycle = 14.6 days</strong> — 18% below company average. Model coordinator.</div>
-        <div>🟢 <strong>Davidy crew = 0% go-back</strong> — Perfect record all year. Zero re-field cost.</div>
-        <div>🟢 <strong>Oleg drafting quality</strong> — 5.9% go-back rate, best of all drafters by far.</div>
-        <div>🟢 <strong>Scheduled → Access transition = 0.5 hrs</strong> — Fast handoff, not a bottleneck.</div>
+      <div style="font-weight:800;color:var(--gn);font-size:14px;margin-bottom:12px">🟢 Green Flags — What's Working</div>
+      <div style="font-size:12px;line-height:2.2">
+        <div>🟢 <strong>Ready to Deliver: 1.2 hrs</strong> — Near-instant. Best-in-class performance.</div>
+        <div>🟢 <strong>Field QC: 2.4 hrs</strong> — On track, within acceptable range.</div>
+        <div>🟢 <strong>Jessica L.: 14.6-day lifecycle</strong> — 18% below company average. Best coordinator.</div>
+        <div>🟢 <strong>Davidy crew: 0% go-back</strong> — Perfect record. Zero rework cost all year.</div>
+        <div>🟢 <strong>Oleg drafting quality: 5.9% GB rate</strong> — Best drafter output quality by far.</div>
+        <div>🟢 <strong>Scheduled → Access: 0.5 hrs</strong> — Fast handoff. Not a bottleneck.</div>
       </div>
     </div>
   </div>
 
-</div><!-- end .sec -->
-
-<div style="padding:14px 24px;font-size:11px;color:var(--gy);text-align:center;
-            background:#fff;border-top:1px solid #e5e7eb;margin-top:8px">
-  NexGen FTF — Average Status Dwell Time Report &nbsp;|&nbsp;
-  Generated by Claude (Sonnet 4.6) via Claude Code &nbsp;|&nbsp;
-  Data: nexgen_ftf_db AWS RDS &nbsp;|&nbsp; nexgen.enterprises
 </div>
 
-<script>
-let _view = 'both';
-function showView(v){
-  _view = v;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('.yr25').forEach(el=>el.style.display=(v==='2026'?'none':''));
-  document.querySelectorAll('.yr26').forEach(el=>el.style.display=(v==='2025'?'none':''));
-  // update header
-  const th25 = document.querySelector('thead th:nth-child(2)');
-  const th26 = document.querySelector('thead th:nth-child(3)');
-  if(th25) th25.style.display = (v==='2026'?'none':'');
-  if(th26) th26.style.display = (v==='2025'?'none':'');
-}
-</script>
+<div style="padding:14px 24px;font-size:11px;color:var(--gy);text-align:center;
+  background:#fff;border-top:1px solid #e5e7eb;margin-top:8px">
+  NexGen FTF — Average Status Dwell Time Report 2026 YTD &nbsp;|&nbsp;
+  Generated by Claude (Sonnet 4.6) via Claude Code &nbsp;|&nbsp; nexgen.enterprises
+</div>
+
 </body>
 </html>
