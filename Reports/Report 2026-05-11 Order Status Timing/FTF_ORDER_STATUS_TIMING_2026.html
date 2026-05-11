@@ -572,10 +572,20 @@ function filterTL(){
   document.getElementById('tl-badge').textContent=`${filteredTL.length} orders`;
   document.getElementById('tl-tbody').innerHTML=list.map(o=>{
     const steps=o.timeline.map(t=>{
-      const h=t.hrs||0;
+      // For open steps (no end_at): calculate live elapsed hours from started_at to now
+      let h=t.hrs||0;
+      let live=false;
+      if(!t.ended && t.started){
+        const ms=Date.now()-new Date(t.started.replace(' ','T')+'Z');
+        if(ms>0){h=Math.round(ms/360000)/10; live=true;}
+      }
       const cls=h>=200?'red':h>=80?'amber':h>0?'green':'ongoing';
-      const tip=h>0?`${t.started} → ${t.ended||'ongoing'} (${h.toFixed(1)}h)`:t.started;
-      return `<span class="tl-step ${cls}" title="${tip}">${t.s}: ${h>0?h.toFixed(1)+'h':'▶'}</span>`;
+      const tip=live
+        ?`Since ${t.started} UTC — currently in this status: ${h.toFixed(1)}h`
+        :h>0?`${t.started} → ${t.ended} (${h.toFixed(1)}h)`
+        :`${t.started} (instant transition)`;
+      const label=h>0?`${h.toFixed(1)}h${live?' ▶':''}`:live?'▶':'—';
+      return `<span class="tl-step ${cls}" title="${tip}">${t.s}: ${label}</span>`;
     }).join('');
     return `<tr>
       <td><strong style="font-family:monospace">${o.order}</strong></td>
